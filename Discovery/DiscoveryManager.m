@@ -23,6 +23,8 @@
 #import "DiscoveryProviderDelegate.h"
 #import "DiscoveryProvider.h"
 
+#import "ConnectSDKDefaultPlatforms.h"
+
 #import "SSDPDiscoveryProvider.h"
 #import "ZeroConfDiscoveryProvider.h"
 
@@ -127,12 +129,14 @@
 
 - (void) registerDefaultServices
 {
-    [self registerDeviceService:[AirPlayService class] withDiscovery:[ZeroConfDiscoveryProvider class]];
-    [self registerDeviceService:[DIALService class] withDiscovery:[SSDPDiscoveryProvider class]];
-    [self registerDeviceService:[RokuService class] withDiscovery:[SSDPDiscoveryProvider  class]];
-    [self registerDeviceService:[DLNAService class] withDiscovery:[SSDPDiscoveryProvider class]];
-    [self registerDeviceService:[NetcastTVService class] withDiscovery:[SSDPDiscoveryProvider class]];
-    [self registerDeviceService:[WebOSTVService class] withDiscovery:[SSDPDiscoveryProvider class]];
+    NSDictionary *defaultPlatforms = kConnectSDKDefaultPlatforms;
+    
+    [defaultPlatforms enumerateKeysAndObjectsUsingBlock:^(NSString *platformClassName, NSString *discoveryProviderClassName, BOOL *stop) {
+        Class platformClass = NSClassFromString(platformClassName);
+        Class discoveryProviderClass = NSClassFromString(discoveryProviderClassName);
+        
+        [self registerDeviceService:platformClass withDiscovery:discoveryProviderClass];
+    }];
 }
 
 - (void) registerDeviceService:(Class)deviceClass withDiscovery:(Class)discoveryClass
