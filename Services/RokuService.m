@@ -23,6 +23,7 @@
 #import "CTXMLReader.h"
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
+#import "DiscoveryManager.h"
 
 @interface RokuService () <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {

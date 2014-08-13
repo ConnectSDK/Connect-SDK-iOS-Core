@@ -28,6 +28,12 @@
 #import "DLNAService.h"
 #import "MediaControl.h"
 #import "ExternalInputControl.h"
+#import "VolumeControl.h"
+#import "TVControl.h"
+#import "KeyControl.h"
+#import "MouseControl.h"
+#import "TextInputControl.h"
+#import "PowerControl.h"
 
 @interface NetcastTVService : DeviceService <Launcher, MediaPlayer, MediaControl, VolumeControl, TVControl, KeyControl, MouseControl, PowerControl, ExternalInputControl, TextInputControl>
 

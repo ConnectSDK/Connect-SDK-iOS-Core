@@ -18,8 +18,6 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKWirelessSSIDChanged @"Connect_SDK_Wireless_SSID_Changed"
-
 #import <Foundation/Foundation.h>
 
 #import "DiscoveryManager.h"

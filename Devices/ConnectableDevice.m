@@ -25,6 +25,7 @@
 #import "ToastControl.h"
 #import "TextInputControl.h"
 #import "CTGuid.h"
+#import "DiscoveryManager.h"
 
 @implementation ConnectableDevice
 {

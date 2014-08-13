@@ -25,15 +25,8 @@
 
 #import "ConnectSDKDefaultPlatforms.h"
 
-#import "SSDPDiscoveryProvider.h"
-#import "ZeroConfDiscoveryProvider.h"
-
-#import "AirPlayService.h"
-#import "DIALService.h"
 #import "DLNAService.h"
 #import "NetcastTVService.h"
-#import "RokuService.h"
-#import "WebOSTVService.h"
 
 #import "ConnectableDevice.h"
 #import "DefaultConnectableDeviceStore.h"

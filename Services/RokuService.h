@@ -20,8 +20,11 @@
 
 #define kConnectSDKRokuServiceId @"Roku"
 
-#import "ConnectSDK.h"
 #import "DIALService.h"
+#import "MediaControl.h"
+#import "MediaPlayer.h"
+#import "KeyControl.h"
+#import "TextInputControl.h"
 
 enum
 {

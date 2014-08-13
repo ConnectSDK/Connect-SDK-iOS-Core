@@ -25,6 +25,8 @@
 #import "GCDWebServerDataRequest.h"
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
+#import "DiscoveryManager.h"
+#import "ServiceAsyncCommand.h"
 
 #define kSmartShareName @"SmartShare™"
 
