@@ -65,7 +65,8 @@ typedef void (^MediaPlayerDisplaySuccessBlock)(LaunchSession *launchSession, id<
          description:(NSString *)description
             mimeType:(NSString *)mimeType
              success:(MediaPlayerDisplaySuccessBlock)success
-             failure:(FailureBlock)failure;
+             failure:(FailureBlock)failure
+__attribute__((deprecated));
 
 - (void) displayImage:(MediaInfo *)mediaInfo
               success:(MediaPlayerDisplaySuccessBlock)success
@@ -78,7 +79,8 @@ typedef void (^MediaPlayerDisplaySuccessBlock)(LaunchSession *launchSession, id<
           mimeType:(NSString *)mimeType
         shouldLoop:(BOOL)shouldLoop
            success:(MediaPlayerDisplaySuccessBlock)success
-           failure:(FailureBlock)failure;
+           failure:(FailureBlock)failure
+__attribute__((deprecated));
 
 - (void) playMedia:(MediaInfo *)mediaInfo
         shouldLoop:(BOOL)shouldLoop
