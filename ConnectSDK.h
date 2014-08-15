@@ -52,6 +52,8 @@
 #import "AppInfo.h"
 #import "ChannelInfo.h"
 #import "ExternalInputInfo.h"
+#import "ImageInfo.h"
+#import "MediaInfo.h"
 #import "TextInputStatusInfo.h"
 #import "ProgramInfo.h"
 #import "LaunchSession.h"
