@@ -553,12 +553,6 @@
     {
         if (!description.locationXML)
             return;
-
-        NSRange rangeOfNetcast = [description.locationXML.lowercaseString rangeOfString:@"netcast"];
-        NSRange rangeOfWebOS = [description.locationXML.lowercaseString rangeOfString:@"webos"];
-
-        if (rangeOfNetcast.location == NSNotFound && rangeOfWebOS.location == NSNotFound)
-            return;
     } else if (deviceServiceClass == [NetcastTVService class])
     {
         if (![self descriptionIsNetcastTV:description])
