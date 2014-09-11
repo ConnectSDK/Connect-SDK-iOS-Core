@@ -127,7 +127,20 @@
     {
         NSDictionary *root = [dictionary objectForKey:@"root"];
         NSDictionary *device = [root objectForKey:@"device"];
-        NSArray *serviceList = [[device objectForKey:@"serviceList"] objectForKey:@"service"];
+        NSMutableArray *serviceList = [[device objectForKey:@"serviceList"] objectForKey:@"service"];
+        
+        NSArray *subDevice = [[device objectForKey:@"deviceList"] objectForKey:@"device"];
+        [subDevice enumerateObjectsUsingBlock:^(NSDictionary *device, NSUInteger idx, BOOL *stop)
+         {
+             NSString *deviceType = [[device objectForKey:@"deviceType"] objectForKey:@"text"];
+             
+             if ([deviceType isEqualToString:@"urn:schemas-upnp-org:device:MediaRenderer:1"])
+             {
+                 [serviceList addObjectsFromArray:[[device objectForKey:@"serviceList"] objectForKey:@"service"]];
+                 *stop = YES;
+             }
+         }];
+        
         __block NSDictionary *avTransport;
 
         [serviceList enumerateObjectsUsingBlock:^(NSDictionary *service, NSUInteger idx, BOOL *stop)
