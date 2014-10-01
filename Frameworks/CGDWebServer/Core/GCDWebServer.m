@@ -45,6 +45,7 @@
 
 NSString* const GCDWebServerOption_Port = @"Port";
 NSString* const GCDWebServerOption_BonjourName = @"BonjourName";
+NSString* const GCDWebServerOption_BonjourType = @"BonjourType";
 NSString* const GCDWebServerOption_MaxPendingConnections = @"MaxPendingConnections";
 NSString* const GCDWebServerOption_ServerName = @"ServerName";
 NSString* const GCDWebServerOption_AuthenticationMethod = @"AuthenticationMethod";
@@ -95,6 +96,21 @@ static void _SignalHandler(int signal) {
 
 #endif
 
+#if !TARGET_OS_IPHONE || defined(__GCDWEBSERVER_ENABLE_TESTING__)
+
+// This utility function is used to ensure scheduled callbacks on the main thread are called when running the server synchronously
+// https://developer.apple.com/library/mac/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationQueues/OperationQueues.html
+// The main queue works with the application’s run loop to interleave the execution of queued tasks with the execution of other event sources attached to the run loop
+// TODO: Ensure all scheduled blocks on the main queue are also executed
+static void _ExecuteMainThreadRunLoopSources() {
+  SInt32 result;
+  do {
+    result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.0, true);
+  } while (result == kCFRunLoopRunHandledSource);
+}
+
+#endif
+
 @interface GCDWebServerHandler () {
 @private
   GCDWebServerMatchBlock _matchBlock;
@@ -129,9 +145,10 @@ static void _SignalHandler(int signal) {
   dispatch_queue_t _syncQueue;
   dispatch_semaphore_t _sourceSemaphore;
   NSMutableArray* _handlers;
-  NSInteger _activeConnections;  // Accessed only with _syncQueue
-  BOOL _connected;
-  CFRunLoopTimerRef _connectedTimer;
+  NSInteger _activeConnections;  // Accessed through _syncQueue only
+  BOOL _connected;  // Accessed on main thread only
+  BOOL _disconnecting;  // Accessed on main thread only
+  CFRunLoopTimerRef _disconnectTimer;  // Accessed on main thread only
   
   NSDictionary* _options;
   NSString* _serverName;
@@ -143,7 +160,8 @@ static void _SignalHandler(int signal) {
   CFTimeInterval _disconnectDelay;
   NSUInteger _port;
   dispatch_source_t _source;
-  CFNetServiceRef _service;
+  CFNetServiceRef _registrationService;
+  CFNetServiceRef _resolutionService;
 #if TARGET_OS_IPHONE
   BOOL _suspendInBackground;
   UIBackgroundTaskIdentifier _backgroundTask;
@@ -175,10 +193,13 @@ static void _SignalHandler(int signal) {
   GCDWebServerInitializeFunctions();
 }
 
-static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
+static void _DisconnectTimerCallBack(CFRunLoopTimerRef timer, void* info) {
+  DCHECK([NSThread isMainThread]);
+  GCDWebServer* server = (ARC_BRIDGE GCDWebServer*)info;
   @autoreleasepool {
-    [(ARC_BRIDGE GCDWebServer*)info _didDisconnect];
+    [server _didDisconnect];
   }
+  server->_disconnecting = NO;
 }
 
 - (instancetype)init {
@@ -187,8 +208,8 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
     _sourceSemaphore = dispatch_semaphore_create(0);
     _handlers = [[NSMutableArray alloc] init];
     CFRunLoopTimerContext context = {0, (ARC_BRIDGE void*)self, NULL, NULL, NULL};
-    _connectedTimer = CFRunLoopTimerCreate(kCFAllocatorDefault, HUGE_VAL, HUGE_VAL, 0, 0, _ConnectedTimerCallBack, &context);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), _connectedTimer, kCFRunLoopCommonModes);
+    _disconnectTimer = CFRunLoopTimerCreate(kCFAllocatorDefault, HUGE_VAL, HUGE_VAL, 0, 0, _DisconnectTimerCallBack, &context);
+    CFRunLoopAddTimer(CFRunLoopGetMain(), _disconnectTimer, kCFRunLoopCommonModes);
 #if TARGET_OS_IPHONE
     _backgroundTask = UIBackgroundTaskInvalid;
 #endif
@@ -199,14 +220,10 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
 - (void)dealloc {
   DCHECK(_connected == NO);
   DCHECK(_activeConnections == 0);
+  DCHECK(_options == nil);  // The server can never be dealloc'ed while running because of the retain-cycle with the dispatch source
   
-  _delegate = nil;
-  if (_options) {
-    [self stop];
-  }
-  
-  CFRunLoopTimerInvalidate(_connectedTimer);
-  CFRelease(_connectedTimer);
+  CFRunLoopTimerInvalidate(_disconnectTimer);
+  CFRelease(_disconnectTimer);
   ARC_RELEASE(_handlers);
   ARC_DISPATCH_RELEASE(_sourceSemaphore);
   ARC_DISPATCH_RELEASE(_syncQueue);
@@ -256,8 +273,9 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
     DCHECK(_activeConnections >= 0);
     if (_activeConnections == 0) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        if (_disconnectDelay > 0.0) {
-          CFRunLoopTimerSetNextFireDate(_connectedTimer, HUGE_VAL);
+        if (_disconnecting) {
+          CFRunLoopTimerSetNextFireDate(_disconnectTimer, HUGE_VAL);
+          _disconnecting = NO;
         }
         if (_connected == NO) {
           [self _didConnect];
@@ -310,8 +328,9 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
     _activeConnections -= 1;
     if (_activeConnections == 0) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        if (_disconnectDelay > 0.0) {
-          CFRunLoopTimerSetNextFireDate(_connectedTimer, CFAbsoluteTimeGetCurrent() + _disconnectDelay);
+        if ((_disconnectDelay > 0.0) && (_source != NULL)) {
+          CFRunLoopTimerSetNextFireDate(_disconnectTimer, CFAbsoluteTimeGetCurrent() + _disconnectDelay);
+          _disconnecting = YES;
         } else {
           [self _didDisconnect];
         }
@@ -321,8 +340,13 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
 }
 
 - (NSString*)bonjourName {
-  CFStringRef name = _service ? CFNetServiceGetName(_service) : NULL;
+  CFStringRef name = _resolutionService ? CFNetServiceGetName(_resolutionService) : NULL;
   return name && CFStringGetLength(name) ? ARC_BRIDGE_RELEASE(CFStringCreateCopy(kCFAllocatorDefault, name)) : nil;
+}
+
+- (NSString*)bonjourType {
+  CFStringRef type = _resolutionService ? CFNetServiceGetType(_resolutionService) : NULL;
+  return type && CFStringGetLength(type) ? ARC_BRIDGE_RELEASE(CFStringCreateCopy(kCFAllocatorDefault, type)) : nil;
 }
 
 - (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)handlerBlock {
@@ -337,11 +361,26 @@ static void _ConnectedTimerCallBack(CFRunLoopTimerRef timer, void* info) {
   [_handlers removeAllObjects];
 }
 
-static void _NetServiceClientCallBack(CFNetServiceRef service, CFStreamError* error, void* info) {
+static void _NetServiceRegisterCallBack(CFNetServiceRef service, CFStreamError* error, void* info) {
   DCHECK([NSThread isMainThread]);
   @autoreleasepool {
     if (error->error) {
-      LOG_ERROR(@"Bonjour error %i (domain %i)", (int)error->error, (int)error->domain);
+      LOG_ERROR(@"Bonjour registration error %i (domain %i)", (int)error->error, (int)error->domain);
+    } else {
+      GCDWebServer* server = (ARC_BRIDGE GCDWebServer*)info;
+      LOG_VERBOSE(@"Bonjour registration complete for %@", [server class]);
+      CFNetServiceResolveWithTimeout(server->_resolutionService, 1.0, NULL);
+    }
+  }
+}
+
+static void _NetServiceResolveCallBack(CFNetServiceRef service, CFStreamError* error, void* info) {
+  DCHECK([NSThread isMainThread]);
+  @autoreleasepool {
+    if (error->error) {
+      if ((error->domain != kCFStreamErrorDomainNetServices) && (error->error != kCFNetServicesErrorTimeout)) {
+        LOG_ERROR(@"Bonjour resolution error %i (domain %i)", (int)error->error, (int)error->domain);
+      }
     } else {
       GCDWebServer* server = (ARC_BRIDGE GCDWebServer*)info;
       LOG_INFO(@"%@ now reachable at %@", [server class], server.bonjourServerURL);
@@ -369,8 +408,10 @@ static inline NSString* _EncodeBase64(NSString* string) {
 
 - (BOOL)_start:(NSError**)error {
   DCHECK(_source == NULL);
+  
   NSUInteger port = [_GetOption(_options, GCDWebServerOption_Port, @0) unsignedIntegerValue];
-  NSString* name = _GetOption(_options, GCDWebServerOption_BonjourName, @"");
+  NSString* bonjourName = _GetOption(_options, GCDWebServerOption_BonjourName, @"");
+  NSString* bonjourType = _GetOption(_options, GCDWebServerOption_BonjourType, @"_http._tcp");
   NSUInteger maxPendingConnections = [_GetOption(_options, GCDWebServerOption_MaxPendingConnections, @16) unsignedIntegerValue];
   int listeningSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (listeningSocket > 0) {
@@ -467,14 +508,21 @@ static inline NSString* _EncodeBase64(NSString* string) {
           _port = port;
         }
         
-        if (name) {
-          _service = CFNetServiceCreate(kCFAllocatorDefault, CFSTR("local."), CFSTR("_http._tcp"), (ARC_BRIDGE CFStringRef)name, (SInt32)_port);
-          if (_service) {
+        if (bonjourName) {
+          _registrationService = CFNetServiceCreate(kCFAllocatorDefault, CFSTR("local."), (ARC_BRIDGE CFStringRef)bonjourType, (ARC_BRIDGE CFStringRef)(bonjourName.length ? bonjourName : _serverName), (SInt32)_port);
+          if (_registrationService) {
             CFNetServiceClientContext context = {0, (ARC_BRIDGE void*)self, NULL, NULL, NULL};
-            CFNetServiceSetClient(_service, _NetServiceClientCallBack, &context);
-            CFNetServiceScheduleWithRunLoop(_service, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+            
+            CFNetServiceSetClient(_registrationService, _NetServiceRegisterCallBack, &context);
+            CFNetServiceScheduleWithRunLoop(_registrationService, CFRunLoopGetMain(), kCFRunLoopCommonModes);
             CFStreamError streamError = {0};
-            CFNetServiceRegisterWithOptions(_service, 0, &streamError);
+            CFNetServiceRegisterWithOptions(_registrationService, 0, &streamError);
+            
+            _resolutionService = CFNetServiceCreateCopy(kCFAllocatorDefault, _registrationService);
+            if (_resolutionService) {
+              CFNetServiceSetClient(_resolutionService, _NetServiceResolveCallBack, &context);
+              CFNetServiceScheduleWithRunLoop(_resolutionService, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+            }
           } else {
             LOG_ERROR(@"Failed creating CFNetService");
           }
@@ -488,24 +536,24 @@ static inline NSString* _EncodeBase64(NSString* string) {
           });
         }
       } else {
-        LOG_ERROR(@"Failed starting listening socket: %s (%i)", strerror(errno), errno);
         if (error) {
           *error = GCDWebServerMakePosixError(errno);
         }
+        LOG_ERROR(@"Failed starting listening socket: %s (%i)", strerror(errno), errno);
         close(listeningSocket);
       }
     } else {
-      LOG_ERROR(@"Failed binding listening socket: %s (%i)", strerror(errno), errno);
       if (error) {
         *error = GCDWebServerMakePosixError(errno);
       }
+      LOG_ERROR(@"Failed binding listening socket: %s (%i)", strerror(errno), errno);
       close(listeningSocket);
     }
   } else {
-    LOG_ERROR(@"Failed creating listening socket: %s (%i)", strerror(errno), errno);
     if (error) {
       *error = GCDWebServerMakePosixError(errno);
     }
+    LOG_ERROR(@"Failed creating listening socket: %s (%i)", strerror(errno), errno);
   }
   return (_source ? YES : NO);
 }
@@ -513,11 +561,19 @@ static inline NSString* _EncodeBase64(NSString* string) {
 - (void)_stop {
   DCHECK(_source != NULL);
   
-  if (_service) {
-    CFNetServiceUnscheduleFromRunLoop(_service, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-    CFNetServiceSetClient(_service, NULL, NULL);
-    CFRelease(_service);
-    _service = NULL;
+  if (_registrationService) {
+    if (_resolutionService) {
+      CFNetServiceUnscheduleFromRunLoop(_resolutionService, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+      CFNetServiceSetClient(_resolutionService, NULL, NULL);
+      CFNetServiceCancel(_resolutionService);
+      CFRelease(_resolutionService);
+      _resolutionService = NULL;
+    }
+    CFNetServiceUnscheduleFromRunLoop(_registrationService, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+    CFNetServiceSetClient(_registrationService, NULL, NULL);
+    CFNetServiceCancel(_registrationService);
+    CFRelease(_registrationService);
+    _registrationService = NULL;
   }
   
   dispatch_source_cancel(_source);
@@ -534,6 +590,14 @@ static inline NSString* _EncodeBase64(NSString* string) {
   _authenticationBasicAccounts = nil;
   ARC_RELEASE(_authenticationDigestAccounts);
   _authenticationDigestAccounts = nil;
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (_disconnecting) {
+      CFRunLoopTimerSetNextFireDate(_disconnectTimer, HUGE_VAL);
+      _disconnecting = NO;
+      [self _didDisconnect];
+    }
+  });
   
   LOG_INFO(@"%@ stopped", [self class]);
   if ([_delegate respondsToSelector:@selector(webServerDidStop:)]) {
@@ -591,7 +655,7 @@ static inline NSString* _EncodeBase64(NSString* string) {
 }
 
 - (BOOL)isRunning {
-  return (_source ? YES : NO);
+  return (_options ? YES : NO);
 }
 
 - (void)stop {
@@ -631,13 +695,14 @@ static inline NSString* _EncodeBase64(NSString* string) {
 }
 
 - (NSURL*)bonjourServerURL {
-  if (_source && _service) {
-    CFStringRef name = CFNetServiceGetName(_service);
-    if (name && CFStringGetLength(name)) {
+  if (_source && _resolutionService) {
+    NSString* name = (ARC_BRIDGE NSString*)CFNetServiceGetTargetHost(_resolutionService);
+    if (name.length) {
+      name = [name substringToIndex:(name.length - 1)];  // Strip trailing period at end of domain
       if (_port != 80) {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@.local:%i/", name, (int)_port]];
+        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", name, (int)_port]];
       } else {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@.local/", name]];
+        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", name]];
       }
     }
   }
@@ -668,8 +733,9 @@ static inline NSString* _EncodeBase64(NSString* string) {
   DCHECK([NSThread isMainThread]);
   BOOL success = NO;
   _run = YES;
-  void (*handler)(int) = signal(SIGINT, _SignalHandler);
-  if (handler != SIG_ERR) {
+  void (*termHandler)(int) = signal(SIGTERM, _SignalHandler);
+  void (*intHandler)(int) = signal(SIGINT, _SignalHandler);
+  if ((termHandler != SIG_ERR) && (intHandler != SIG_ERR)) {
     if ([self startWithOptions:options error:error]) {
       while (_run) {
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
@@ -677,7 +743,9 @@ static inline NSString* _EncodeBase64(NSString* string) {
       [self stop];
       success = YES;
     }
-    signal(SIGINT, handler);
+    _ExecuteMainThreadRunLoopSources();
+    signal(SIGINT, intHandler);
+    signal(SIGTERM, termHandler);
   }
   return success;
 }
@@ -814,17 +882,18 @@ static inline NSString* _EncodeBase64(NSString* string) {
       
       GCDWebServerResponse* response = nil;
       NSString* filePath = [directoryPath stringByAppendingPathComponent:[request.path substringFromIndex:basePath.length]];
-      BOOL isDirectory;
-      if ([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDirectory]) {
-        if (isDirectory) {
+      NSString* fileType = [[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:NULL] fileType];
+      if (fileType) {
+        if ([fileType isEqualToString:NSFileTypeDirectory]) {
           if (indexFilename) {
             NSString* indexPath = [filePath stringByAppendingPathComponent:indexFilename];
-            if ([[NSFileManager defaultManager] fileExistsAtPath:indexPath isDirectory:&isDirectory] && !isDirectory) {
+            NSString* indexType = [[[NSFileManager defaultManager] attributesOfItemAtPath:indexPath error:NULL] fileType];
+            if ([indexType isEqualToString:NSFileTypeRegular]) {
               return [GCDWebServerFileResponse responseWithFile:indexPath];
             }
           }
           response = [server _responseWithContentsOfDirectory:filePath];
-        } else  {
+        } else if ([fileType isEqualToString:NSFileTypeRegular]) {
           if (allowRangeRequests) {
             response = [GCDWebServerFileResponse responseWithFile:filePath byteRange:request.byteRange];
             [response setValue:@"bytes" forAdditionalHeader:@"Accept-Ranges"];
@@ -930,7 +999,7 @@ static CFHTTPMessageRef _CreateHTTPMessageFromPerformingRequest(NSData* inData, 
         while (1) {
           ssize_t result = read(httpSocket, (char*)outData.mutableBytes + length, outData.length - length);
           if (result < 0) {
-            length = NSNotFound;
+            length = NSUIntegerMax;
             break;
           } else if (result == 0) {
             break;
@@ -940,7 +1009,7 @@ static CFHTTPMessageRef _CreateHTTPMessageFromPerformingRequest(NSData* inData, 
             outData.length = 2 * outData.length;
           }
         }
-        if (length != NSNotFound) {
+        if (length != NSUIntegerMax) {
           outData.length = length;
           response = _CreateHTTPMessageFromData(outData, NO);
         } else {
@@ -964,9 +1033,11 @@ static void _LogResult(NSString* format, ...) {
 }
 
 - (NSInteger)runTestsWithOptions:(NSDictionary*)options inDirectory:(NSString*)path {
+  DCHECK([NSThread isMainThread]);
   NSArray* ignoredHeaders = @[@"Date", @"Etag"];  // Dates are always different by definition and ETags depend on file system node IDs
   NSInteger result = -1;
   if ([self startWithOptions:options error:NULL]) {
+    _ExecuteMainThreadRunLoopSources();
     
     result = 0;
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:NULL];
@@ -1022,8 +1093,13 @@ static void _LogResult(NSString* format, ...) {
                         }
                       }
                       
+                      NSString* expectedContentLength = ARC_BRIDGE_RELEASE(CFHTTPMessageCopyHeaderFieldValue(expectedResponse, CFSTR("Content-Length")));
                       NSData* expectedBody = ARC_BRIDGE_RELEASE(CFHTTPMessageCopyBody(expectedResponse));
+                      NSString* actualContentLength = ARC_BRIDGE_RELEASE(CFHTTPMessageCopyHeaderFieldValue(actualResponse, CFSTR("Content-Length")));
                       NSData* actualBody = ARC_BRIDGE_RELEASE(CFHTTPMessageCopyBody(actualResponse));
+                      if ([actualContentLength isEqualToString:expectedContentLength] && (actualBody.length > expectedBody.length)) {  // Handle web browser closing connection before retrieving entire body (e.g. when playing a video file)
+                        actualBody = [actualBody subdataWithRange:NSMakeRange(0, expectedBody.length)];
+                      }
                       if (![actualBody isEqualToData:expectedBody]) {
                         _LogResult(@"  Bodies not matching:\n    Expected: %lu bytes\n      Actual: %lu bytes", (unsigned long)expectedBody.length, (unsigned long)actualBody.length);
                         success = NO;
@@ -1064,9 +1140,12 @@ static void _LogResult(NSString* format, ...) {
           ++result;
         }
       }
+      _ExecuteMainThreadRunLoopSources();
     }
     
     [self stop];
+    
+    _ExecuteMainThreadRunLoopSources();
   }
   return result;
 }

@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <TargetConditionals.h>
-#import <AvailabilityMacros.h>
+#import <os/object.h>
 
 #if __has_feature(objc_arc)
 #define ARC_BRIDGE __bridge
@@ -35,7 +34,7 @@
 #define ARC_RELEASE(__OBJECT__)
 #define ARC_AUTORELEASE(__OBJECT__) __OBJECT__
 #define ARC_DEALLOC(__OBJECT__)
-#if (TARGET_OS_IPHONE && (__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)) || (!TARGET_OS_IPHONE && (__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_8))
+#if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define ARC_DISPATCH_RETAIN(__OBJECT__)
 #define ARC_DISPATCH_RELEASE(__OBJECT__)
 #else
@@ -111,7 +110,7 @@ extern void GCDLogMessage(GCDWebServerLogLevel level, NSString* format, ...) NS_
 #define kGCDWebServerErrorDomain @"GCDWebServerErrorDomain"
 
 static inline BOOL GCDWebServerIsValidByteRange(NSRange range) {
-  return ((range.location != NSNotFound) || (range.length > 0));
+  return ((range.location != NSUIntegerMax) || (range.length > 0));
 }
 
 static inline NSError* GCDWebServerMakePosixError(int code) {

@@ -77,11 +77,20 @@ typedef GCDWebServerResponse* (^GCDWebServerProcessBlock)(GCDWebServerRequest* r
 extern NSString* const GCDWebServerOption_Port;
 
 /**
- *  The Bonjour name used by the GCDWebServer (NSString).
+ *  The Bonjour name used by the GCDWebServer (NSString). If set to an empty string,
+ *  the name will automatically take the value of the GCDWebServerOption_ServerName
+ *  option. If this option is set to nil, Bonjour will be disabled.
  *
- *  The default value is an empty string i.e. use the computer / device name.
+ *  The default value is an empty string.
  */
 extern NSString* const GCDWebServerOption_BonjourName;
+
+/**
+ *  The Bonjour service type used by the GCDWebServer (NSString).
+ *
+ *  The default value is "_http._tcp", the service type for HTTP web servers.
+ */
+extern NSString* const GCDWebServerOption_BonjourType;
 
 /**
  *  The maximum number of incoming HTTP requests that can be queued waiting to
@@ -233,6 +242,10 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
  *  then passes each one to a "handler" capable of generating an HTTP response
  *  for it, which is then sent back to the client.
  *
+ *  GCDWebServer instances can be created and used from any thread but it's
+ *  recommended to have the main thread's runloop be running so internal callbacks
+ *  can be handled e.g. for Bonjour registration.
+ *
  *  See the README.md file for more information about the architecture of GCDWebServer.
  */
 @interface GCDWebServer : NSObject
@@ -261,6 +274,14 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
  *  registration has successfully completed, which can take up to a few seconds.
  */
 @property(nonatomic, readonly) NSString* bonjourName;
+
+/**
+ *  Returns the Bonjour service type used by the server.
+ *
+ *  @warning This property is only valid if the server is running and Bonjour
+ *  registration has successfully completed, which can take up to a few seconds.
+ */
+@property(nonatomic, readonly) NSString* bonjourType;
 
 /**
  *  This method is the designated initializer for the class.
@@ -317,12 +338,14 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
  *
  *  @warning This property is only valid if the server is running and Bonjour
  *  registration has successfully completed, which can take up to a few seconds.
+ *  Also be aware this property will not automatically update if the Bonjour hostname
+ *  has been dynamically changed after the server started running (this should be rare).
  */
 @property(nonatomic, readonly) NSURL* bonjourServerURL;
 
 /**
  *  Starts the server on port 8080 (OS X & iOS Simulator) or port 80 (iOS)
- *  using the computer / device name for as the Bonjour name.
+ *  using the default Bonjour name.
  *
  *  Returns NO if the server failed to start.
  */
@@ -331,7 +354,7 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 /**
  *  Starts the server on a given port and with a specific Bonjour name.
  *  Pass a nil Bonjour name to disable Bonjour entirely or an empty string to
- *  use the computer / device name.
+ *  use the default name.
  *
  *  Returns NO if the server failed to start.
  */
@@ -351,9 +374,9 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 - (BOOL)runWithPort:(NSUInteger)port bonjourName:(NSString*)name;
 
 /**
- *  Runs the server synchronously using -startWithOptions: until a SIGINT signal
- *  is received i.e. Ctrl-C. This method is intended to be used by command line
- *  tools.
+ *  Runs the server synchronously using -startWithOptions: until a SIGTERM or
+ *  SIGINT signal is received i.e. Ctrl-C in Terminal. This method is intended to
+ *  be used by command line tools.
  *
  *  Returns NO if the server failed to start and sets "error" argument if not NULL.
  *
