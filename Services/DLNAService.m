@@ -30,7 +30,6 @@
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
-    NSURL *_commandURL;
     NSURL *_avTransportURL;
     NSURL *_renderingControlURL;
 
@@ -106,10 +105,14 @@
 {
     _serviceDescription = serviceDescription;
     
-    if (!_serviceDescription.locationXML)
-        _commandURL = nil;
-
-    [self updateControlURL];
+    if (_serviceDescription.locationXML)
+    {
+        [self updateControlURL];
+    } else
+    {
+        _avTransportURL = nil;
+        _renderingControlURL = nil;
+    }
 }
 
 - (void) updateControlURL
