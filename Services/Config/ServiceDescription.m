@@ -108,6 +108,7 @@
     serviceDescription.commandURL = [self.commandURL copy];
     serviceDescription.locationResponseHeaders = [self.locationResponseHeaders copy];
     serviceDescription.locationXML = [self.locationXML copy];
+    serviceDescription.serviceList = [self.serviceList copy];
 
     return serviceDescription;
 }

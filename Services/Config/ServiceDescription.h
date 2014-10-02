@@ -36,6 +36,7 @@
 @property (nonatomic, strong) NSString *modelNumber;
 @property (nonatomic, strong) NSURL *commandURL;
 @property (nonatomic, strong) NSString *locationXML;
+@property (nonatomic, strong) NSArray *serviceList;
 @property (nonatomic, strong) NSDictionary *locationResponseHeaders;
 @property (nonatomic) double lastDetection;
 

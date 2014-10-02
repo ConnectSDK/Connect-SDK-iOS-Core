@@ -394,6 +394,7 @@ static double searchAttemptsBeforeKill = 3.0;
                         service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
                         service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
                         service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                        service.serviceList = device[@"serviceList"][@"service"];
                         service.commandURL = response.URL;
                         service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
 
