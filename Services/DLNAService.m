@@ -31,6 +31,9 @@
 {
 //    NSOperationQueue *_commandQueue;
     NSURL *_commandURL;
+    NSURL *_avTransportURL;
+    NSURL *_renderingControlURL;
+
     DeviceServiceReachability *_serviceReachability;
 }
 
@@ -105,73 +108,27 @@
     
     if (!_serviceDescription.locationXML)
         _commandURL = nil;
+
+    [self updateControlURL];
 }
 
-- (NSURL *)commandURL
+- (void) updateControlURL
 {
-    if (_commandURL)
-        return _commandURL;
+    NSArray *serviceList = self.serviceDescription.serviceList;
 
-    if (!self.serviceDescription.locationXML)
-    {
-        _commandURL = self.serviceDescription.commandURL;
-        return _commandURL;
-    }
+    [serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *serviceName = service[@"serviceId"][@"text"];
+        NSString *controlPath = service[@"controlURL"][@"text"];
+        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                           self.serviceDescription.commandURL.host,
+                                                           self.serviceDescription.commandURL.port,
+                                                           controlPath];
 
-    NSError *parseError;
-
-    NSString *cleanLocationXML = [self.serviceDescription.locationXML stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    NSDictionary *dictionary = [CTXMLReader dictionaryForXMLString:cleanLocationXML error:&parseError];
-
-    if (!parseError)
-    {
-        NSDictionary *root = [dictionary objectForKey:@"root"];
-        NSDictionary *device = [root objectForKey:@"device"];
-        NSMutableArray *serviceList = [[device objectForKey:@"serviceList"] objectForKey:@"service"];
-        
-        NSArray *subDevice = [[device objectForKey:@"deviceList"] objectForKey:@"device"];
-        [subDevice enumerateObjectsUsingBlock:^(NSDictionary *device, NSUInteger idx, BOOL *stop)
-         {
-             NSString *deviceType = [[device objectForKey:@"deviceType"] objectForKey:@"text"];
-             
-             if ([deviceType isEqualToString:@"urn:schemas-upnp-org:device:MediaRenderer:1"])
-             {
-                 [serviceList addObjectsFromArray:[[device objectForKey:@"serviceList"] objectForKey:@"service"]];
-                 *stop = YES;
-             }
-         }];
-        
-        __block NSDictionary *avTransport;
-
-        [serviceList enumerateObjectsUsingBlock:^(NSDictionary *service, NSUInteger idx, BOOL *stop)
-        {
-            NSString *serviceType = [[service objectForKey:@"serviceType"] objectForKey:@"text"];
-
-            if ([serviceType isEqualToString:@"urn:schemas-upnp-org:service:AVTransport:1"])
-            {
-                avTransport = service;
-                *stop = YES;
-            }
-        }];
-
-        if (avTransport)
-        {
-            NSString *controlPath = [[avTransport objectForKey:@"controlURL"] objectForKey:@"text"];
-
-            if (controlPath)
-            {
-                NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
-                                self.serviceDescription.commandURL.host,
-                                self.serviceDescription.commandURL.port,
-                                controlPath];
-
-                _commandURL = [NSURL URLWithString:commandPath];
-                return _commandURL;
-            }
-        }
-    }
-
-    return nil;
+        if ([serviceName rangeOfString:@"AVTransport"].location != NSNotFound)
+            _avTransportURL = [NSURL URLWithString:commandPath];
+        else if ([serviceName rangeOfString:@"RenderingControl"].location != NSNotFound)
+            _renderingControlURL = [NSURL URLWithString:commandPath];
+    }];
 }
 
 - (BOOL) isConnectable
@@ -184,7 +141,7 @@
 //    NSString *targetPath = [NSString stringWithFormat:@"http://%@:%@/", self.serviceDescription.address, @(self.serviceDescription.port)];
 //    NSURL *targetURL = [NSURL URLWithString:targetPath];
 
-    _serviceReachability = [DeviceServiceReachability reachabilityWithTargetURL:self.commandURL];
+    _serviceReachability = [DeviceServiceReachability reachabilityWithTargetURL:_avTransportURL];
     _serviceReachability.delegate = self;
     [_serviceReachability start];
 
@@ -301,7 +258,7 @@
             kDataFieldName : playXML
     };
 
-    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:playPayload];
+    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:playPayload];
     playCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -326,7 +283,7 @@
                                   kDataFieldName : xml
                                   };
     
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:payload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:payload];
     command.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -351,7 +308,7 @@
                                   kDataFieldName : stopXML
                                   };
     
-    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:stopPayload];
+    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:stopPayload];
     stopCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -394,7 +351,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -416,7 +373,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetTransportInfoResponse"];
@@ -496,7 +453,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -566,7 +523,7 @@
             kDataFieldName : shareXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
@@ -620,7 +577,7 @@
             kDataFieldName : shareXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:[self commandURL] payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
