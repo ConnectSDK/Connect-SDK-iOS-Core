@@ -394,7 +394,7 @@ static double searchAttemptsBeforeKill = 3.0;
                         service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
                         service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
                         service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                        service.serviceList = device[@"serviceList"][@"service"];
+                        service.serviceList = [self serviceListForDevice:device];
                         service.commandURL = response.URL;
                         service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
 
@@ -517,6 +517,34 @@ static double searchAttemptsBeforeKill = 3.0;
     }];
     
     return [NSArray arrayWithArray:serviceIds];
+}
+
+- (NSArray *) serviceListForDevice:(id)device
+{
+    NSMutableArray *list = [NSMutableArray new];
+
+    id serviceList = device[@"serviceList"][@"service"];
+
+    if ([serviceList isKindOfClass:[NSArray class]])
+        [list addObjectsFromArray:serviceList];
+    else if ([serviceList isKindOfClass:[NSDictionary class]])
+        [list addObject:serviceList];
+
+    NSArray *devices = device[@"deviceList"][@"device"];
+
+    if (devices)
+    {
+        [devices enumerateObjectsUsingBlock:^(id deviceInfo, NSUInteger idx, BOOL *stop) {
+            id services = deviceInfo[@"serviceList"][@"service"];
+
+            if ([services isKindOfClass:[NSArray class]])
+                [list addObjectsFromArray:services];
+            else if ([services isKindOfClass:[NSDictionary class]])
+                [list addObject:services];
+        }];
+    }
+
+    return [NSArray arrayWithArray:list];
 }
 
 - (void) performBlock:(void (^)())block afterDelay:(NSTimeInterval)delay
