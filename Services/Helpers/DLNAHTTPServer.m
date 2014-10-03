@@ -18,8 +18,12 @@
 //  limitations under the License.
 //
 
+#import <ifaddrs.h>
+#import <arpa/inet.h>
 #import "DLNAHTTPServer.h"
 #import "DLNAService.h"
+#import "CTXMLReader.h"
+#import "GCDWebServerDataRequest.h"
 
 
 @implementation DLNAHTTPServer
@@ -36,6 +40,15 @@
     {
         _server = [[GCDWebServer alloc] init];
         _server.delegate = self;
+
+        GCDWebServerResponse *(^webServerResponseBlock)(GCDWebServerRequest *request) = ^GCDWebServerResponse *(GCDWebServerRequest *request) {
+            [self processRequest:(GCDWebServerDataRequest *)request];
+            return [GCDWebServerResponse responseWithStatusCode:204];
+        };
+
+        [self.server addDefaultHandlerForMethod:@"NOTIFY"
+                                   requestClass:[GCDWebServerDataRequest class]
+                                   processBlock:webServerResponseBlock];
     }
 
     return self;
@@ -60,7 +73,7 @@
 
 - (void) start
 {
-    [self.server start];
+    [self.server startWithPort:_service.serviceDescription.port bonjourName:nil];
 }
 
 - (void) stop
@@ -83,18 +96,68 @@
     return [NSArray arrayWithArray:_subscriptions];
 }
 
+- (void) processRequest:(GCDWebServerDataRequest *)request
+{
+    if (!request.data || request.data.length == 0)
+        return;
+
+    NSError *xmlParseError;
+    NSDictionary *requestDataXML = [CTXMLReader dictionaryForXMLData:request.data error:&xmlParseError];
+
+    if (xmlParseError)
+    {
+        DLog(@"XML Parse error %@", xmlParseError.description);
+        return;
+    }
+
+
+}
+
 #pragma mark - GCDWebServerDelegate
 
 - (void) webServerDidStart:(GCDWebServer *)server
 {
     _subscriptions = [NSMutableArray new];
-    [server addDefaultHandlerForMethod:@"SUBSCRIBE" requestClass:[GCDWebServerResponse class] processBlock:^GCDWebServerResponse *(GCDWebServerRequest *request) {
-        return nil;
-    }];
 }
 
 - (void) webServerDidStop:(GCDWebServer *)server
 {
+}
+
+#pragma mark - Utility
+
+- (NSString *)getHostPath
+{
+    return [NSString stringWithFormat:@"http://%@:%d/", [self getIPAddress], _service.serviceDescription.port];
+}
+
+-(NSString *)getIPAddress
+{
+    NSString *address = @"error";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0)
+    {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL)
+        {
+            if(temp_addr->ifa_addr->sa_family == AF_INET)
+            {
+                // Get NSString from C String
+                address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+            }
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+
+    // Free memory
+    freeifaddrs(interfaces);
+    return address;
 }
 
 @end

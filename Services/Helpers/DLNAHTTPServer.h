@@ -33,6 +33,8 @@
 - (void) addSubscription:(ServiceSubscription *)subscription;
 - (void) removeSubscription:(ServiceSubscription *)subscription;
 
+- (NSString *) getHostPath;
+
 @property (nonatomic, readonly) GCDWebServer *server;
 @property (nonatomic, readonly) BOOL isRunning;
 @property (nonatomic, readonly) NSArray *subscriptions;
