@@ -23,15 +23,19 @@
 #import "CTXMLReader.h"
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
+#import "DLNAHTTPServer.h"
 
 #define kDataFieldName @"XMLData"
 #define kActionFieldName @"SOAPAction"
+#define kSubscriptionTimeoutSeconds 300
 
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
     NSURL *_avTransportURL;
     NSURL *_renderingControlURL;
+    DLNAHTTPServer *_httpServer;
+    NSMutableDictionary *_httpServerSessionIds;
 
     DeviceServiceReachability *_serviceReachability;
 }
@@ -107,7 +111,10 @@
     
     if (_serviceDescription.locationXML)
     {
-        [self updateControlURL];
+        [self updateControlURLs];
+
+        if (!_httpServer)
+            _httpServer = [[DLNAHTTPServer alloc] initWithService:self];
     } else
     {
         _avTransportURL = nil;
@@ -115,7 +122,7 @@
     }
 }
 
-- (void) updateControlURL
+- (void) updateControlURLs
 {
     NSArray *serviceList = self.serviceDescription.serviceList;
 
@@ -230,6 +237,142 @@
 
     // TODO: need to implement callIds in here
     return 0;
+}
+
+- (int) sendSubscription:(ServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+{
+    if (type == ServiceSubscriptionTypeSubscribe)
+    {
+        if (!_httpServer.isRunning)
+        {
+            [_httpServer start];
+            [self subscribeServices];
+        }
+
+        [_httpServer addSubscription:subscription];
+    } else
+    {
+        [_httpServer removeSubscription:subscription];
+
+        if (_httpServer.subscriptions.count == 0)
+        {
+            [self unsubscribeServices];
+            [_httpServer stop];
+        }
+    }
+
+    return -1;
+}
+
+#pragma mark - Subscriptions
+
+- (void) subscribeServices
+{
+    _httpServerSessionIds = [NSMutableDictionary new];
+
+    [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *serviceId = service[@"serviceId"][@"text"];
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                           self.serviceDescription.commandURL.host,
+                                                           self.serviceDescription.commandURL.port,
+                                                           eventPath];
+        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
+
+        NSString *serverPath = [_httpServer.server.serverURL.absoluteString stringByAppendingPathComponent:eventPath];
+
+        NSString *timeoutValue = [NSString stringWithFormat:@"Second-%d", kSubscriptionTimeoutSeconds];
+
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:eventSubURL];
+        [request setHTTPMethod:@"SUBSCRIBE"];
+        [request setValue:serverPath forHTTPHeaderField:@"CALLBACK"];
+        [request setValue:@"upnp:event" forHTTPHeaderField:@"NT"];
+        [request setValue:timeoutValue forHTTPHeaderField:@"TIMEOUT"];
+
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+            if (connectionError || !response)
+                return;
+
+            if (response.statusCode == 200)
+            {
+                NSString *sessionId = response.allHeaderFields[@"SID"];
+                _httpServerSessionIds[serviceId] = sessionId;
+
+                [self performSelector:@selector(resubscribeSubscriptions) withObject:nil afterDelay:kSubscriptionTimeoutSeconds / 2];
+            }
+        }];
+    }];
+}
+
+- (void) resubscribeSubscriptions
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(resubscribeSubscriptions) object:nil];
+
+    [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *serviceId = service[@"serviceId"][@"text"];
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                           self.serviceDescription.commandURL.host,
+                                                           self.serviceDescription.commandURL.port,
+                                                           eventPath];
+        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
+
+        NSString *timeoutValue = [NSString stringWithFormat:@"Second-%d", kSubscriptionTimeoutSeconds];
+
+        NSString *sessionId = _httpServerSessionIds[serviceId];
+
+        if (!sessionId)
+            return;
+
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:eventSubURL];
+        [request setHTTPMethod:@"SUBSCRIBE"];
+        [request setValue:timeoutValue forHTTPHeaderField:@"TIMEOUT"];
+        [request setValue:sessionId forHTTPHeaderField:@"SID"];
+
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+            if (connectionError || !response)
+                return;
+
+            if (response.statusCode == 200)
+            {
+                [self performSelector:@selector(resubscribeSubscriptions) withObject:nil afterDelay:kSubscriptionTimeoutSeconds / 2];
+            }
+        }];
+    }];
+}
+
+- (void) unsubscribeServices
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(resubscribeSubscriptions) object:nil];
+
+    [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *serviceId = service[@"serviceId"][@"text"];
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                           self.serviceDescription.commandURL.host,
+                                                           self.serviceDescription.commandURL.port,
+                                                           eventPath];
+        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
+
+        NSString *sessionId = _httpServerSessionIds[serviceId];
+
+        if (!sessionId)
+            return;
+
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:eventSubURL];
+        [request setHTTPMethod:@"UNSUBSCRIBE"];
+        [request setValue:sessionId forHTTPHeaderField:@"SID"];
+
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+            if (connectionError || !response)
+                return;
+
+            if (response.statusCode == 200)
+            {
+                [_httpServerSessionIds removeObjectForKey:serviceId];
+            }
+        }];
+    }];
 }
 
 #pragma mark - Media Player
