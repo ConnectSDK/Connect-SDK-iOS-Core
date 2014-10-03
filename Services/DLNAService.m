@@ -279,7 +279,11 @@
                                                            eventPath];
         NSURL *eventSubURL = [NSURL URLWithString:commandPath];
 
-        NSString *serverPath = [_httpServer.server.serverURL.absoluteString stringByAppendingPathComponent:eventPath];
+        if ([eventPath hasPrefix:@"/"])
+            eventPath = [eventPath substringFromIndex:1];
+
+        NSString *serverPath = [[_httpServer getHostPath] stringByAppendingString:eventPath];
+        serverPath = [NSString stringWithFormat:@"<%@>", serverPath];
 
         NSString *timeoutValue = [NSString stringWithFormat:@"Second-%d", kSubscriptionTimeoutSeconds];
 
@@ -288,15 +292,22 @@
         [request setValue:serverPath forHTTPHeaderField:@"CALLBACK"];
         [request setValue:@"upnp:event" forHTTPHeaderField:@"NT"];
         [request setValue:timeoutValue forHTTPHeaderField:@"TIMEOUT"];
+        [request setValue:@"close" forHTTPHeaderField:@"Connection"];
+        [request setValue:@"0" forHTTPHeaderField:@"Content-Length"];
+        [request setValue:@"iOS UPnP/1.1 ConnectSDK" forHTTPHeaderField:@"USER-AGENT"];
 
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *_response, NSData *data, NSError *connectionError) {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)_response;
+
             if (connectionError || !response)
                 return;
 
             if (response.statusCode == 200)
             {
                 NSString *sessionId = response.allHeaderFields[@"SID"];
-                _httpServerSessionIds[serviceId] = sessionId;
+
+                if (sessionId)
+                    _httpServerSessionIds[serviceId] = sessionId;
 
                 [self performSelector:@selector(resubscribeSubscriptions) withObject:nil afterDelay:kSubscriptionTimeoutSeconds / 2];
             }
@@ -329,7 +340,9 @@
         [request setValue:timeoutValue forHTTPHeaderField:@"TIMEOUT"];
         [request setValue:sessionId forHTTPHeaderField:@"SID"];
 
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *_response, NSData *data, NSError *connectionError) {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)_response;
+
             if (connectionError || !response)
                 return;
 
@@ -363,7 +376,9 @@
         [request setHTTPMethod:@"UNSUBSCRIBE"];
         [request setValue:sessionId forHTTPHeaderField:@"SID"];
 
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *connectionError) {
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *_response, NSData *data, NSError *connectionError) {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)_response;
+
             if (connectionError || !response)
                 return;
 
