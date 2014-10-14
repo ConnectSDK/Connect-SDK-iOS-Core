@@ -548,7 +548,7 @@
 {
     Class deviceServiceClass = [_deviceClasses objectForKey:description.serviceId];
 
-    // Prevent non-LG TV DLNA devices from being picked up
+    // TODO: move this logic into DeviceService subclass init methods
     if (deviceServiceClass == [DLNAService class])
     {
         if (!description.locationXML)

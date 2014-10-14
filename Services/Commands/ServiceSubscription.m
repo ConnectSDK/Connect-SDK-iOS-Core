@@ -20,9 +20,7 @@
 
 #import "ServiceSubscription.h"
 
-@implementation ServiceSubscription{
-    NSURL *_target;
-}
+@implementation ServiceSubscription
 
 -(instancetype)initWithDelegate:(id <ServiceCommandDelegate>)delegate target:(NSURL *)target payload:(id)payload callId:(int)callId
 {
@@ -42,7 +40,7 @@
 
     if (self)
     {
-        _target = target;
+        self.target = target;
         _isSubscribed = NO;
         _callId = -1;
     }
@@ -87,7 +85,7 @@
 {
     if ([self.delegate respondsToSelector:@selector(sendSubscription:type:payload:toURL:withId:)])
     {
-        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeSubscribe payload:self.payload toURL:_target withId:_callId];
+        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeSubscribe payload:self.payload toURL:self.target withId:_callId];
         _isSubscribed = true;
     }
 }
@@ -102,7 +100,7 @@
 {
     if ([self.delegate respondsToSelector:@selector(sendSubscription:type:payload:toURL:withId:)])
     {
-        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeUnsubscribe payload:self.payload toURL:_target withId:_callId];
+        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeUnsubscribe payload:self.payload toURL:self.target withId:_callId];
         _isSubscribed = false;
     }
 
@@ -112,7 +110,7 @@
 
 -(instancetype) clone
 {
-    ServiceSubscription *clone = [ServiceSubscription subscriptionWithDelegate:self.delegate target:[_target copy] payload:[self.payload copy] callId:_callId];
+    ServiceSubscription *clone = [ServiceSubscription subscriptionWithDelegate:self.delegate target:[self.target copy] payload:[self.payload copy] callId:_callId];
     return clone;
 }
 

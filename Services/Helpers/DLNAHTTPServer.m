@@ -24,39 +24,18 @@
 #import "DLNAService.h"
 #import "CTXMLReader.h"
 #import "GCDWebServerDataRequest.h"
+#import "ConnectUtil.h"
 
 
 @implementation DLNAHTTPServer
 {
     DLNAService *_service;
-    NSMutableArray *_subscriptions;
-}
-
-- (instancetype) init
-{
-    self = [super init];
-
-    if (self)
-    {
-        _server = [[GCDWebServer alloc] init];
-        _server.delegate = self;
-
-        GCDWebServerResponse *(^webServerResponseBlock)(GCDWebServerRequest *request) = ^GCDWebServerResponse *(GCDWebServerRequest *request) {
-            [self processRequest:(GCDWebServerDataRequest *)request];
-            return [GCDWebServerResponse responseWithStatusCode:204];
-        };
-
-        [self.server addDefaultHandlerForMethod:@"NOTIFY"
-                                   requestClass:[GCDWebServerDataRequest class]
-                                   processBlock:webServerResponseBlock];
-    }
-
-    return self;
+    NSMutableDictionary *_allSubscriptions;
 }
 
 - (instancetype) initWithService:(DLNAService *)service
 {
-    self = [self init];
+    self = [super init];
 
     if (self)
     {
@@ -68,32 +47,86 @@
 
 - (BOOL) isRunning
 {
-    return _server.isRunning;
+    if (!_server)
+        return NO;
+    else
+        return _server.isRunning;
 }
 
 - (void) start
 {
-    [self.server startWithPort:_service.serviceDescription.port bonjourName:nil];
+    [self stop];
+
+    _allSubscriptions = [NSMutableDictionary new];
+
+    _server = [[GCDWebServer alloc] init];
+    _server.delegate = self;
+
+    GCDWebServerResponse *(^webServerResponseBlock)(GCDWebServerRequest *request) = ^GCDWebServerResponse *(GCDWebServerRequest *request) {
+        [self processRequest:(GCDWebServerDataRequest *)request];
+        return [GCDWebServerResponse responseWithStatusCode:204];
+    };
+
+    [self.server addDefaultHandlerForMethod:@"NOTIFY"
+                               requestClass:[GCDWebServerDataRequest class]
+                               processBlock:webServerResponseBlock];
+
+    [self.server startWithPort:49291 bonjourName:nil];
 }
 
 - (void) stop
 {
-    [self.server stop];
+    if (!_server)
+        return;
+
+    self.server.delegate = nil;
+
+    if (_server.isRunning)
+        [self.server stop];
+
+    _server = nil;
 }
 
 - (void) addSubscription:(ServiceSubscription *)subscription
 {
+    @synchronized (_allSubscriptions)
+    {
+        NSString *serviceSubscriptionKey = subscription.target.path;
 
+        if (!_allSubscriptions[serviceSubscriptionKey])
+            _allSubscriptions[serviceSubscriptionKey] = [NSMutableArray new];
+
+        NSMutableArray *serviceSubscriptions = _allSubscriptions[serviceSubscriptionKey];
+        [serviceSubscriptions addObject:subscription];
+        subscription.isSubscribed = YES;
+    }
 }
 
 - (void) removeSubscription:(ServiceSubscription *)subscription
 {
+    @synchronized (_allSubscriptions)
+    {
+        NSString *serviceSubscriptionKey = subscription.target.path;
 
+        NSMutableArray *serviceSubscriptions = _allSubscriptions[serviceSubscriptionKey];
+
+        if (!_allSubscriptions[serviceSubscriptionKey])
+            return;
+
+        subscription.isSubscribed = NO;
+        [serviceSubscriptions removeObject:subscription];
+
+        if (serviceSubscriptions.count == 0)
+            [_allSubscriptions removeObjectForKey:serviceSubscriptionKey];
+    }
 }
 
-- (NSArray *) subscriptions
+- (BOOL) hasSubscriptions
 {
-    return [NSArray arrayWithArray:_subscriptions];
+    @synchronized (_allSubscriptions)
+    {
+        return _allSubscriptions.count > 0;
+    }
 }
 
 - (void) processRequest:(GCDWebServerDataRequest *)request
@@ -101,6 +134,17 @@
     if (!request.data || request.data.length == 0)
         return;
 
+    NSString *serviceSubscriptionKey = [request.path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSArray *serviceSubscriptions;
+
+    @synchronized (_allSubscriptions)
+    {
+        serviceSubscriptions = _allSubscriptions[serviceSubscriptionKey];
+    }
+
+    if (!serviceSubscriptions || serviceSubscriptions.count == 0)
+        return;
+ 
     NSError *xmlParseError;
     NSDictionary *requestDataXML = [CTXMLReader dictionaryForXMLData:request.data error:&xmlParseError];
 
@@ -110,25 +154,51 @@
         return;
     }
 
+    NSString *eventXMLStringEncoded = requestDataXML[@"e:propertyset"][@"e:property"][@"LastChange"][@"text"];
 
+    if (!eventXMLStringEncoded)
+    {
+        DLog(@"Received event with no LastChange data, ignoring...");
+        return;
+    }
+
+    NSString *eventXMLString = [ConnectUtil entityDecode:eventXMLStringEncoded];
+
+    NSError *eventXMLParseError;
+    NSDictionary *eventXML = [CTXMLReader dictionaryForXMLString:eventXMLString error:&eventXMLParseError];
+
+    if (eventXMLParseError)
+    {
+        DLog(@"XML Parse error %@", eventXMLParseError.description);
+        return;
+    }
+
+    [self handleEvent:eventXML forSubscriptions:serviceSubscriptions];
+}
+
+- (void) handleEvent:(NSDictionary *)eventInfo forSubscriptions:(NSArray *)subscriptions
+{
+    DLog(@"eventInfo: %@", eventInfo);
+
+    [subscriptions enumerateObjectsUsingBlock:^(ServiceSubscription *subscription, NSUInteger subIdx, BOOL *subStop) {
+        [subscription.successCalls enumerateObjectsUsingBlock:^(SuccessBlock success, NSUInteger successIdx, BOOL *successStop) {
+            dispatch_on_main(^{
+                success(eventInfo);
+            });
+        }];
+    }];
 }
 
 #pragma mark - GCDWebServerDelegate
 
-- (void) webServerDidStart:(GCDWebServer *)server
-{
-    _subscriptions = [NSMutableArray new];
-}
-
-- (void) webServerDidStop:(GCDWebServer *)server
-{
-}
+- (void) webServerDidStart:(GCDWebServer *)server { }
+- (void) webServerDidStop:(GCDWebServer *)server { }
 
 #pragma mark - Utility
 
 - (NSString *)getHostPath
 {
-    return [NSString stringWithFormat:@"http://%@:%d/", [self getIPAddress], _service.serviceDescription.port];
+    return [NSString stringWithFormat:@"http://%@:%d/", [self getIPAddress], 49291];
 }
 
 -(NSString *)getIPAddress

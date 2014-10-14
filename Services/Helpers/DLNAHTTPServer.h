@@ -37,6 +37,6 @@
 
 @property (nonatomic, readonly) GCDWebServer *server;
 @property (nonatomic, readonly) BOOL isRunning;
-@property (nonatomic, readonly) NSArray *subscriptions;
+@property (nonatomic, readonly) BOOL hasSubscriptions;
 
 @end

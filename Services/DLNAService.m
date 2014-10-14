@@ -32,8 +32,11 @@
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
-    NSURL *_avTransportURL;
-    NSURL *_renderingControlURL;
+    NSURL *_avTransportControlURL;
+    NSURL *_avTransportEventURL;
+    NSURL *_renderingControlControlURL;
+    NSURL *_renderingControlEventURL;
+
     DLNAHTTPServer *_httpServer;
     NSMutableDictionary *_httpServerSessionIds;
 
@@ -61,8 +64,11 @@
         kMediaControlSeek,
         kMediaControlPosition,
         kMediaControlDuration,
-        kMediaControlPlayState
+        kMediaControlPlayState,
+        kMediaControlPlayStateSubscribe
     ];
+
+    capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
 
     [self setCapabilities:capabilities];
 }
@@ -117,8 +123,8 @@
             _httpServer = [[DLNAHTTPServer alloc] initWithService:self];
     } else
     {
-        _avTransportURL = nil;
-        _renderingControlURL = nil;
+        _avTransportControlURL = nil;
+        _renderingControlControlURL = nil;
     }
 }
 
@@ -129,15 +135,25 @@
     [serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
         NSString *serviceName = service[@"serviceId"][@"text"];
         NSString *controlPath = service[@"controlURL"][@"text"];
-        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                           self.serviceDescription.commandURL.host,
-                                                           self.serviceDescription.commandURL.port,
-                                                           controlPath];
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSString *controlURL = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                          self.serviceDescription.commandURL.host,
+                                                          self.serviceDescription.commandURL.port,
+                                                          controlPath];
+        NSString *eventURL = [NSString stringWithFormat:@"http://%@:%@%@",
+                                                          self.serviceDescription.commandURL.host,
+                                                          self.serviceDescription.commandURL.port,
+                                                          eventPath];
 
-        if ([serviceName rangeOfString:@"AVTransport"].location != NSNotFound)
-            _avTransportURL = [NSURL URLWithString:commandPath];
-        else if ([serviceName rangeOfString:@"RenderingControl"].location != NSNotFound)
-            _renderingControlURL = [NSURL URLWithString:commandPath];
+        if ([serviceName rangeOfString:@":AVTransport"].location != NSNotFound)
+        {
+            _avTransportControlURL = [NSURL URLWithString:controlURL];
+            _avTransportEventURL = [NSURL URLWithString:eventURL];
+        } else if ([serviceName rangeOfString:@":RenderingControl"].location != NSNotFound)
+        {
+            _renderingControlControlURL = [NSURL URLWithString:controlURL];
+            _renderingControlEventURL = [NSURL URLWithString:eventURL];
+        }
     }];
 }
 
@@ -151,11 +167,14 @@
 //    NSString *targetPath = [NSString stringWithFormat:@"http://%@:%@/", self.serviceDescription.address, @(self.serviceDescription.port)];
 //    NSURL *targetURL = [NSURL URLWithString:targetPath];
 
-    _serviceReachability = [DeviceServiceReachability reachabilityWithTargetURL:_avTransportURL];
+    _serviceReachability = [DeviceServiceReachability reachabilityWithTargetURL:_avTransportControlURL];
     _serviceReachability.delegate = self;
     [_serviceReachability start];
 
     self.connected = YES;
+
+    [_httpServer start];
+    [self subscribeServices];
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(deviceServiceConnectionSuccess:)])
         dispatch_on_main(^{ [self.delegate deviceServiceConnectionSuccess:self]; });
@@ -243,18 +262,18 @@
 {
     if (type == ServiceSubscriptionTypeSubscribe)
     {
+        [_httpServer addSubscription:subscription];
+
         if (!_httpServer.isRunning)
         {
             [_httpServer start];
             [self subscribeServices];
         }
-
-        [_httpServer addSubscription:subscription];
     } else
     {
         [_httpServer removeSubscription:subscription];
 
-        if (_httpServer.subscriptions.count == 0)
+        if (!_httpServer.hasSubscriptions)
         {
             [self unsubscribeServices];
             [_httpServer stop];
@@ -419,7 +438,7 @@
             kDataFieldName : playXML
     };
 
-    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:playPayload];
+    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:playPayload];
     playCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -444,7 +463,7 @@
                                   kDataFieldName : xml
                                   };
     
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:payload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:payload];
     command.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -469,7 +488,7 @@
                                   kDataFieldName : stopXML
                                   };
     
-    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:stopPayload];
+    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
     stopCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -512,7 +531,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -534,7 +553,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetTransportInfoResponse"];
@@ -592,10 +611,15 @@
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+        DLog(@"%@", responseObject);
+    };
 
-    return nil;
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_avTransportEventURL payload:nil callId:-1];
+    [subscription addSuccess:successBlock];
+    [subscription addFailure:failure];
+    [subscription subscribe];
+    return subscription;
 }
 
 - (void) getPositionInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -614,7 +638,7 @@
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -684,7 +708,7 @@
             kDataFieldName : shareXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
@@ -738,7 +762,7 @@
             kDataFieldName : shareXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportURL payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
@@ -760,6 +784,112 @@
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self.mediaControl stopWithSuccess:success failure:failure];
+}
+
+#pragma mark - Volume
+
+- (id <VolumeControl>) volumeControl
+{
+    return self;
+}
+
+- (CapabilityPriorityLevel) volumeControlPriority
+{
+    return CapabilityPriorityLevelNormal;
+}
+
+- (void) volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (void) volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (void) getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (void) setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (ServiceSubscription *) subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+{
+    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+        NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Volume"];
+        __block int volume = -1;
+
+        [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
+            if ([@"Master" isEqualToString:channel[@"channel"]])
+            {
+                volume = [channel[@"val"] intValue];
+                *stop = YES;
+            }
+        }];
+
+        if (volume == -1)
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume in subscription response"]);
+        } else
+        {
+            if (success)
+                success((float) volume / 100.0f);
+        }
+    };
+
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_renderingControlEventURL payload:nil callId:-1];
+    [subscription addSuccess:successBlock];
+    [subscription addFailure:failure];
+    [subscription subscribe];
+    return subscription;
+}
+
+- (void) getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (void) setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+
+}
+
+- (ServiceSubscription *) subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+{
+    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+        NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Mute"];
+        __block int mute = -1;
+
+        [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
+            if ([@"Master" isEqualToString:channel[@"channel"]])
+            {
+                mute = [channel[@"val"] intValue];
+                *stop = YES;
+            }
+        }];
+
+        if (mute == -1)
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute in subscription response"]);
+        } else
+        {
+            if (success)
+                success((BOOL) mute);
+        }
+    };
+
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_renderingControlEventURL payload:nil callId:-1];
+    [subscription addSuccess:successBlock];
+    [subscription addFailure:failure];
+    [subscription subscribe];
+    return subscription;
 }
 
 @end

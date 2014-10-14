@@ -110,4 +110,14 @@
     return output;
 }
 
++ (NSString *) entityDecode:(NSString *)input
+{
+    NSString *output = [[[[input stringByReplacingOccurrencesOfString: @"&amp;" withString: @"&"]
+            stringByReplacingOccurrencesOfString: @"&quot;" withString: @"\""]
+            stringByReplacingOccurrencesOfString: @"&gt;" withString: @">"]
+            stringByReplacingOccurrencesOfString: @"&lt;" withString: @"<"];
+
+    return output;
+}
+
 @end
