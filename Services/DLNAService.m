@@ -611,8 +611,31 @@
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
+    [self getPlayStateWithSuccess:success failure:failure];
+
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
-        DLog(@"%@", responseObject);
+        NSDictionary *response = responseObject[@"Event"][@"InstanceID"];
+        NSString *transportState = response[@"TransportState"][@"val"];
+
+        MediaControlPlayState playState = MediaControlPlayStateUnknown;
+
+        if ([transportState isEqualToString:@"STOPPED"])
+            playState = MediaControlPlayStateFinished;
+        else if ([transportState isEqualToString:@"PAUSED_PLAYBACK"])
+            playState = MediaControlPlayStatePaused;
+        else if ([transportState isEqualToString:@"PAUSED_RECORDING"])
+            playState = MediaControlPlayStateUnknown;
+        else if ([transportState isEqualToString:@"PLAYING"])
+            playState = MediaControlPlayStatePlaying;
+        else if ([transportState isEqualToString:@"RECORDING"])
+            playState = MediaControlPlayStateUnknown;
+        else if ([transportState isEqualToString:@"TRANSITIONING"])
+            playState = MediaControlPlayStateIdle;
+        else if ([transportState isEqualToString:@"NO_MEDIA_PRESENT"])
+            playState = MediaControlPlayStateIdle;
+
+        if (success)
+            success(playState);
     };
 
     ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_avTransportEventURL payload:nil callId:-1];

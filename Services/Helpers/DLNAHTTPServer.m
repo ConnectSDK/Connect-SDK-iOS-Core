@@ -167,10 +167,15 @@
     NSError *eventXMLParseError;
     NSDictionary *eventXML = [CTXMLReader dictionaryForXMLString:eventXMLString error:&eventXMLParseError];
 
-    if (eventXMLParseError)
+    if (eventXMLParseError || !eventXML)
     {
-        DLog(@"XML Parse error %@", eventXMLParseError.description);
-        return;
+        eventXML = [CTXMLReader dictionaryForXMLString:eventXMLStringEncoded error:&eventXMLParseError];
+
+        if (eventXMLParseError || !eventXML)
+        {
+            DLog(@"Could not parse event into usable format, ignoring...");
+            return;
+        }
     }
 
     [self handleEvent:eventXML forSubscriptions:serviceSubscriptions];
