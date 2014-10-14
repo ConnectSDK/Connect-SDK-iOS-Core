@@ -800,26 +800,99 @@
 
 - (void) volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-
+    [self.volumeControl getVolumeWithSuccess:^(float volume) {
+        if (volume < 1.0)
+            [self.volumeControl setVolume:(float) (volume + 0.01) success:success failure:failure];
+        else
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Volume is already at max"]);
+        }
+    } failure:failure];
 }
 
 - (void) volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-
+    [self.volumeControl getVolumeWithSuccess:^(float volume) {
+        if (volume > 0.0)
+            [self.volumeControl setVolume:(float) (volume - 0.01) success:success failure:failure];
+        else
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Volume is already at 0"]);
+        }
+    } failure:failure];
 }
 
 - (void) getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
 {
+    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+            "<s:Body>"
+            "<u:GetVolume xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
+            "<InstanceID>0</InstanceID>"
+            "<Channel>Master</Channel>"
+            "</u:GetVolume>"
+            "</s:Body>"
+            "</s:Envelope>";
 
+    NSDictionary *commandPayload = @{
+            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetVolume\"",
+            kDataFieldName : commandXML
+    };
+
+    SuccessBlock successBlock = ^(NSDictionary *responseXML) {
+        int volume = -1;
+
+        volume = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetVolumeResponse"][@"CurrentVolume"][@"text"] intValue];
+
+        if (volume == -1)
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume information in response"]);
+        } else
+        {
+            if (success)
+                success((float) volume / 100.0f);
+        }
+    };
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    command.callbackComplete = successBlock;
+    command.callbackError = failure;
+    [command send];
 }
 
 - (void) setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
 {
+    int targetVolume = (int) round(volume * 100);
 
+    NSString *commandXML = [NSString stringWithFormat: @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+            "<s:Body>"
+            "<u:SetVolume xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
+            "<InstanceID>0</InstanceID>"
+            "<Channel>Master</Channel>"
+            "<DesiredVolume>%d</DesiredVolume>"
+            "</u:SetVolume>"
+            "</s:Body>"
+            "</s:Envelope>", targetVolume];
+
+    NSDictionary *commandPayload = @{
+            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetVolume\"",
+            kDataFieldName : commandXML
+    };
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
 }
 
 - (ServiceSubscription *) subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
 {
+    [self.volumeControl getVolumeWithSuccess:success failure:failure];
+
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
         NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Volume"];
         __block int volume = -1;
@@ -852,16 +925,71 @@
 
 - (void) getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
 {
+    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+            "<s:Body>"
+            "<u:GetMute xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
+            "<InstanceID>0</InstanceID>"
+            "<Channel>Master</Channel>"
+            "</u:GetMute>"
+            "</s:Body>"
+            "</s:Envelope>";
 
+    NSDictionary *commandPayload = @{
+            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetMute\"",
+            kDataFieldName : commandXML
+    };
+
+    SuccessBlock successBlock = ^(NSDictionary *responseXML) {
+        int mute = -1;
+
+        mute = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetMuteResponse"][@"CurrentMute"][@"text"] intValue];
+
+        if (mute == -1)
+        {
+            if (failure)
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute information in response"]);
+        } else
+        {
+            if (success)
+                success((BOOL) mute);
+        }
+    };
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    command.callbackComplete = successBlock;
+    command.callbackError = failure;
+    [command send];
 }
 
 - (void) setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
 {
+    NSString *commandXML = [NSString stringWithFormat: @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+            "<s:Body>"
+            "<u:SetMute xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
+            "<InstanceID>0</InstanceID>"
+            "<Channel>Master</Channel>"
+            "<DesiredMute>%d</DesiredMute>"
+            "</u:SetMute>"
+            "</s:Body>"
+            "</s:Envelope>", mute];
 
+    NSDictionary *commandPayload = @{
+            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetMute\"",
+            kDataFieldName : commandXML
+    };
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
 }
 
 - (ServiceSubscription *) subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
 {
+    [self.volumeControl getMuteWithSuccess:success failure:failure];
+
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
         NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Mute"];
         __block int mute = -1;
