@@ -24,6 +24,7 @@
 #import "DLNAService.h"
 #import "CTXMLReader.h"
 #import "GCDWebServerDataRequest.h"
+#import "GCDWebServerHTTPStatusCodes.h"
 #import "ConnectUtil.h"
 
 
@@ -64,7 +65,9 @@
 
     GCDWebServerResponse *(^webServerResponseBlock)(GCDWebServerRequest *request) = ^GCDWebServerResponse *(GCDWebServerRequest *request) {
         [self processRequest:(GCDWebServerDataRequest *)request];
-        return [GCDWebServerResponse responseWithStatusCode:204];
+        // according to the UPnP specification, a subscriber must reply with HTTP 200 OK
+        // to successfully acknowledge the notification
+        return [GCDWebServerResponse responseWithStatusCode:kGCDWebServerHTTPStatusCode_OK];
     };
 
     [self.server addDefaultHandlerForMethod:@"NOTIFY"
