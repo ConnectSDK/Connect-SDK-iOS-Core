@@ -631,6 +631,14 @@ static NSMutableArray *registeredApps = nil;
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
+- (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    
+    return nil;
+}
+
 #pragma mark - Key Control
 
 - (id <KeyControl>) keyControl

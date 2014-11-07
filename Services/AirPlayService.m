@@ -244,6 +244,11 @@ static AirPlayServiceMode airPlayServiceMode;
     return [self.mediaControl subscribePlayStateWithSuccess:success failure:failure];;
 }
 
+- (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+   return [self.mediaControl subscribeMediaInfoWithSuccess:success failure:failure];;
+}
+
 #pragma mark - Helpers
 
 - (void) closeLaunchSession:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure

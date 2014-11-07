@@ -65,7 +65,9 @@
         kMediaControlPosition,
         kMediaControlDuration,
         kMediaControlPlayState,
-        kMediaControlPlayStateSubscribe
+        kMediaControlPlayStateSubscribe,
+        kMediaControlMetadata,
+        kMediaControlMetadataSubscribe
     ];
 
     capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
@@ -590,7 +592,6 @@
         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
         NSString *durationString = [[response objectForKey:@"TrackDuration"] objectForKey:@"text"];
         NSTimeInterval duration = [self timeForString:durationString];
-
         if (success)
             success(duration);
     } failure:failure];
@@ -614,6 +615,7 @@
     [self getPlayStateWithSuccess:success failure:failure];
 
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+        
         NSDictionary *response = responseObject[@"Event"][@"InstanceID"];
         NSString *transportState = response[@"TransportState"][@"val"];
 
@@ -667,6 +669,41 @@
     [command send];
 }
 
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
+     {
+         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+         NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
+         if(metaDataString){
+             if (success)
+                 success([self getMetaDataDictionary:metaDataString]);
+            }
+     } failure:failure];
+}
+
+- (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self getMediaMetaDataWithSuccess:success failure:failure];
+    
+    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+        
+        NSDictionary *response = responseObject[@"Event"][@"InstanceID"];
+        NSString *currentTrackMetaData = response[@"CurrentTrackMetaData"][@"val"];
+        
+        if(currentTrackMetaData){
+            if (success)
+                success([self getMetaDataDictionary:currentTrackMetaData]);
+        }
+    };
+    
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_avTransportEventURL payload:nil callId:-1];
+    [subscription addSuccess:successBlock];
+    [subscription addFailure:failure];
+    [subscription subscribe];
+    return subscription;
+}
+
 - (NSTimeInterval) timeForString:(NSString *)timeString
 {
     if (!timeString || [timeString isEqualToString:@""])
@@ -697,6 +734,28 @@
     NSString *timeString = [NSString stringWithFormat:@"%02d:%02d:%02d", hour, minute, second];
 
     return timeString;
+}
+
+-(NSDictionary*)getMetaDataDictionary:(NSString *)metaDataXML{
+    
+    NSError *xmlError;
+    NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metaDataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
+    
+    NSMutableDictionary *mediaMetaData = [NSMutableDictionary dictionary];
+    
+    if([mediaMetadataResponse objectForKey:@"dc:title"])
+        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"dc:title"] objectForKey:@"text"] forKey:@"title"];
+    
+    if([mediaMetadataResponse objectForKey:@"r:albumArtist"])
+        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"r:albumArtist"] objectForKey:@"text"] forKey:@"subtitle"];
+    
+    if([mediaMetadataResponse objectForKey:@"dc:description"])
+        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"dc:description"] objectForKey:@"text"] forKey:@"subtitle"];
+    
+    if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"])
+        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"] forKey:@"iconURL"];
+    
+    return mediaMetaData;
 }
 
 #pragma mark - Media Player

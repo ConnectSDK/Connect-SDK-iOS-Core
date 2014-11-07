@@ -250,4 +250,10 @@
     [self sendNotSupportedFailure:failure];
 }
 
+- (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+    return nil;
+}
+
 @end

@@ -1342,6 +1342,33 @@ NSString *lgeUDAPRequestURI[8] = {
     return nil;
 }
 
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (self.dlnaService)
+    {
+        [self.dlnaService getMediaMetaDataWithSuccess:success failure:failure];
+        return;
+    }
+    
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    
+}
+
+- (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (self.dlnaService)
+    {
+        ServiceSubscription *subscription = [self.dlnaService subscribeMediaInfoWithSuccess:success failure:failure];
+        return subscription;
+    }
+    
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    
+    return nil;
+}
+
 #pragma mark - TV
 
 - (id <TVControl>)tvControl
