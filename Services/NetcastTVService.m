@@ -1670,8 +1670,11 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (ServiceSubscription *)subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
+    if (self.dlnaService) {
+        [self.dlnaService subscribeVolumeWithSuccess:success failure:failure];
+    } else if (failure) {
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    }
     
     return nil;
 }

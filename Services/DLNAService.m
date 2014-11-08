@@ -976,8 +976,20 @@
     [self.volumeControl getVolumeWithSuccess:success failure:failure];
 
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
-        NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Volume"];
+        // this object is expected to be either a map of volume properties or
+        // an array of maps for different channels
+        id channelsObject = responseObject[@"Event"][@"InstanceID"][@"Volume"];
         __block int volume = -1;
+
+        NSArray *channels = nil;
+        if ([channelsObject isKindOfClass:[NSArray class]]) {
+            channels = channelsObject;
+        } else if ([channelsObject isKindOfClass:[NSDictionary class]]) {
+            channels = [NSArray arrayWithObject:channelsObject];
+        } else {
+            DLog(@"Unexpected contents for volume notification (%@ object)",
+                 NSStringFromClass(channelsObject.class));
+        }
 
         [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
             if ([@"Master" isEqualToString:channel[@"channel"]])
