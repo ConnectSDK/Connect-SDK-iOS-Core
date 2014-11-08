@@ -29,6 +29,8 @@
 #define kActionFieldName @"SOAPAction"
 #define kSubscriptionTimeoutSeconds 300
 
+static const NSInteger kValueNotFound = -1;
+
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
@@ -198,6 +200,40 @@
         [self disconnect];
     else
         [_serviceReachability stop];
+}
+
+#pragma mark -
+
+/// Parses the DLNA notification and returns the value for the given key in the
+/// specified channel.
+- (NSInteger)valueForVolumeKey:(NSString *)key
+                     atChannel:(NSString *)channelName
+                    inResponse:(NSDictionary *)responseObject
+{
+    // this object is expected to be either a map of volume properties or
+    // an array of maps for different channels
+    id channelsObject = responseObject[@"Event"][@"InstanceID"][key];
+    __block int volume = kValueNotFound;
+
+    NSArray *channels = nil;
+    if ([channelsObject isKindOfClass:[NSArray class]]) {
+        channels = channelsObject;
+    } else if ([channelsObject isKindOfClass:[NSDictionary class]]) {
+        channels = [NSArray arrayWithObject:channelsObject];
+    } else {
+        DLog(@"Unexpected contents for volume notification (%@ object)",
+             NSStringFromClass(channelsObject.class));
+    }
+
+    [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
+        if ([channelName isEqualToString:channel[@"channel"]])
+        {
+            volume = [channel[@"val"] intValue];
+            *stop = YES;
+        }
+    }];
+
+    return volume;
 }
 
 #pragma mark - ServiceCommandDelegate
@@ -976,37 +1012,18 @@
     [self.volumeControl getVolumeWithSuccess:success failure:failure];
 
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
-        // this object is expected to be either a map of volume properties or
-        // an array of maps for different channels
-        id channelsObject = responseObject[@"Event"][@"InstanceID"][@"Volume"];
-        __block int volume = -1;
+        const NSInteger masterVolume = [self valueForVolumeKey:@"Volume"
+                                                     atChannel:@"Master"
+                                                    inResponse:responseObject];
 
-        NSArray *channels = nil;
-        if ([channelsObject isKindOfClass:[NSArray class]]) {
-            channels = channelsObject;
-        } else if ([channelsObject isKindOfClass:[NSDictionary class]]) {
-            channels = [NSArray arrayWithObject:channelsObject];
-        } else {
-            DLog(@"Unexpected contents for volume notification (%@ object)",
-                 NSStringFromClass(channelsObject.class));
-        }
-
-        [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
-            if ([@"Master" isEqualToString:channel[@"channel"]])
-            {
-                volume = [channel[@"val"] intValue];
-                *stop = YES;
-            }
-        }];
-
-        if (volume == -1)
+        if (masterVolume == kValueNotFound)
         {
             if (failure)
                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume in subscription response"]);
         } else
         {
             if (success)
-                success((float) volume / 100.0f);
+                success((float) masterVolume / 100.0f);
         }
     };
 
@@ -1085,25 +1102,18 @@
     [self.volumeControl getMuteWithSuccess:success failure:failure];
 
     SuccessBlock successBlock = ^(NSDictionary *responseObject) {
-        NSArray *channels = responseObject[@"Event"][@"InstanceID"][@"Mute"];
-        __block int mute = -1;
+        const NSInteger masterMute = [self valueForVolumeKey:@"Mute"
+                                                   atChannel:@"Master"
+                                                  inResponse:responseObject];
 
-        [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
-            if ([@"Master" isEqualToString:channel[@"channel"]])
-            {
-                mute = [channel[@"val"] intValue];
-                *stop = YES;
-            }
-        }];
-
-        if (mute == -1)
+        if (masterMute == kValueNotFound)
         {
             if (failure)
                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute in subscription response"]);
         } else
         {
             if (success)
-                success((BOOL) mute);
+                success((BOOL) masterMute);
         }
     };
 
