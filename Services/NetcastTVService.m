@@ -1644,6 +1644,12 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
 {
+    if (self.dlnaService)
+    {
+        [self.dlnaService setVolume:volume success:success failure:failure];
+        return;
+    }
+    
     if (failure)
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }

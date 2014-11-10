@@ -598,7 +598,7 @@ static const NSInteger kValueNotFound = -1;
         NSString *transportState = [[[response objectForKey:@"CurrentTransportState"] objectForKey:@"text"] uppercaseString];
 
         MediaControlPlayState playState = MediaControlPlayStateUnknown;
-
+        
         if ([transportState isEqualToString:@"STOPPED"])
             playState = MediaControlPlayStateFinished;
         else if ([transportState isEqualToString:@"PAUSED_PLAYBACK"])
@@ -672,7 +672,7 @@ static const NSInteger kValueNotFound = -1;
         else if ([transportState isEqualToString:@"NO_MEDIA_PRESENT"])
             playState = MediaControlPlayStateIdle;
 
-        if (success)
+        if (success && transportState)
             success(playState);
     };
 
