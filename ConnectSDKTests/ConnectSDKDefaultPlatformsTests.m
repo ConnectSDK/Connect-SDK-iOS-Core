@@ -1,6 +1,6 @@
 //
-//  ConnectSDKTests.m
-//  ConnectSDKTests
+//  ConnectSDKDefaultPlatformsTests.m
+//  ConnectSDKDefaultPlatformsTests
 //
 //  Created by Eugene Nikolskyi on 11/11/14.
 //  Copyright (c) 2014 LG Electronics. All rights reserved.
@@ -11,12 +11,12 @@
 
 #import "ConnectSDKDefaultPlatforms.h"
 
-/// Generic tests for the ConnectSDK.
-@interface ConnectSDKTests : XCTestCase
+/// Tests for the ConnectSDK's default platforms list.
+@interface ConnectSDKDefaultPlatformsTests : XCTestCase
 
 @end
 
-@implementation ConnectSDKTests
+@implementation ConnectSDKDefaultPlatformsTests
 
 /// Tests that the default platforms list is defined and not empty.
 - (void)testThereShouldBeDefaultPlatforms {
