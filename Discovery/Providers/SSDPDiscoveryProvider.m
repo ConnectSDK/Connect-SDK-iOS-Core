@@ -19,7 +19,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SSDPDiscoveryProvider.h"
+#import "SSDPDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
 #import "SSDPSocketListener.h"
 #import "CTXMLReader.h"
@@ -42,9 +42,6 @@ NSString* machineName()
 @interface SSDPDiscoveryProvider() <SocketListenerDelegate, NSXMLParserDelegate>
 {
     NSString *_ssdpHostName;
-
-    SSDPSocketListener *_multicastSocket;
-    SSDPSocketListener *_searchSocket;
 
     NSArray *_serviceFilters;
     NSMutableDictionary *_foundServices;
