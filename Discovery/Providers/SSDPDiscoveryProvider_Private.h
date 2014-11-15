@@ -20,9 +20,11 @@
 
 #import "SSDPDiscoveryProvider.h"
 
+#import "SSDPSocketListener.h"
+
 @class SSDPSocketListener;
 
-@interface SSDPDiscoveryProvider ()
+@interface SSDPDiscoveryProvider () <SocketListenerDelegate>
 
 @property (nonatomic, strong) SSDPSocketListener *multicastSocket;
 @property (nonatomic, strong) SSDPSocketListener *searchSocket;
