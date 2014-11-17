@@ -98,7 +98,7 @@
     ServiceDescription *serviceDescription = [[ServiceDescription alloc] initWithAddress:[self.address copy] UUID:[self.UUID copy]];
     serviceDescription.serviceId = [self.serviceId copy];
     serviceDescription.port = self.port;
-    serviceDescription.type = [self.serviceId copy];
+    serviceDescription.type = [self.type copy];
     serviceDescription.version = [self.version copy];
     serviceDescription.friendlyName = [self.friendlyName copy];
     serviceDescription.manufacturer = [self.manufacturer copy];
