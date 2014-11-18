@@ -23,6 +23,8 @@ static NSString *const kKeySSDP = @"ssdp";
 static NSString *const kKeyFilter = @"filter";
 static NSString *const kKeyServiceID = @"serviceId";
 
+static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
+
 static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) {
     return CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(msg, (__bridge CFStringRef)header));
 }
@@ -221,9 +223,108 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
     [self.provider startDiscovery];
 
     // Assert
-    [self waitForExpectationsWithTimeout:2.0
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
                                  handler:^(NSError *error) {
                                      XCTAssertNil(error, @"Test timeout");
+                                     OCMVerifyAll(delegateMock);
+                                 }];
+}
+
+- (void)testDelegateDidLoseServiceShouldBeCalledAfterReceivingByeByeNotification {
+    // Arrange
+    id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
+    self.provider.delegate = delegateMock;
+
+    id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
+    self.provider.searchSocket = searchSocketMock;
+
+    NSString *serviceType = @"some:thing";
+    NSDictionary *filter = @{kKeySSDP: @{kKeyFilter: serviceType},
+                             kKeyServiceID: @"SomethingNew"};
+    [self.provider addDeviceFilter:filter];
+
+    NSString *kServiceAddress = @"127.0.1.2";
+    NSString *kDeviceDescriptionURL = [NSString stringWithFormat:@"http://%@:7676/root", kServiceAddress];
+    NSString *kUUID = @"f21e800a-1000-ab08-8e5a-76f4fcb5e772";
+
+    OCMStub([searchSocketMock sendData:[OCMArg isNotNil]
+                             toAddress:kSSDPMulticastIPAddress
+                               andPort:kSSDPMulticastTCPPort]).andDo((^(NSInvocation *invocation) {
+        NSString *searchResponse = [NSString stringWithFormat:
+                                    @"HTTP/1.1 200 OK\r\n"
+                                    @"CACHE-CONTROL: max-age=1800\r\n"
+                                    @"Date: Thu, 01 Jan 1970 04:04:04 GMT\r\n"
+                                    @"EXT:\r\n"
+                                    @"LOCATION: %@\r\n"
+                                    @"SERVER: Linux/4.2 UPnP/1.1 MagicDevice/1.0\r\n"
+                                    @"ST: %@\r\n"
+                                    @"USN: uuid:%@::urn:schemas-upnp-org:device:thing:1\r\n"
+                                    @"Content-Length: 0\r\n"
+                                    @"\r\n",
+                                    kDeviceDescriptionURL, serviceType, kUUID];
+        NSData *searchResponseData = [searchResponse dataUsingEncoding:NSUTF8StringEncoding];
+
+        [self.provider socket:searchSocketMock
+               didReceiveData:searchResponseData
+                  fromAddress:kServiceAddress];
+    }));
+
+    XCTestExpectation *deviceDescriptionResponseExpectation = [self expectationWithDescription:@"Device description response"];
+
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        return [kDeviceDescriptionURL isEqualToString:request.URL.absoluteString];
+    } withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+        return [OHHTTPStubsResponse responseWithFileAtPath:OHPathForFileInBundle(@"ssdp_device_description.xml", nil)
+                                                statusCode:200
+                                                   headers:nil];
+    }];
+
+    __block ServiceDescription *foundService;
+    OCMStub([delegateMock discoveryProvider:self.provider
+                             didFindService:[OCMArg isNotNil]]).andDo(^(NSInvocation *inv) {
+        // credit: http://stackoverflow.com/questions/17907987/nsinvocation-getargumentatindex-confusion-while-testing-blocks-with-ocmock#comment26357777_17907987
+        __unsafe_unretained ServiceDescription *tmp;
+        [inv getArgument:&tmp atIndex:3];
+        foundService = tmp;
+
+        [deviceDescriptionResponseExpectation fulfill];
+    });
+
+    NSString *byebyeNotification = [NSString stringWithFormat:
+                                    @"NOTIFY * HTTP/1.1\r\n"
+                                    @"HOST: 239.255.255.250:1900\r\n"
+                                    @"NT: %@\r\n"
+                                    @"NTS: ssdp:byebye\r\n"
+                                    @"USN: uuid:%@::urn:schemas-upnp-org:device:thing:1\r\n"
+                                    @"\r\n",
+                                    serviceType, kUUID];
+    NSData *byebyeNotificationData = [byebyeNotification dataUsingEncoding:NSUTF8StringEncoding];
+
+    [self.provider startDiscovery];
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error, @"Find service timeout");
+                                     OCMVerifyAll(delegateMock);
+                                 }];
+
+    XCTestExpectation *didLoseServiceExpectation = [self expectationWithDescription:@"didLoseService: expectation"];
+    OCMExpect([delegateMock discoveryProvider:self.provider
+                               didLoseService:[OCMArg checkWithBlock:^BOOL(ServiceDescription *service) {
+        XCTAssertEqualObjects(service, foundService, @"The lost service is not the found one");
+
+        [didLoseServiceExpectation fulfill];
+        return YES;
+    }]]);
+
+    // Act
+    [self.provider socket:searchSocketMock
+           didReceiveData:byebyeNotificationData
+              fromAddress:kServiceAddress];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error, @"Lose service timeout");
                                      OCMVerifyAll(delegateMock);
                                  }];
 }
