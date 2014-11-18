@@ -707,15 +707,38 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
+    [self getMediaMetaDataInfoWithSuccess:^(NSDictionary *responseObject)
      {
-         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
-         NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
+         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetMediaInfoResponse"];
+         NSString *metaDataString = [[response objectForKey:@"CurrentURIMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
                  success([self getMetaDataDictionary:metaDataString]);
-            }
+         }
      } failure:failure];
+}
+
+- (void)getMediaMetaDataInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    "<s:Body>"
+    "<u:GetMediaInfo xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+    "<InstanceID>0</InstanceID>"
+    "</u:GetMediaInfo>"
+    "</s:Body>"
+    "</s:Envelope>";
+    
+    NSDictionary *commandPayload = @{
+                                     kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetMediaInfo\"",
+                                     kDataFieldName : commandXML
+                                     };
+    
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
+    
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
