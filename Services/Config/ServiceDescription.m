@@ -20,6 +20,8 @@
 
 #import "ServiceDescription.h"
 
+#define PROP(prop) NSStringFromSelector(@selector(prop))
+
 @implementation ServiceDescription
 
 - (instancetype)initWithAddress:(NSString *)address UUID:(NSString*)UUID
@@ -91,7 +93,7 @@
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-#pragma NSCopying methods
+#pragma mark - NSCopying methods
 
 - (id) copy
 {
@@ -116,6 +118,71 @@
 - (id) copyWithZone:(NSZone *)zone
 {
     return [self copy];
+}
+
+#pragma mark - Equality methods
+
+- (BOOL)isEqualToServiceDescription:(ServiceDescription *)service
+{
+    if (!service) {
+        return NO;
+    }
+
+    NSArray *stringProperties = @[PROP(address), PROP(serviceId), PROP(UUID),
+                                  PROP(type), PROP(version), PROP(friendlyName),
+                                  PROP(manufacturer), PROP(modelName),
+                                  PROP(modelDescription), PROP(modelNumber),
+                                  PROP(locationXML)];
+    for (NSString *propName in stringProperties) {
+        NSString *selfProp = [self valueForKey:propName];
+        NSString *otherProp = [service valueForKey:propName];
+        const BOOL haveSameProperty = (!selfProp && !otherProp) || [selfProp isEqualToString:otherProp];
+        if (!haveSameProperty) {
+            return NO;
+        }
+    };
+
+    const BOOL haveSamePort = (self.port == service.port);
+    const BOOL haveSameCommandURL = (!self.commandURL && !service.commandURL) || [self.commandURL isEqual:service.commandURL];
+    const BOOL haveSameServiceList = (!self.serviceList && !service.serviceList) || [self.serviceList isEqualToArray:service.serviceList];
+    const BOOL haveSameHeaders = (!self.locationResponseHeaders && !service.locationResponseHeaders) || [self.locationResponseHeaders isEqualToDictionary:service.locationResponseHeaders];
+
+    // NB: lastDetection isn't compared here
+    return (haveSamePort && haveSameCommandURL && haveSameServiceList &&
+            haveSameHeaders);
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object) {
+        return YES;
+    }
+
+    if (![object isKindOfClass:[ServiceDescription class]]) {
+        return NO;
+    }
+
+    return [self isEqualToServiceDescription:object];
+}
+
+- (NSUInteger)hash
+{
+    NSArray *properties = @[PROP(address), PROP(serviceId), PROP(UUID),
+                            PROP(type), PROP(version), PROP(friendlyName),
+                            PROP(manufacturer), PROP(modelName),
+                            PROP(modelDescription), PROP(modelNumber),
+                            PROP(commandURL), PROP(locationXML),
+                            PROP(serviceList), PROP(locationResponseHeaders)];
+    NSUInteger hash = 0;
+    for (NSString *propName in properties) {
+        id prop = [self valueForKey:propName];
+        hash ^= [prop hash];
+    }
+
+    hash ^= self.port;
+    hash ^= @(self.lastDetection).hash;
+
+    return hash;
 }
 
 @end
