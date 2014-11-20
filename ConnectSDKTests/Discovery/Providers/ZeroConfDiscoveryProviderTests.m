@@ -262,4 +262,121 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
                                  }];
 }
 
+- (void)testShouldNotCallDelegateDidFindServiceAfterFindingServiceWithNoAddresses {
+    // Arrange
+    id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
+    self.provider.netServiceBrowser = serviceBrowserMock;
+
+    id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
+    self.provider.delegate = delegateMock;
+
+    NSString *serviceType = @"zerotest";
+    NSDictionary *filter = @{kKeyZeroconf: @{kKeyFilter: serviceType},
+                             kKeyServiceID: @"ZeroService"};
+    [self.provider addDeviceFilter:filter];
+
+    id netServiceMock = OCMClassMock([NSNetService class]);
+    OCMStub([netServiceMock name]).andReturn(@"zeroservice");
+    OCMStub([(NSNetService *)netServiceMock type]).andReturn(serviceType);
+
+    OCMStub([serviceBrowserMock searchForServicesOfType:serviceType
+                                               inDomain:[OCMArg isNotNil]]).andDo(^(NSInvocation *_) {
+        [self.provider netServiceBrowser:serviceBrowserMock
+                          didFindService:netServiceMock
+                              moreComing:NO];
+    });
+
+    NSArray *addresses = @[];
+    OCMStub([netServiceMock addresses]).andReturn(addresses);
+
+    [[[[netServiceMock stub] ignoringNonObjectArgs] andDo:^(NSInvocation *_) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.provider netServiceDidResolveAddress:netServiceMock];
+        });
+    }] resolveWithTimeout:0];
+
+    OCMStub([delegateMock discoveryProvider:self.provider
+                             didFindService:[OCMArg isNotNil]]).andDo(^(NSInvocation *inv) {
+        XCTFail(@"didFindService: should not be called");
+    });
+
+    // Act
+    [self.provider startDiscovery];
+
+    // Assert
+    // XCTestExpectation doesn't work in this case, because it fails the test on
+    // timeout, whereas we need to catch that event
+    NSDate *const timeoutDate = [NSDate dateWithTimeIntervalSinceNow:kDefaultAsyncTestTimeout];
+    while ([timeoutDate timeIntervalSinceNow] > 0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:timeoutDate];
+    }
+}
+
+- (void)testShouldNotCallDelegateDidLoseServiceAfterRemovingServiceWithNoAddresses {
+    // Arrange
+    id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
+    self.provider.netServiceBrowser = serviceBrowserMock;
+
+    id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
+    self.provider.delegate = delegateMock;
+
+    NSString *serviceType = @"zerotest";
+    NSDictionary *filter = @{kKeyZeroconf: @{kKeyFilter: serviceType},
+                             kKeyServiceID: @"ZeroService"};
+    [self.provider addDeviceFilter:filter];
+
+    id netServiceMock = OCMClassMock([NSNetService class]);
+    OCMStub([netServiceMock name]).andReturn(@"zeroservice");
+    OCMStub([(NSNetService *)netServiceMock type]).andReturn(serviceType);
+
+    OCMStub([serviceBrowserMock searchForServicesOfType:serviceType
+                                               inDomain:[OCMArg isNotNil]]).andDo(^(NSInvocation *_) {
+        [self.provider netServiceBrowser:serviceBrowserMock
+                          didFindService:netServiceMock
+                              moreComing:NO];
+    });
+
+    NSArray *addresses = @[];
+    OCMStub([netServiceMock addresses]).andReturn(addresses);
+
+    [[[[netServiceMock stub] ignoringNonObjectArgs] andDo:^(NSInvocation *_) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.provider netServiceDidResolveAddress:netServiceMock];
+        });
+    }] resolveWithTimeout:0];
+
+    OCMStub([delegateMock discoveryProvider:self.provider
+                             didFindService:OCMOCK_ANY]).andDo(^(NSInvocation *_) {
+        XCTFail(@"didFindService: should not be called");
+    });
+
+    [self.provider startDiscovery];
+
+    // XCTestExpectation doesn't work in this case, because it fails the test on
+    // timeout, whereas we need to catch that event
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:kDefaultAsyncTestTimeout];
+    while ([timeoutDate timeIntervalSinceNow] > 0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:timeoutDate];
+    }
+
+    OCMStub([delegateMock discoveryProvider:self.provider
+                             didLoseService:OCMOCK_ANY]).andDo(^(NSInvocation *_) {
+        XCTFail(@"didLoseService: should not be called");
+    });
+
+    // Act
+    [self.provider netServiceBrowser:serviceBrowserMock
+                    didRemoveService:netServiceMock
+                          moreComing:NO];
+
+    // Assert
+    timeoutDate = [NSDate dateWithTimeIntervalSinceNow:kDefaultAsyncTestTimeout];
+    while ([timeoutDate timeIntervalSinceNow] > 0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:timeoutDate];
+    }
+}
+
 @end
