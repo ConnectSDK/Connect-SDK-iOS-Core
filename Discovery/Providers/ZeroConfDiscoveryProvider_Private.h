@@ -20,7 +20,8 @@
 
 #import "ZeroConfDiscoveryProvider.h"
 
-@interface ZeroConfDiscoveryProvider ()
+@interface ZeroConfDiscoveryProvider () <NSNetServiceBrowserDelegate,
+                                         NSNetServiceDelegate>
 
 @property (nonatomic, strong) NSNetServiceBrowser *netServiceBrowser;
 

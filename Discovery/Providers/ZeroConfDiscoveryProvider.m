@@ -23,7 +23,7 @@
 #include <arpa/inet.h>
 
 
-@interface ZeroConfDiscoveryProvider () <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
+@interface ZeroConfDiscoveryProvider ()
 {
     NSArray *_serviceFilters;
     NSTimer *_refreshTimer;
