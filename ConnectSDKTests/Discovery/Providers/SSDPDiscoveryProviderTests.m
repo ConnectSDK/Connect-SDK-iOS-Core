@@ -43,6 +43,9 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
 
 
 /// Tests for the SSDPDiscoveryProvider class.
+/// In some tests, the SSDPSocketListener class is mocked to verify the output
+/// data or provide some input data. Also, HTTP requests/responses are mocked
+/// to fake device description data.
 @interface SSDPDiscoveryProviderTests : XCTestCase
 
 @property (nonatomic, strong) SSDPDiscoveryProvider *provider;
@@ -69,18 +72,22 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
 
 #pragma mark - General tests
 
+/// Tests that a new provider is not running by default.
 - (void)testShouldNotBeRunningAfterCreation {
     XCTAssertFalse(self.provider.isRunning, @"The provider must not be running after creation");
 }
 
 #pragma mark - Device Filters tests
 
+/// Tests that an attempt to remove a nil device filter is handled gracefully.
 - (void)testRemovingNilDeviceFilterShouldNotCrash {
     [self.provider removeDeviceFilter:nil];
 
     XCTAssert(YES, @"Removing nil device filter must not crash");
 }
 
+/// Tests that an attempt to remove a device filter that wasn't added before is
+/// handled gracefully.
 - (void)testRemovingUnknownDeviceFilterShouldNotCrash {
     NSDictionary *filter = @{kKeySSDP: @{kKeyFilter: @"some:thing"}};
     [self.provider removeDeviceFilter:filter];
@@ -90,13 +97,16 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
 
 #pragma mark - Discovery & Delegate tests
 
+/// Tests that -startDiscovery sets up the isRunning flag.
 - (void)testShouldBeRunningAfterDiscoveryStart {
     [self.provider startDiscovery];
 
     XCTAssertTrue(self.provider.isRunning, @"The provider should be running after discovery start");
 }
 
-- (void)testStartDiscoveryShouldSendSearchRequest {
+/// Tests that starting a discovery should send the correct multicast SSDP
+/// M-SEARCH request, with the headers according to the UPnP specification.
+- (void)testStartDiscoveryShouldSendCorrectSearchRequest {
     // Arrange
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     self.provider.searchSocket = searchSocketMock;
@@ -150,6 +160,10 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
                                  andPort:kSSDPMulticastTCPPort]);
 }
 
+/// Tests that the delegate's -discoveryProvider:didFindService: method is
+/// called with the correct service description after receiving a search
+/// response. The test uses the `ssdp_device_description.xml` file for mocked
+/// device description response.
 - (void)testDelegateDidFindServiceShouldBeCalledAfterReceivingSearchResponse {
     // Arrange
     id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
@@ -242,6 +256,10 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
                                  }];
 }
 
+/// Tests that the delegate's -discoveryProvider:didLoseService: method is
+/// called with the correct service description (matching the found one) after
+/// receiving a UPnP bye-bye notification. The test uses the
+/// `ssdp_device_description.xml` file for mocked device description response.
 - (void)testDelegateDidLoseServiceShouldBeCalledAfterReceivingByeByeNotification {
     // Arrange
     id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));

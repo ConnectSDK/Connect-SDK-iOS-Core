@@ -36,6 +36,8 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
 
 
 /// Tests for the ZeroConfDiscoveryProvider class.
+/// NSNetServiceBrowser and NSNetService classes are mocked to avoid using the
+/// real networking and verify the interactions are correct.
 @interface ZeroConfDiscoveryProviderTests : XCTestCase
 
 @property (nonatomic, strong) ZeroConfDiscoveryProvider *provider;
@@ -58,8 +60,10 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
     [super tearDown];
 }
 
-#pragma mark -
+#pragma mark - Discovery & Delegate tests
 
+/// Tests that -startDiscovery starts to search for services of the specified
+/// type.
 - (void)testStartDiscoveryShouldSearchForServices {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -77,6 +81,7 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
                                                  inDomain:@"local."]);
 }
 
+/// Tests that -stopDiscovery stops searching for services.
 - (void)testStopDiscoveryShouldStopServiceBrowser {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -90,6 +95,7 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
     OCMVerify([serviceBrowserMock stop]);
 }
 
+/// Tests that a found service is asked to resolve the addresses.
 - (void)testShouldResolveServiceAfterDiscovering {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -116,6 +122,9 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
     [[[netServiceMock verify] ignoringNonObjectArgs] resolveWithTimeout:0];
 }
 
+/// Tests that the delegate's -discoveryProvider:didFindService: method is
+/// called with the correct service description after resolving a service
+/// successfully.
 - (void)testShouldCallDelegateDidFindServiceAfterResolvingService {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -191,6 +200,9 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
                                  }];
 }
 
+/// Tests that the delegate's -discoveryProvider:didLoseService: method is
+/// called with the correct service description (mathcing the found one) after
+/// removing a previously found service.
 - (void)testShouldCallDelegateDidLoseServiceAfterRemovingService {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -274,6 +286,8 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
                                  }];
 }
 
+/// Tests that the delegate's -discoveryProvider:didFindService: method is not
+/// called if a service is resolved with no addresses.
 - (void)testShouldNotCallDelegateDidFindServiceAfterFindingServiceWithNoAddresses {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
@@ -325,6 +339,8 @@ static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
     }
 }
 
+/// Tests that the delegate's -discoveryProvider:didLoseService: method is not
+/// called when removing a found service with no resolved addresses.
 - (void)testShouldNotCallDelegateDidLoseServiceAfterRemovingServiceWithNoAddresses {
     // Arrange
     id serviceBrowserMock = OCMClassMock([NSNetServiceBrowser class]);
