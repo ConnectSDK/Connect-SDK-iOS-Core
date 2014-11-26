@@ -20,7 +20,10 @@
 
 #import "ServiceDescription.h"
 
-#define PROP(prop) NSStringFromSelector(@selector(prop))
+/// Get a property's name as a string. Prevents mistypings when using methods
+/// like `valueForKey:`.
+/// http://stackoverflow.com/questions/6615826/get-property-name-as-a-string/12623102#12623102
+#define STRING_PROPERTY(prop) NSStringFromSelector(@selector(prop))
 
 @implementation ServiceDescription
 
@@ -128,11 +131,17 @@
         return NO;
     }
 
-    NSArray *stringProperties = @[PROP(address), PROP(serviceId), PROP(UUID),
-                                  PROP(type), PROP(version), PROP(friendlyName),
-                                  PROP(manufacturer), PROP(modelName),
-                                  PROP(modelDescription), PROP(modelNumber),
-                                  PROP(locationXML)];
+    NSArray *stringProperties = @[STRING_PROPERTY(address),
+                                  STRING_PROPERTY(serviceId),
+                                  STRING_PROPERTY(UUID),
+                                  STRING_PROPERTY(type),
+                                  STRING_PROPERTY(version),
+                                  STRING_PROPERTY(friendlyName),
+                                  STRING_PROPERTY(manufacturer),
+                                  STRING_PROPERTY(modelName),
+                                  STRING_PROPERTY(modelDescription),
+                                  STRING_PROPERTY(modelNumber),
+                                  STRING_PROPERTY(locationXML)];
     for (NSString *propName in stringProperties) {
         NSString *selfProp = [self valueForKey:propName];
         NSString *otherProp = [service valueForKey:propName];
@@ -167,12 +176,18 @@
 
 - (NSUInteger)hash
 {
-    NSArray *properties = @[PROP(address), PROP(serviceId), PROP(UUID),
-                            PROP(type), PROP(version), PROP(friendlyName),
-                            PROP(manufacturer), PROP(modelName),
-                            PROP(modelDescription), PROP(modelNumber),
-                            PROP(commandURL), PROP(locationXML),
-                            PROP(serviceList), PROP(locationResponseHeaders)];
+    NSArray *properties = @[STRING_PROPERTY(address),
+                            STRING_PROPERTY(serviceId), STRING_PROPERTY(UUID),
+                            STRING_PROPERTY(type), STRING_PROPERTY(version),
+                            STRING_PROPERTY(friendlyName),
+                            STRING_PROPERTY(manufacturer),
+                            STRING_PROPERTY(modelName),
+                            STRING_PROPERTY(modelDescription),
+                            STRING_PROPERTY(modelNumber),
+                            STRING_PROPERTY(commandURL),
+                            STRING_PROPERTY(locationXML),
+                            STRING_PROPERTY(serviceList),
+                            STRING_PROPERTY(locationResponseHeaders)];
     NSUInteger hash = 0;
     for (NSString *propName in properties) {
         id prop = [self valueForKey:propName];
