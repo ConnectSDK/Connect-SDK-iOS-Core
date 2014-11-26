@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" configId="1">
+    <specVersion>
+        <major>1</major>
+        <minor>1</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:thing:1</deviceType>
+        <friendlyName>short user-friendly title</friendlyName>
+        <manufacturer>manufacturer name</manufacturer>
+        <manufacturerURL>URL to manufacturer site</manufacturerURL>
+        <modelDescription>long user-friendly title</modelDescription>
+        <modelName>model name</modelName>
+        <modelNumber>model number</modelNumber>
+        <modelURL>URL to model site</modelURL>
+        <serialNumber>manufacturer's serial number</serialNumber>
+        <UDN>uuid:f21e800a-1000-ab08-8e5a-76f4fcb5e772</UDN>
+        <serviceList>
+            <service>
+                <serviceType>urn:schemas-upnp-org:service:serviceType:v</serviceType>
+                <serviceId>urn:upnp-org:serviceId:serviceID</serviceId>
+                <SCPDURL>http://127.0.1.2:9999/scpd</SCPDURL>
+                <controlURL>http://127.0.1.2:9999/cnc</controlURL>
+                <eventSubURL>http://127.0.1.2:9999/event</eventSubURL>
+            </service>
+        </serviceList>
+    </device>
+</root>

@@ -43,4 +43,6 @@
 - (instancetype)initWithAddress:(NSString *)address UUID:(NSString*)UUID;
 + (instancetype)descriptionWithAddress:(NSString *)address UUID:(NSString*)UUID;
 
+- (BOOL)isEqualToServiceDescription:(ServiceDescription *)service;
+
 @end

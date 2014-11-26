@@ -18,14 +18,13 @@
 //  limitations under the License.
 //
 
-#import "ZeroConfDiscoveryProvider.h"
+#import "ZeroConfDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
 #include <arpa/inet.h>
 
 
-@interface ZeroConfDiscoveryProvider () <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
+@interface ZeroConfDiscoveryProvider ()
 {
-    NSNetServiceBrowser *_netServiceBrowser;
     NSArray *_serviceFilters;
     NSTimer *_refreshTimer;
     NSMutableDictionary *_resolvingDevices;

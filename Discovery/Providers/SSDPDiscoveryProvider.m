@@ -19,9 +19,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SSDPDiscoveryProvider.h"
+#import "SSDPDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
-#import "SSDPSocketListener.h"
 #import "CTXMLReader.h"
 #import "DeviceService.h"
 
@@ -39,12 +38,9 @@ NSString* machineName()
     return [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
 }
 
-@interface SSDPDiscoveryProvider() <SocketListenerDelegate, NSXMLParserDelegate>
+@interface SSDPDiscoveryProvider() <NSXMLParserDelegate>
 {
     NSString *_ssdpHostName;
-
-    SSDPSocketListener *_multicastSocket;
-    SSDPSocketListener *_searchSocket;
 
     NSArray *_serviceFilters;
     NSMutableDictionary *_foundServices;

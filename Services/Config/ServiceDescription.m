@@ -20,6 +20,11 @@
 
 #import "ServiceDescription.h"
 
+/// Get a property's name as a string. Prevents mistypings when using methods
+/// like `valueForKey:`.
+/// http://stackoverflow.com/questions/6615826/get-property-name-as-a-string/12623102#12623102
+#define STRING_PROPERTY(prop) NSStringFromSelector(@selector(prop))
+
 @implementation ServiceDescription
 
 - (instancetype)initWithAddress:(NSString *)address UUID:(NSString*)UUID
@@ -91,14 +96,14 @@
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-#pragma NSCopying methods
+#pragma mark - NSCopying methods
 
 - (id) copy
 {
     ServiceDescription *serviceDescription = [[ServiceDescription alloc] initWithAddress:[self.address copy] UUID:[self.UUID copy]];
     serviceDescription.serviceId = [self.serviceId copy];
     serviceDescription.port = self.port;
-    serviceDescription.type = [self.serviceId copy];
+    serviceDescription.type = [self.type copy];
     serviceDescription.version = [self.version copy];
     serviceDescription.friendlyName = [self.friendlyName copy];
     serviceDescription.manufacturer = [self.manufacturer copy];
@@ -116,6 +121,83 @@
 - (id) copyWithZone:(NSZone *)zone
 {
     return [self copy];
+}
+
+#pragma mark - Equality methods
+
+- (BOOL)isEqualToServiceDescription:(ServiceDescription *)service
+{
+    if (!service) {
+        return NO;
+    }
+
+    NSArray *stringProperties = @[STRING_PROPERTY(address),
+                                  STRING_PROPERTY(serviceId),
+                                  STRING_PROPERTY(UUID),
+                                  STRING_PROPERTY(type),
+                                  STRING_PROPERTY(version),
+                                  STRING_PROPERTY(friendlyName),
+                                  STRING_PROPERTY(manufacturer),
+                                  STRING_PROPERTY(modelName),
+                                  STRING_PROPERTY(modelDescription),
+                                  STRING_PROPERTY(modelNumber),
+                                  STRING_PROPERTY(locationXML)];
+    for (NSString *propName in stringProperties) {
+        NSString *selfProp = [self valueForKey:propName];
+        NSString *otherProp = [service valueForKey:propName];
+        const BOOL haveSameProperty = (!selfProp && !otherProp) || [selfProp isEqualToString:otherProp];
+        if (!haveSameProperty) {
+            return NO;
+        }
+    };
+
+    const BOOL haveSamePort = (self.port == service.port);
+    const BOOL haveSameCommandURL = (!self.commandURL && !service.commandURL) || [self.commandURL isEqual:service.commandURL];
+    const BOOL haveSameServiceList = (!self.serviceList && !service.serviceList) || [self.serviceList isEqualToArray:service.serviceList];
+    const BOOL haveSameHeaders = (!self.locationResponseHeaders && !service.locationResponseHeaders) || [self.locationResponseHeaders isEqualToDictionary:service.locationResponseHeaders];
+
+    // NB: lastDetection isn't compared here
+    return (haveSamePort && haveSameCommandURL && haveSameServiceList &&
+            haveSameHeaders);
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object) {
+        return YES;
+    }
+
+    if (![object isKindOfClass:[ServiceDescription class]]) {
+        return NO;
+    }
+
+    return [self isEqualToServiceDescription:object];
+}
+
+- (NSUInteger)hash
+{
+    NSArray *properties = @[STRING_PROPERTY(address),
+                            STRING_PROPERTY(serviceId), STRING_PROPERTY(UUID),
+                            STRING_PROPERTY(type), STRING_PROPERTY(version),
+                            STRING_PROPERTY(friendlyName),
+                            STRING_PROPERTY(manufacturer),
+                            STRING_PROPERTY(modelName),
+                            STRING_PROPERTY(modelDescription),
+                            STRING_PROPERTY(modelNumber),
+                            STRING_PROPERTY(commandURL),
+                            STRING_PROPERTY(locationXML),
+                            STRING_PROPERTY(serviceList),
+                            STRING_PROPERTY(locationResponseHeaders)];
+    NSUInteger hash = 0;
+    for (NSString *propName in properties) {
+        id prop = [self valueForKey:propName];
+        hash ^= [prop hash];
+    }
+
+    hash ^= self.port;
+    hash ^= @(self.lastDetection).hash;
+
+    return hash;
 }
 
 @end
