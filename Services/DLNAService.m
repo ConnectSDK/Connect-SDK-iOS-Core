@@ -222,7 +222,7 @@ static const NSInteger kValueNotFound = -1;
         channels = [NSArray arrayWithObject:channelsObject];
     } else {
         DLog(@"Unexpected contents for volume notification (%@ object)",
-             NSStringFromClass(channelsObject.class));
+             NSStringFromClass([channelsObject class]));
     }
 
     [channels enumerateObjectsUsingBlock:^(NSDictionary *channel, NSUInteger idx, BOOL *stop) {
