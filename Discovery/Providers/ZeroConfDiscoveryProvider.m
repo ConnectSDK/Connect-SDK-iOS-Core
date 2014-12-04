@@ -175,7 +175,7 @@
     // according to Apple's docs, it is possible to have a service resolve with no addresses
     if (!sender.addresses || sender.addresses.count == 0)
     {
-        DLog(@"%@ resolved with 0 addresses, bailing ...");
+        DLog(@"%@ resolved with 0 addresses, bailing ...", sender.name);
         return;
     }
 
