@@ -22,6 +22,7 @@
 
 
 @implementation MediaInfo
+@synthesize description;
 
 // return nil here so that we force users to have URL and mime-type
 - (instancetype) init

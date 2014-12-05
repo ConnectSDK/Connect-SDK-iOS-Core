@@ -128,6 +128,13 @@
     [self sendNotSupportedFailure:failure];
 }
 
+- (void) displayImage:(MediaInfo *)mediaInfo
+              success:(MediaPlayerDisplaySuccessBlock)success
+              failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
 - (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
