@@ -31,21 +31,6 @@
 #import "GCDWebServerResponse.h"
 
 /**
- *  Log levels used by GCDWebServer.
- *
- *  @warning kGCDWebServerLogLevel_Debug is only available if "NDEBUG" is not
- *  defined when building.
- */
-typedef NS_ENUM(int, GCDWebServerLogLevel) {
-  kGCDWebServerLogLevel_Debug = 0,
-  kGCDWebServerLogLevel_Verbose,
-  kGCDWebServerLogLevel_Info,
-  kGCDWebServerLogLevel_Warning,
-  kGCDWebServerLogLevel_Error,
-  kGCDWebServerLogLevel_Exception,
-};
-
-/**
  *  The GCDWebServerMatchBlock is called for every handler added to the
  *  GCDWebServer whenever a new HTTP request has started (i.e. HTTP headers have
  *  been received). The block is passed the basic info for the request (HTTP method,
@@ -70,6 +55,19 @@ typedef GCDWebServerRequest* (^GCDWebServerMatchBlock)(NSString* requestMethod, 
 typedef GCDWebServerResponse* (^GCDWebServerProcessBlock)(GCDWebServerRequest* request);
 
 /**
+ *  The GCDWebServerAsynchronousProcessBlock works like the GCDWebServerProcessBlock
+ *  except the GCDWebServerResponse can be returned to the server at a later time
+ *  allowing for asynchronous generation of the response.
+ *
+ *  The block must eventually call "completionBlock" passing a GCDWebServerResponse
+ *  or nil on error, which will result in a 500 HTTP status code returned to the client.
+ *  It's however recommended to return a GCDWebServerErrorResponse on error so more
+ *  useful information can be returned to the client.
+ */
+typedef void (^GCDWebServerCompletionBlock)(GCDWebServerResponse* response);
+typedef void (^GCDWebServerAsyncProcessBlock)(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock);
+
+/**
  *  The port used by the GCDWebServer (NSNumber / NSUInteger).
  *
  *  The default value is 0 i.e. let the OS pick a random port.
@@ -81,7 +79,7 @@ extern NSString* const GCDWebServerOption_Port;
  *  the name will automatically take the value of the GCDWebServerOption_ServerName
  *  option. If this option is set to nil, Bonjour will be disabled.
  *
- *  The default value is an empty string.
+ *  The default value is nil.
  */
 extern NSString* const GCDWebServerOption_BonjourName;
 
@@ -91,6 +89,17 @@ extern NSString* const GCDWebServerOption_BonjourName;
  *  The default value is "_http._tcp", the service type for HTTP web servers.
  */
 extern NSString* const GCDWebServerOption_BonjourType;
+
+/**
+ *  Only accept HTTP requests coming from localhost i.e. not from the outside
+ *  network (NSNumber / BOOL).
+ *
+ *  The default value is NO.
+ *
+ *  @warning Bonjour should be disabled if using this option since the server
+ *  will not be reachable from the outside network anyway.
+ */
+extern NSString* const GCDWebServerOption_BindToLocalhost;
 
 /**
  *  The maximum number of incoming HTTP requests that can be queued waiting to
@@ -289,7 +298,7 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 - (instancetype)init;
 
 /**
- *  Adds a handler to the server to handle incoming HTTP requests.
+ *  Adds to the server a handler that generates responses synchronously when handling incoming HTTP requests.
  *
  *  Handlers are called in a LIFO queue, so if multiple handlers can potentially
  *  respond to a given request, the latest added one wins.
@@ -297,6 +306,16 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
  *  @warning Addling handlers while the server is running is not allowed.
  */
 - (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)processBlock;
+
+/**
+ *  Adds to the server a handler that generates responses asynchronously when handling incoming HTTP requests.
+ *
+ *  Handlers are called in a LIFO queue, so if multiple handlers can potentially
+ *  respond to a given request, the latest added one wins.
+ *
+ *  @warning Addling handlers while the server is running is not allowed.
+ */
+- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock;
 
 /**
  *  Removes all handlers previously added to the server.
@@ -392,21 +411,43 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 
 /**
  *  Adds a default handler to the server to handle all incoming HTTP requests
- *  with a given HTTP method.
+ *  with a given HTTP method and generate responses synchronously.
  */
 - (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
 
 /**
+ *  Adds a default handler to the server to handle all incoming HTTP requests
+ *  with a given HTTP method and generate responses asynchronously.
+ */
+- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+
+/**
  *  Adds a handler to the server to handle incoming HTTP requests with a given
- *  HTTP method and a specific case-insensitive path.
+ *  HTTP method and a specific case-insensitive path  and generate responses
+ *  synchronously.
  */
 - (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
 
 /**
  *  Adds a handler to the server to handle incoming HTTP requests with a given
- *  HTTP method and a path matching a case-insensitive regular expression.
+ *  HTTP method and a specific case-insensitive path and generate responses
+ *  asynchronously.
+ */
+- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+
+/**
+ *  Adds a handler to the server to handle incoming HTTP requests with a given
+ *  HTTP method and a path matching a case-insensitive regular expression and
+ *  generate responses synchronously.
  */
 - (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
+
+/**
+ *  Adds a handler to the server to handle incoming HTTP requests with a given
+ *  HTTP method and a path matching a case-insensitive regular expression and
+ *  generate responses asynchronously.
+ */
+- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 
 @end
 
@@ -437,42 +478,84 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 
 @end
 
+/**
+ *  GCDWebServer provides its own built-in logging facility which is used by
+ *  default. It simply sends log messages to stderr assuming it is connected
+ *  to a terminal type device.
+ *
+ *  GCDWebServer is also compatible with a limited set of third-party logging
+ *  facilities. If one of them is available at compile time, GCDWebServer will
+ *  automatically use it in place of the built-in one.
+ *
+ *  Currently supported third-party logging facilities are:
+ *  - XLFacility (by the same author as GCDWebServer): https://github.com/swisspol/XLFacility
+ *  - CocoaLumberjack: https://github.com/CocoaLumberjack/CocoaLumberjack
+ *
+ *  For both the built-in logging facility and CocoaLumberjack, the default
+ *  logging level is INFO (or DEBUG if the preprocessor constant "DEBUG"
+ *  evaluates to non-zero at compile time).
+ *
+ *  It's possible to have GCDWebServer use a custom logging facility by defining
+ *  the "__GCDWEBSERVER_LOGGING_HEADER__" preprocessor constant in Xcode build
+ *  settings to the name of a custom header file (escaped like \"MyLogging.h\").
+ *  This header file must define the following set of macros:
+ *
+ *    GWS_LOG_DEBUG(...)
+ *    GWS_LOG_VERBOSE(...)
+ *    GWS_LOG_INFO(...)
+ *    GWS_LOG_WARNING(...)
+ *    GWS_LOG_ERROR(...)
+ *    GWS_LOG_EXCEPTION(__EXCEPTION__)
+ *
+ *  IMPORTANT: Except for GWS_LOG_EXCEPTION() which gets passed an NSException,
+ *  these macros must behave like NSLog(). Furthermore the GWS_LOG_DEBUG() macro
+ *  should not do anything unless the preprocessor constant "DEBUG" evaluates to
+ *  non-zero.
+ *
+ *  The logging methods below send log messages to the same logging facility
+ *  used by GCDWebServer. They can be used for consistency wherever you interact
+ *  with GCDWebServer in your code (e.g. in the implementation of handlers).
+ */
 @interface GCDWebServer (Logging)
 
-#ifndef __GCDWEBSERVER_LOGGING_HEADER__
-
 /**
- *  Sets the current log level below which logged messages are discarded.
+ *  Sets the log level of the logging facility below which log messages are discarded.
  *
- *  The default level is either DEBUG or INFO if "NDEBUG" is defined at build-time.
- *  It can also be set at runtime with the "logLevel" environment variable.
+ *  @warning The interpretation of the "level" argument depends on the logging
+ *  facility used at compile time.
+ *
+ *  If using the built-in logging facility, the log levels are as follow:
+ *  DEBUG = 0
+ *  VERBOSE = 1
+ *  INFO = 2
+ *  WARNING = 3
+ *  ERROR = 4
+ *  EXCEPTION = 5
  */
-+ (void)setLogLevel:(GCDWebServerLogLevel)level;
-
-#endif
++ (void)setLogLevel:(int)level;
 
 /**
- *  Logs a message with the kGCDWebServerLogLevel_Verbose level.
+ *  Logs a message to the logging facility at the VERBOSE level.
  */
 - (void)logVerbose:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
 
 /**
- *  Logs a message with the kGCDWebServerLogLevel_Info level.
+ *  Logs a message to the logging facility at the INFO level.
  */
 - (void)logInfo:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
 
 /**
- *  Logs a message with the kGCDWebServerLogLevel_Warning level.
+ *  Logs a message to the logging facility at the WARNING level.
  */
 - (void)logWarning:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
 
 /**
- *  Logs a message with the kGCDWebServerLogLevel_Error level.
+ *  Logs a message to the logging facility at the ERROR level.
  */
 - (void)logError:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
 
 /**
- *  Logs an exception with the kGCDWebServerLogLevel_Exception level.
+ *  Logs an exception to the logging facility at the EXCEPTION level.
  */
 - (void)logException:(NSException*)exception;
 
