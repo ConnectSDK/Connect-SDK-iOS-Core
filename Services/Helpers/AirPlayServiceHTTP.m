@@ -19,6 +19,7 @@
 //
 
 #import "AirPlayServiceHTTP.h"
+#import "AirPlayServiceHTTPKeepAlive.h"
 #import "DeviceService.h"
 #import "AirPlayService.h"
 #import "ConnectError.h"
@@ -37,6 +38,7 @@
 @property (nonatomic, readonly) GCDWebServer *subscriptionServer;
 @property (nonatomic, readonly) dispatch_queue_t networkingQueue;
 @property (nonatomic, readonly) dispatch_queue_t imageProcessingQueue;
+@property (nonatomic, strong) AirPlayServiceHTTPKeepAlive *keepAlive;
 
 @end
 
@@ -364,6 +366,8 @@
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
 
+        [self startKeepAliveTimer];
+
         if (success)
             dispatch_on_main(^{ success(launchSession, self.service.mediaControl); });
     };
@@ -434,6 +438,7 @@
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject) {
         _assetId = nil;
+        [self stopKeepAliveTimer];
 
         if (success)
             success(responseObject);
@@ -562,6 +567,19 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
+}
+
+#pragma mark - Helpers
+
+- (void)startKeepAliveTimer {
+    self.keepAlive = [[AirPlayServiceHTTPKeepAlive alloc] initWithCommandDelegate:self];
+    self.keepAlive.commandURL = self.service.serviceDescription.commandURL;
+    [self.keepAlive startTimer];
+}
+
+- (void)stopKeepAliveTimer {
+    [self.keepAlive stopTimer];
+    self.keepAlive = nil;
 }
 
 @end
