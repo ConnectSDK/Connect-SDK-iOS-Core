@@ -19,6 +19,7 @@
 //
 
 #import "AirPlayServiceHTTP.h"
+#import "AirPlayServiceHTTPKeepAlive.h"
 #import "DeviceService.h"
 #import "AirPlayService.h"
 #import "ConnectError.h"
@@ -37,6 +38,7 @@
 @property (nonatomic, readonly) GCDWebServer *subscriptionServer;
 @property (nonatomic, readonly) dispatch_queue_t networkingQueue;
 @property (nonatomic, readonly) dispatch_queue_t imageProcessingQueue;
+@property (nonatomic, strong) AirPlayServiceHTTPKeepAlive *keepAlive;
 
 @end
 
@@ -316,6 +318,19 @@
     });
 }
 
+- (void) displayImage:(MediaInfo *)mediaInfo
+              success:(MediaPlayerDisplaySuccessBlock)success
+              failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
+}
+
 - (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
     _assetId = [[CTGuid randomGuid] stringValue];
@@ -351,12 +366,24 @@
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
 
+        [self startKeepAliveTimer];
+
         if (success)
             dispatch_on_main(^{ success(launchSession, self.service.mediaControl); });
     };
     command.callbackError = failure;
 
     [command send];
+}
+
+- (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
 - (void) closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -411,6 +438,7 @@
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject) {
         _assetId = nil;
+        [self stopKeepAliveTimer];
 
         if (success)
             success(responseObject);
@@ -539,6 +567,19 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
+}
+
+#pragma mark - Helpers
+
+- (void)startKeepAliveTimer {
+    self.keepAlive = [[AirPlayServiceHTTPKeepAlive alloc] initWithCommandDelegate:self];
+    self.keepAlive.commandURL = self.service.serviceDescription.commandURL;
+    [self.keepAlive startTimer];
+}
+
+- (void)stopKeepAliveTimer {
+    [self.keepAlive stopTimer];
+    self.keepAlive = nil;
 }
 
 @end
