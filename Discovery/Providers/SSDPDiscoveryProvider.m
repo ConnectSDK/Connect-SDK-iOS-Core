@@ -56,7 +56,7 @@ NSString* machineName()
 @implementation SSDPDiscoveryProvider
 
 static double refreshTime = 10.0;
-static double searchAttemptsBeforeKill = 3.0;
+static double searchAttemptsBeforeKill = 6.0;
 
 #pragma mark - Setup/creation
 
@@ -183,7 +183,7 @@ static double searchAttemptsBeforeKill = 3.0;
         BOOL refresh = NO;
         NSMutableArray *killKeys = [NSMutableArray array];
         
-        // 3 detection attempts, if still not present then kill it.
+        // 6 detection attempts, if still not present then kill it.
         double killPoint = [[NSDate date] timeIntervalSince1970] - (refreshTime * searchAttemptsBeforeKill);
 
         @synchronized (_foundServices)
