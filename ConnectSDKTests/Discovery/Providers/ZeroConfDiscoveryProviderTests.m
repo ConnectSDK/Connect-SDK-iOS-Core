@@ -32,7 +32,7 @@ static NSString *const kKeyZeroconf = @"zeroconf";
 static NSString *const kKeyFilter = @"filter";
 static NSString *const kKeyServiceID = @"serviceId";
 
-static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
+static const CGFloat kDefaultAsyncTestTimeout = 0.5f;
 
 
 /// Tests for the ZeroConfDiscoveryProvider class.
