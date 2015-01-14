@@ -1,8 +1,8 @@
 //
-//  ConnectSDKTests-Prefix.pch
+//  DLNAService_Private.h
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 11/11/14.
+//  Created by Eugene Nikolskyi on 11/13/14.
 //  Copyright (c) 2014 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +18,10 @@
 //  limitations under the License.
 //
 
-#ifndef ConnectSDK_ConnectSDKTests_Prefix_pch
-#define ConnectSDK_ConnectSDKTests_Prefix_pch
+#import "DLNAService.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@interface DLNAService ()
 
-#define CONNECT_SDK_VERSION @"0.test"
+@property (nonatomic, strong) id<ServiceCommandDelegate> serviceCommandDelegate;
 
-#define DLog(...)
-
-#define OCMOCK_NOTNIL [OCMArg isNotNil]
-
-#endif
+@end

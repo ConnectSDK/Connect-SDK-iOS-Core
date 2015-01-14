@@ -18,12 +18,14 @@
 //  limitations under the License.
 //
 
-#import "DLNAService.h"
+#import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "CTXMLReader.h"
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DLNAHTTPServer.h"
+
+#import "NSDictionary+KeyPredicateSearch.h"
 
 #define kDataFieldName @"XMLData"
 #define kActionFieldName @"SOAPAction"
@@ -102,6 +104,13 @@ static const NSInteger kValueNotFound = -1;
 //    // not supported
 //    return nil;
 //}
+
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
+}
 
 #pragma mark - Helper methods
 
@@ -625,7 +634,7 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject];
         NSString *durationString = [[response objectForKey:@"TrackDuration"] objectForKey:@"text"];
         NSTimeInterval duration = [self timeForString:durationString];
         if (success)
@@ -637,7 +646,7 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject];
         NSString *currentTimeString = [[response objectForKey:@"RelTime"] objectForKey:@"text"];
         NSTimeInterval currentTime = [self timeForString:currentTimeString];
 
@@ -699,7 +708,7 @@ static const NSInteger kValueNotFound = -1;
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -709,7 +718,7 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
      {
-         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+         NSDictionary *response = [self responseDataFromResponse:responseObject];
          NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
@@ -792,6 +801,15 @@ static const NSInteger kValueNotFound = -1;
         [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"] forKey:@"iconURL"];
     
     return mediaMetaData;
+}
+
+/// Returns a dictionary for the method in the given response object.
+- (NSDictionary *)responseDataFromResponse:(NSDictionary *)responseObject {
+    NSDictionary *envelopeObject = [responseObject objectForKeyEndingWithString:@":Envelope"];
+    NSDictionary *bodyObject = [envelopeObject objectForKeyEndingWithString:@":Body"];
+    NSDictionary *responseData = [bodyObject objectForKeyEndingWithString:@":GetPositionInfoResponse"];
+
+    return responseData;
 }
 
 #pragma mark - Media Player
