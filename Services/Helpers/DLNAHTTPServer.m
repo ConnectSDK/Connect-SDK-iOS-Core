@@ -21,7 +21,7 @@
 #import <ifaddrs.h>
 #import <arpa/inet.h>
 #import "DLNAHTTPServer.h"
-#import "DLNAService.h"
+#import "DeviceService.h"
 #import "CTXMLReader.h"
 #import "GCDWebServerDataRequest.h"
 #import "GCDWebServerHTTPStatusCodes.h"
@@ -30,25 +30,17 @@
 
 @implementation DLNAHTTPServer
 {
-    DLNAService *_service;
     NSMutableDictionary *_allSubscriptions;
 }
 
-- (instancetype) initWithService:(DLNAService *)service
+- (instancetype) init
 {
-    self = [super init];
-
-    if (self)
+    if (self = [super init])
     {
-        _service = service;
         _allSubscriptions = [NSMutableDictionary new];
     }
 
     return self;
-}
-
-- (instancetype)init {
-    return [self initWithService:nil];
 }
 
 - (BOOL) isRunning

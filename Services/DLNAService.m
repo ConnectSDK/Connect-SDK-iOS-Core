@@ -133,7 +133,7 @@ static const NSInteger kValueNotFound = -1;
         [self updateControlURLs];
 
         if (!_httpServer)
-            _httpServer = [[DLNAHTTPServer alloc] initWithService:self];
+            _httpServer = [DLNAHTTPServer new];
     } else
     {
         _avTransportControlURL = nil;
