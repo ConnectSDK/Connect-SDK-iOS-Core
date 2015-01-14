@@ -15,8 +15,6 @@
 #import "DLNAService_Private.h"
 #import "ConnectError.h"
 
-static const CGFloat kDefaultAsyncTestTimeout = 0.5f;
-
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
 
