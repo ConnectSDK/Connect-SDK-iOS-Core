@@ -600,10 +600,11 @@ static const NSInteger kValueNotFound = -1;
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetTransportInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetTransportInfoResponse"];
         NSString *transportState = [[[response objectForKey:@"CurrentTransportState"] objectForKey:@"text"] uppercaseString];
 
         MediaControlPlayState playState = MediaControlPlayStateUnknown;
@@ -634,7 +635,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [self responseDataFromResponse:responseObject];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetPositionInfoResponse"];
         NSString *durationString = [[response objectForKey:@"TrackDuration"] objectForKey:@"text"];
         NSTimeInterval duration = [self timeForString:durationString];
         if (success)
@@ -646,7 +648,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [self responseDataFromResponse:responseObject];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetPositionInfoResponse"];
         NSString *currentTimeString = [[response objectForKey:@"RelTime"] objectForKey:@"text"];
         NSTimeInterval currentTime = [self timeForString:currentTimeString];
 
@@ -718,7 +721,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
      {
-         NSDictionary *response = [self responseDataFromResponse:responseObject];
+         NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                       forMethod:@"GetPositionInfoResponse"];
          NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
@@ -803,11 +807,13 @@ static const NSInteger kValueNotFound = -1;
     return mediaMetaData;
 }
 
-/// Returns a dictionary for the method in the given response object.
-- (NSDictionary *)responseDataFromResponse:(NSDictionary *)responseObject {
+/// Returns a dictionary for the specified method in the given response object.
+- (NSDictionary *)responseDataFromResponse:(NSDictionary *)responseObject
+                                 forMethod:(NSString *)method {
     NSDictionary *envelopeObject = [responseObject objectForKeyEndingWithString:@":Envelope"];
     NSDictionary *bodyObject = [envelopeObject objectForKeyEndingWithString:@":Body"];
-    NSDictionary *responseData = [bodyObject objectForKeyEndingWithString:@":GetPositionInfoResponse"];
+    NSDictionary *responseData = [bodyObject objectForKeyEndingWithString:
+                                  [@":" stringByAppendingString:method]];
 
     return responseData;
 }
@@ -1003,7 +1009,8 @@ static const NSInteger kValueNotFound = -1;
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int volume = -1;
 
-        volume = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetVolumeResponse"][@"CurrentVolume"][@"text"] intValue];
+        volume = [[self responseDataFromResponse:responseXML
+                                       forMethod:@"GetVolumeResponse"][@"CurrentVolume"][@"text"] intValue];
 
         if (volume == -1)
         {
@@ -1016,7 +1023,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];
@@ -1095,7 +1102,8 @@ static const NSInteger kValueNotFound = -1;
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int mute = -1;
 
-        mute = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetMuteResponse"][@"CurrentMute"][@"text"] intValue];
+        mute = [[self responseDataFromResponse:responseXML
+                                     forMethod:@"GetMuteResponse"][@"CurrentMute"][@"text"] intValue];
 
         if (mute == -1)
         {
@@ -1108,7 +1116,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];

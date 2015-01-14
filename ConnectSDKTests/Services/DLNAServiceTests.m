@@ -86,6 +86,42 @@ static NSString *const kPlatformSonos = @"sonos";
                                                      andExpectedMetadata:expectedMetadata];
 }
 
+/// Tests that @c -getPlayStateWithSuccess:failure: parses the play state from
+/// a sample Xbox response properly.
+- (void)testGetPlayStateShouldParsePlayStateProperly_Xbox {
+    [self checkGetPlayStateShouldParsePlayStateProperlyWithSamplePlatform:kPlatformXbox];
+}
+
+/// Tests that @c -getPlayStateWithSuccess:failure: parses the play state from
+/// a sample Sonos response properly.
+- (void)testGetPlayStateShouldParsePlayStateProperly_Sonos {
+    [self checkGetPlayStateShouldParsePlayStateProperlyWithSamplePlatform:kPlatformSonos];
+}
+
+/// Tests that @c -getVolumeWithSuccess:failure: parses the volume from a sample
+/// Xbox response properly.
+- (void)testGetVolumeShouldParseVolumeProperly_Xbox {
+    [self checkGetVolumeShouldParseVolumeProperlyWithSamplePlatform:kPlatformXbox];
+}
+
+/// Tests that @c -getVolumeWithSuccess:failure: parses the volume from a sample
+/// Sonos response properly.
+- (void)testGetVolumeShouldParseVolumeProperly_Sonos {
+    [self checkGetVolumeShouldParseVolumeProperlyWithSamplePlatform:kPlatformSonos];
+}
+
+/// Tests that @c -getMuteWithSuccess:failure: parses the mute from a sample
+/// Xbox response properly.
+- (void)testGetMuteShouldParseMuteProperly_Xbox {
+    [self checkGetMuteShouldParseMuteProperlyWithSamplePlatform:kPlatformXbox];
+}
+
+/// Tests that @c -getMuteWithSuccess:failure: parses the mute from a sample
+/// Sonos response properly.
+- (void)testGetMuteShouldParseMuteProperly_Sonos {
+    [self checkGetMuteShouldParseMuteProperlyWithSamplePlatform:kPlatformSonos];
+}
+
 #pragma mark - Helpers
 
 - (void)checkGetPositionShouldParseTimeProperlyWithSamplePlatform:(NSString *)platform {
@@ -160,6 +196,88 @@ static NSString *const kPlatformSonos = @"sonos";
     [self.service getMediaMetaDataWithSuccess:^(NSDictionary *metadata) {
         XCTAssertEqualObjects(metadata, expectedMetadata, @"The metadata is incorrect");
         [getMetadataSuccessExpectation fulfill];
+    }
+                                 failure:^(NSError *error) {
+                                     XCTFail(@"Should not be a failure: %@", error);
+                                 }];
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(self.serviceCommandDelegateMock);
+                                 }];
+}
+
+- (void)checkGetPlayStateShouldParsePlayStateProperlyWithSamplePlatform:(NSString *)platform {
+    // Arrange
+    OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                               withPayload:OCMOCK_NOTNIL
+                                                     toURL:OCMOCK_ANY]).andDo((^(NSInvocation *inv) {
+        [self callCommandCallbackFromInvocation:inv
+                            andResponseFilename:[NSString stringWithFormat:@"gettransportinfo_response_%@", platform]];
+    }));
+
+    XCTestExpectation *getPlayStateSuccessExpectation = [self expectationWithDescription:@"The play state is parsed properly"];
+
+    // Act
+    [self.service getPlayStateWithSuccess:^(MediaControlPlayState playState) {
+        XCTAssertEqual(playState, MediaControlPlayStatePlaying,
+                       @"The play state is incorrect");
+        [getPlayStateSuccessExpectation fulfill];
+    }
+                                 failure:^(NSError *error) {
+                                     XCTFail(@"Should not be a failure: %@", error);
+                                 }];
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(self.serviceCommandDelegateMock);
+                                 }];
+}
+
+- (void)checkGetVolumeShouldParseVolumeProperlyWithSamplePlatform:(NSString *)platform {
+    // Arrange
+    OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                               withPayload:OCMOCK_NOTNIL
+                                                     toURL:OCMOCK_ANY]).andDo((^(NSInvocation *inv) {
+        [self callCommandCallbackFromInvocation:inv
+                            andResponseFilename:[NSString stringWithFormat:@"getvolume_response_%@", platform]];
+    }));
+
+    XCTestExpectation *getVolumeSuccessExpectation = [self expectationWithDescription:@"The volume is parsed properly"];
+
+    // Act
+    [self.service getVolumeWithSuccess:^(float volume) {
+        XCTAssertEqualWithAccuracy(volume, 0.14f, 0.0001, @"The volume is incorrect");
+        [getVolumeSuccessExpectation fulfill];
+    }
+                                 failure:^(NSError *error) {
+                                     XCTFail(@"Should not be a failure: %@", error);
+                                 }];
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(self.serviceCommandDelegateMock);
+                                 }];
+}
+
+- (void)checkGetMuteShouldParseMuteProperlyWithSamplePlatform:(NSString *)platform {
+    // Arrange
+    OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                               withPayload:OCMOCK_NOTNIL
+                                                     toURL:OCMOCK_ANY]).andDo((^(NSInvocation *inv) {
+        [self callCommandCallbackFromInvocation:inv
+                            andResponseFilename:[NSString stringWithFormat:@"getmute_response_%@", platform]];
+    }));
+
+    XCTestExpectation *getMuteSuccessExpectation = [self expectationWithDescription:@"The mute is parsed properly"];
+
+    // Act
+    [self.service getMuteWithSuccess:^(BOOL mute) {
+        XCTAssertTrue(mute, @"The mute value is incorrect");
+        [getMuteSuccessExpectation fulfill];
     }
                                  failure:^(NSError *error) {
                                      XCTFail(@"Should not be a failure: %@", error);
