@@ -41,9 +41,14 @@
     if (self)
     {
         _service = service;
+        _allSubscriptions = [NSMutableDictionary new];
     }
 
     return self;
+}
+
+- (instancetype)init {
+    return [self initWithService:nil];
 }
 
 - (BOOL) isRunning
@@ -57,8 +62,6 @@
 - (void) start
 {
     [self stop];
-
-    _allSubscriptions = [NSMutableDictionary new];
 
     _server = [[GCDWebServer alloc] init];
     _server.delegate = self;
@@ -90,11 +93,17 @@
     _server = nil;
 }
 
+/// Returns a service subscription key for the given URL. Different service URLs
+/// should produce differet keys.
+- (NSString *)serviceSubscriptionKeyForURL:(NSURL *)url {
+    return url.relativeString;
+}
+
 - (void) addSubscription:(ServiceSubscription *)subscription
 {
     @synchronized (_allSubscriptions)
     {
-        NSString *serviceSubscriptionKey = subscription.target.path;
+        NSString *serviceSubscriptionKey = [self serviceSubscriptionKeyForURL:subscription.target];
 
         if (!_allSubscriptions[serviceSubscriptionKey])
             _allSubscriptions[serviceSubscriptionKey] = [NSMutableArray new];
@@ -109,7 +118,7 @@
 {
     @synchronized (_allSubscriptions)
     {
-        NSString *serviceSubscriptionKey = subscription.target.path;
+        NSString *serviceSubscriptionKey = [self serviceSubscriptionKeyForURL:subscription.target];
 
         NSMutableArray *serviceSubscriptions = _allSubscriptions[serviceSubscriptionKey];
 
@@ -137,7 +146,8 @@
     if (!request.data || request.data.length == 0)
         return;
 
-    NSString *serviceSubscriptionKey = [request.path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *serviceSubscriptionKey = [[self serviceSubscriptionKeyForURL:request.URL]
+                                        stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSArray *serviceSubscriptions;
 
     @synchronized (_allSubscriptions)
