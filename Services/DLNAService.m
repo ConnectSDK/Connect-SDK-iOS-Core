@@ -282,11 +282,12 @@ static const NSInteger kValueNotFound = -1;
                 dispatch_on_main(^{ command.callbackError([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not parse command response"]); });
         } else
         {
-            NSDictionary *upnpFault = [[[dataXML objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"s:Fault"];
+            NSDictionary *upnpFault = [self responseDataFromResponse:dataXML
+                                                           forMethod:@"Fault"];
 
             if (upnpFault)
             {
-                NSString *errorDescription = [[[[upnpFault objectForKey:@"detail"] objectForKey:@"UPnPError"] objectForKey:@"errorDescription"] objectForKey:@"text"];
+                NSString *errorDescription = [[[[upnpFault objectForKey:@"detail"] objectForKeyEndingWithString:@":UPnPError"] objectForKeyEndingWithString:@":errorDescription"] objectForKey:@"text"];
 
                 if (!errorDescription)
                     errorDescription = @"Unknown UPnP error";

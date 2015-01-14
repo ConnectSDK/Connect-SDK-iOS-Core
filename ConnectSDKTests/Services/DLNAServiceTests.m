@@ -9,9 +9,11 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <OHHTTPStubs/OHHTTPStubs.h>
 
 #import "CTXMLReader.h"
 #import "DLNAService_Private.h"
+#import "ConnectError.h"
 
 static const CGFloat kDefaultAsyncTestTimeout = 0.5f;
 
@@ -120,6 +122,20 @@ static NSString *const kPlatformSonos = @"sonos";
 /// Sonos response properly.
 - (void)testGetMuteShouldParseMuteProperly_Sonos {
     [self checkGetMuteShouldParseMuteProperlyWithSamplePlatform:kPlatformSonos];
+}
+
+/// Tests that @c DLNAService parses a UPnP error from a sample Xbox response
+/// properly.
+- (void)testUPnPErrorShouldBeParsedProperly_Xbox {
+    [self checkUPnPErrorShouldBeParsedProperlyWithSamplePlatform:kPlatformXbox
+                                             andErrorDescription:@"Invalid Action"];
+}
+
+/// Tests that @c DLNAService parses a UPnP error from a sample Sonos response
+/// properly.
+- (void)testUPnPErrorShouldBeParsedProperly_Sonos {
+    [self checkUPnPErrorShouldBeParsedProperlyWithSamplePlatform:kPlatformSonos
+                                             andErrorDescription:nil];
 }
 
 #pragma mark - Helpers
@@ -290,6 +306,48 @@ static NSString *const kPlatformSonos = @"sonos";
                                  }];
 }
 
+- (void)checkUPnPErrorShouldBeParsedProperlyWithSamplePlatform:(NSString *)platform
+                                           andErrorDescription:(NSString *)errorDescription {
+    // Arrange
+    self.service.serviceCommandDelegate = nil;
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        return YES;
+    }
+                        withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+                            NSString *filename = [NSString stringWithFormat:@"upnperror_response_%@.xml", platform];
+                            return [OHHTTPStubsResponse responseWithFileAtPath:OHPathForFileInBundle(filename, nil)
+                                                                    statusCode:500
+                                                                       headers:nil];
+                        }];
+
+    XCTestExpectation *failExpectation = [self expectationWithDescription:@"The failure: block should be called"];
+
+    // Act
+    [self.service getMuteWithSuccess:^(BOOL mute) {
+        XCTFail(@"Should not succeed here");
+    }
+                             failure:^(NSError *error) {
+                                 XCTAssertEqualObjects(error.domain, ConnectErrorDomain, @"The error domain is incorrect");
+                                 XCTAssertEqual(error.code, ConnectStatusCodeTvError, @"The error code is incorrect");
+                                 if (errorDescription) {
+                                     XCTAssertNotEqual(NSNotFound,
+                                                       [error.localizedDescription rangeOfString:errorDescription].location,
+                                                       @"The error description is incorrect");
+                                 } else {
+                                     XCTAssertGreaterThan(error.localizedDescription.length,
+                                                          0, @"The error description must not be empty");
+                                 }
+                                 [failExpectation fulfill];
+                             }];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                 }];
+    [OHHTTPStubs removeAllStubs];
+}
+
 - (void)callCommandCallbackFromInvocation:(NSInvocation *)invocation
                       andResponseFilename:(NSString *)filename {
     __unsafe_unretained ServiceCommand *tmp;
@@ -297,8 +355,8 @@ static NSString *const kPlatformSonos = @"sonos";
     ServiceCommand *command = tmp;
     XCTAssertNotNil(command, @"Couldn't get the command argument");
 
-    NSData *xmlData = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:self.class]
-                                                      pathForResource:filename ofType:@"xml"]];
+    NSData *xmlData = [NSData dataWithContentsOfFile:
+                       OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
     XCTAssertNotNil(xmlData, @"Response data is unavailable");
 
     NSError *error;
