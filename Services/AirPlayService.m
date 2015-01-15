@@ -264,12 +264,27 @@ static AirPlayServiceMode airPlayServiceMode;
 
 - (ServiceSubscription *) subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    return [self.mediaControl subscribePlayStateWithSuccess:success failure:failure];;
+    return [self.mediaControl subscribePlayStateWithSuccess:success failure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-   return [self.mediaControl subscribeMediaInfoWithSuccess:success failure:failure];;
+   return [self.mediaControl subscribeMediaInfoWithSuccess:success failure:failure];
+}
+
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    return [self.mediaControl playNextWithSuccess:success failure:failure];
+}
+
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    return [self.mediaControl playPreviousWithSuccess:success failure:failure];
+}
+
+- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    return [self.mediaControl jumptoTrack:trackNumber success:success failure:failure];
 }
 
 #pragma mark - Helpers
