@@ -76,12 +76,11 @@
     // Arrange
     DLNAHTTPServer *server = [DLNAHTTPServer new];
 
-    NSURL *const kSubscriptionBaseURL = [NSURL URLWithString:@"http://127.2"];
+    NSString *const kSubscriptionBaseURL = @"http://127.2:222";
 
     XCTestExpectation *callbackIsCalledExpectation = [self expectationWithDescription:@"RenderingControl success callback is called"];
     ServiceSubscription *renderingControlSubscription = [[ServiceSubscription alloc] initWithDelegate:nil
-                                                                                               target:[NSURL URLWithString:renderingControlEventInfo.url
-                                                                                                             relativeToURL:kSubscriptionBaseURL]
+                                                                                               target:[NSURL URLWithString:[kSubscriptionBaseURL stringByAppendingString:renderingControlEventInfo.url]]
                                                                                               payload:nil];
     [renderingControlSubscription addSuccess:^(id responseObject) {
         XCTAssertNotNil(responseObject);
@@ -93,8 +92,7 @@
     [server addSubscription:renderingControlSubscription];
 
     ServiceSubscription *avTransportSubscription = [[ServiceSubscription alloc] initWithDelegate:nil
-                                                                                          target:[NSURL URLWithString:avTransportEventInfo.url
-                                                                                                        relativeToURL:kSubscriptionBaseURL]
+                                                                                          target:[NSURL URLWithString:[kSubscriptionBaseURL stringByAppendingString:avTransportEventInfo.url]]
                                                                                          payload:nil];
     [avTransportSubscription addSuccess:^(id responseObject) {
         XCTFail(@"Must not be called");
@@ -105,7 +103,7 @@
     [server addSubscription:avTransportSubscription];
 
     // Act
-    NSURL *const kNotificationBaseURL = [NSURL URLWithString:@"http://127.1"];
+    NSURL *const kNotificationBaseURL = [NSURL URLWithString:@"http://127.1:111"];
     NSData *const kNotificationData = [@"<e:propertyset xmlns:e='urn:schemas-upnp-org:event-1-0'><e:property><LastChange xmlns:dt='urn:schemas-microsoft-com:datatypes' dt:dt='string'>&lt;Event xmlns='urn:schemas-upnp-org:metadata-1-0/RCS/'&gt;&lt;InstanceID val='0'&gt;&lt;Mute channel='Master' val='0'/&gt;&lt;Volume channel='Master' val='3'/&gt;&lt;PresetNameList val='FactoryDefaults'/&gt;&lt;/InstanceID&gt;&lt;/Event&gt;</LastChange></e:property></e:propertyset>" dataUsingEncoding:NSUTF8StringEncoding];
     NSURL *kRenderingControlNotificationURL = [NSURL URLWithString:renderingControlEventInfo.url
                                                      relativeToURL:kNotificationBaseURL];

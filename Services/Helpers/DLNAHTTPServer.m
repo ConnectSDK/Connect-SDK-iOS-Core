@@ -55,6 +55,8 @@
 {
     [self stop];
 
+    [_allSubscriptions removeAllObjects];
+
     _server = [[GCDWebServer alloc] init];
     _server.delegate = self;
 
@@ -86,9 +88,18 @@
 }
 
 /// Returns a service subscription key for the given URL. Different service URLs
-/// should produce differet keys.
+/// should produce different keys by extracting the relative path, e.g.:
+/// "http://example.com:8888/foo/bar?q=a#abc" => "/foo/bar?q=a#abc"
 - (NSString *)serviceSubscriptionKeyForURL:(NSURL *)url {
-    return url.relativeString;
+    // unfortunately, -[NSURL relativeString] works for URLs created with
+    // -initWithString:relativeToURL: only
+    NSString *res = url.absoluteURL.resourceSpecifier;
+    // resourceSpecifier starts with two slashes, so we'll look for the third one
+    NSRange relPathStartRange = [res rangeOfString:@"/"
+                                           options:0
+                                             range:NSMakeRange(2, res.length - 2)];
+    NSAssert(NSNotFound != relPathStartRange.location, @"Couldn't find relative path in %@", res);
+    return [res substringFromIndex:relPathStartRange.location];
 }
 
 - (void) addSubscription:(ServiceSubscription *)subscription
