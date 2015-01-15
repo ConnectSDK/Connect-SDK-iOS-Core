@@ -228,6 +228,45 @@
         [self sendNotSupportedFailure:failure];
 }
 
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    id<MediaControl> mediaControl;
+    
+    if (self.service && [self.service respondsToSelector:@selector(mediaControl)])
+        mediaControl = [(id)self.service mediaControl];
+    
+    if (mediaControl)
+        [mediaControl playPreviousWithSuccess:success failure:failure];
+    else
+        [self sendNotSupportedFailure:failure];
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    id<MediaControl> mediaControl;
+    
+    if (self.service && [self.service respondsToSelector:@selector(mediaControl)])
+        mediaControl = [(id)self.service mediaControl];
+    
+    if (mediaControl)
+        [mediaControl playNextWithSuccess:success failure:failure];
+    else
+        [self sendNotSupportedFailure:failure];
+}
+
+- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    id<MediaControl> mediaControl;
+    
+    if (self.service && [self.service respondsToSelector:@selector(mediaControl)])
+        mediaControl = [(id)self.service mediaControl];
+    
+    if (mediaControl)
+        [mediaControl jumptoTrack:trackNumber success:success failure:failure];
+    else
+        [self sendNotSupportedFailure:failure];
+}
+
 #pragma mark MediaControl optional methods
 
 - (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure

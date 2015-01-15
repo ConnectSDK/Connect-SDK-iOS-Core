@@ -946,6 +946,24 @@
     [command send];
 }
 
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     if (failure)

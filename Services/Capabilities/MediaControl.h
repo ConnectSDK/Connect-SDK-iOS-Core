@@ -36,7 +36,9 @@
 #define kMediaControlPosition @"MediaControl.Position"
 #define kMediaControlMetadata @"MediaControl.MetaData"
 #define kMediaControlMetadataSubscribe @"MediaControl.MetaData.Subscribe"
-
+#define kMediaControlNext @"MediaControl.Next"
+#define kMediaControlPrevious @"MediaControl.Previous"
+#define kMediaControlJumpTrack @"MediaControl.JumpTrack"
 
 #define kMediaControlCapabilities @[\
     kMediaControlPlay,\
@@ -50,7 +52,10 @@
     kMediaControlPlayStateSubscribe,\
     kMediaControlPosition,\
     kMediaControlMetadata,\
-    kMediaControlMetadataSubscribe\
+    kMediaControlMetadataSubscribe,\
+    kMediaControlNext,\
+    kMediaControlPrevious,\
+    kMediaControlJumpTrack\
 ]
 
 typedef enum {
@@ -106,5 +111,10 @@ typedef void (^ MediaDurationSuccessBlock)(NSTimeInterval duration);
 - (void) getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure;
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure;
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+
+#pragma mark Playlist controls
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 @end

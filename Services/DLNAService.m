@@ -69,7 +69,10 @@ static const NSInteger kValueNotFound = -1;
         kMediaControlPlayState,
         kMediaControlPlayStateSubscribe,
         kMediaControlMetadata,
-        kMediaControlMetadataSubscribe
+        kMediaControlMetadataSubscribe,
+        kMediaControlPrevious,
+        kMediaControlNext,
+        kMediaControlJumpTrack
     ];
 
     capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
@@ -788,10 +791,24 @@ static const NSInteger kValueNotFound = -1;
     if([mediaMetadataResponse objectForKey:@"dc:description"])
         [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"dc:description"] objectForKey:@"text"] forKey:@"subtitle"];
     
-    if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"])
-        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"] forKey:@"iconURL"];
+    if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"]){
+        NSString *imageURL = [[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"];
+        if(![self isValidUrl:imageURL]){
+            imageURL = [NSString stringWithFormat:@"http://%@:%@%@",
+                                     self.serviceDescription.commandURL.host,
+                                     self.serviceDescription.commandURL.port,
+                                     imageURL];
+        }
+        [mediaMetaData setObject:imageURL forKey:@"iconURL"];
+    }
+    
     
     return mediaMetaData;
+}
+
+- (BOOL)isValidUrl:(NSString *)urlString{
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    return [NSURLConnection canHandleRequest:request];
 }
 
 #pragma mark - Media Player
@@ -1145,6 +1162,86 @@ static const NSInteger kValueNotFound = -1;
     [subscription addFailure:failure];
     [subscription subscribe];
     return subscription;
+}
+
+#pragma Playlist controls
+
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *nextXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    "<s:Body>"
+    "<u:Next xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+    "<InstanceID>0</InstanceID>"
+    "</u:Next>"
+    "</s:Body>"
+    "</s:Envelope>";
+    
+    NSDictionary *stopPayload = @{
+                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
+                                  kDataFieldName : nextXML
+                                  };
+    
+    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
+    stopCommand.callbackComplete = ^(NSDictionary *responseDic){
+        if (success)
+            success(nil);
+    };
+    stopCommand.callbackError = failure;
+    [stopCommand send];
+}
+
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *previousXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    "<s:Body>"
+    "<u:Previous xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+    "<InstanceID>0</InstanceID>"
+    "</u:Previous>"
+    "</s:Body>"
+    "</s:Envelope>";
+    
+    NSDictionary *stopPayload = @{
+                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
+                                  kDataFieldName : previousXML
+                                  };
+    
+    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
+    stopCommand.callbackComplete = ^(NSDictionary *responseDic){
+        if (success)
+            success(nil);
+    };
+    stopCommand.callbackError = failure;
+    [stopCommand send];
+}
+
+- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld",(long)trackNumber];
+    
+    NSString *commandXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+                            "<s:Body>"
+                            "<u:Seek xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+                            "<InstanceID>0</InstanceID>"
+                            "<Unit>TRACK_NR</Unit>"
+                            "<Target>%@</Target>"
+                            "</u:Seek>"
+                            "</s:Body>"
+                            "</s:Envelope>",
+                            trackNumberInString
+                            ];
+    
+    NSDictionary *commandPayload = @{
+                                     kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
+                                     kDataFieldName : commandXML
+                                     };
+    
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
 }
 
 @end
