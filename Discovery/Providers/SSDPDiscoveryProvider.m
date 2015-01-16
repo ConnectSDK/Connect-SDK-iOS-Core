@@ -483,20 +483,43 @@ static double searchAttemptsBeforeKill = 6.0;
     return [requiredServicesSet isSubsetOfSet:discoveredServicesSet];
 }
 
-- (BOOL)device:(NSDictionary *)device containsServicesWithFilter:(NSString *)filter
-{
-    NSArray *servicesRequired = [self requiredServicesForFilter:filter];
-    if (!servicesRequired) {
-        return YES;
-    }
-
-    NSArray *servicesDiscovered = [self discoveredServicesInDevice:device];
-    if (!servicesDiscovered) {
+- (BOOL)device:(NSDictionary *)device containsRequiredServices:(NSArray *)requiredServices {
+    NSArray *discoveredServices = [self discoveredServicesInDevice:device];
+    if (!discoveredServices) {
         return NO;
     }
 
-    return [self allRequiredServices:servicesRequired
-             areInDiscoveredServices:servicesDiscovered];
+    const BOOL deviceHasAllRequiredServices = [self allRequiredServices:requiredServices
+                                                areInDiscoveredServices:discoveredServices];
+    if (deviceHasAllRequiredServices) {
+        return YES;
+    } else {
+        // try to iterate through all the child devices
+        NSArray *subDevices = [device valueForKeyPath:@"deviceList.device"];
+        if (subDevices) {
+            if (![subDevices isKindOfClass:[NSArray class]]) {
+                subDevices = [NSArray arrayWithObject:subDevices];
+            }
+
+            for (NSDictionary *subDevice in subDevices) {
+                if ([self device:subDevice containsRequiredServices:requiredServices]) {
+                    return YES;
+                }
+            }
+        }
+    }
+
+    return NO;
+}
+
+- (BOOL)device:(NSDictionary *)device containsServicesWithFilter:(NSString *)filter
+{
+    NSArray *requiredServices = [self requiredServicesForFilter:filter];
+    if (!requiredServices) {
+        return YES;
+    }
+
+    return [self device:device containsRequiredServices:requiredServices];
 }
 
 - (NSArray *) serviceIdsForFilter:(NSString *)filter
