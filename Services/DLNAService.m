@@ -1177,18 +1177,18 @@ static const NSInteger kValueNotFound = -1;
     "</s:Body>"
     "</s:Envelope>";
     
-    NSDictionary *stopPayload = @{
+    NSDictionary *nextPayload = @{
                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
                                   kDataFieldName : nextXML
                                   };
     
-    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
-    stopCommand.callbackComplete = ^(NSDictionary *responseDic){
+    ServiceCommand *nextCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:nextPayload];
+    nextCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
     };
-    stopCommand.callbackError = failure;
-    [stopCommand send];
+    nextCommand.callbackError = failure;
+    [nextCommand send];
 }
 
 - (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1202,23 +1202,25 @@ static const NSInteger kValueNotFound = -1;
     "</s:Body>"
     "</s:Envelope>";
     
-    NSDictionary *stopPayload = @{
+    NSDictionary *previousPayload = @{
                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
                                   kDataFieldName : previousXML
                                   };
     
-    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
-    stopCommand.callbackComplete = ^(NSDictionary *responseDic){
+    ServiceCommand *previousCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:previousPayload];
+    previousCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
     };
-    stopCommand.callbackError = failure;
-    [stopCommand send];
+    previousCommand.callbackError = failure;
+    [previousCommand send];
 }
 
-- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld",(long)trackNumber];
+    //Track Number should be trackIndex+1
+    
+    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld",(long)index+1];
     
     NSString *commandXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
                             "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"

@@ -115,6 +115,6 @@ typedef void (^ MediaDurationSuccessBlock)(NSTimeInterval duration);
 #pragma mark Playlist controls
 - (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
 - (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 @end

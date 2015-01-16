@@ -282,9 +282,9 @@ static AirPlayServiceMode airPlayServiceMode;
     return [self.mediaControl playPreviousWithSuccess:success failure:failure];
 }
 
-- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    return [self.mediaControl jumptoTrack:trackNumber success:success failure:failure];
+    return [self.mediaControl jumpToTrackWithIndex:index success:success failure:failure];
 }
 
 #pragma mark - Helpers

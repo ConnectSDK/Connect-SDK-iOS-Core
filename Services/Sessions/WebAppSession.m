@@ -254,7 +254,7 @@
         [self sendNotSupportedFailure:failure];
 }
 
-- (void)jumptoTrack:(NSInteger)trackNumber success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     id<MediaControl> mediaControl;
     
@@ -262,7 +262,7 @@
         mediaControl = [(id)self.service mediaControl];
     
     if (mediaControl)
-        [mediaControl jumptoTrack:trackNumber success:success failure:failure];
+        [mediaControl jumpToTrackWithIndex:index success:success failure:failure];
     else
         [self sendNotSupportedFailure:failure];
 }
