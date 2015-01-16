@@ -93,13 +93,13 @@
 - (NSString *)serviceSubscriptionKeyForURL:(NSURL *)url {
     // unfortunately, -[NSURL relativeString] works for URLs created with
     // -initWithString:relativeToURL: only
-    NSString *res = url.absoluteURL.resourceSpecifier;
+    NSString *resourceSpecifier = url.absoluteURL.resourceSpecifier;
     // resourceSpecifier starts with two slashes, so we'll look for the third one
-    NSRange relPathStartRange = [res rangeOfString:@"/"
-                                           options:0
-                                             range:NSMakeRange(2, res.length - 2)];
-    NSAssert(NSNotFound != relPathStartRange.location, @"Couldn't find relative path in %@", res);
-    return [res substringFromIndex:relPathStartRange.location];
+    NSRange relativePathStartRange = [resourceSpecifier rangeOfString:@"/"
+                                                              options:0
+                                                                range:NSMakeRange(2, resourceSpecifier.length - 2)];
+    NSAssert(NSNotFound != relativePathStartRange.location, @"Couldn't find relative path in %@", resourceSpecifier);
+    return [resourceSpecifier substringFromIndex:relativePathStartRange.location];
 }
 
 - (void) addSubscription:(ServiceSubscription *)subscription
