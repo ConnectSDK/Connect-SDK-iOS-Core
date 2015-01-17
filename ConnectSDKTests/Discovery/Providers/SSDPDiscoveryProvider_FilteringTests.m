@@ -30,18 +30,21 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
 /// Tests that the @c SSDPDiscoveryProvider properly parses Sonos' XML device
 /// description with DLNA filter only and accepts the service.
 - (void)testShouldFindDLNAService_Sonos {
-    [self checkShouldFindDevice:@"sonos"];
+    [self checkShouldFindDevice:@"sonos"
+       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"];
 }
 
 /// Tests that the @c SSDPDiscoveryProvider properly parses Xbox's XML device
 /// description with DLNA filter only and accepts the service.
 - (void)testShouldFindDLNAService_Xbox {
-    [self checkShouldFindDevice:@"xbox"];
+    [self checkShouldFindDevice:@"xbox"
+       withExpectedFriendlyName:@"XboxOne"];
 }
 
 #pragma mark - Helpers
 
-- (void)checkShouldFindDevice:(NSString *)device {
+- (void)checkShouldFindDevice:(NSString *)device
+     withExpectedFriendlyName:(NSString *)friendlyName {
     // Arrange
     SSDPDiscoveryProvider *provider = [SSDPDiscoveryProvider new];
     [provider addDeviceFilter:[DLNAService discoveryParameters]];
@@ -87,9 +90,8 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
     provider.delegate = discoveryProviderDelegateMock;
     OCMExpect([discoveryProviderDelegateMock discoveryProvider:[OCMArg isEqual:provider]
                                                 didFindService:[OCMArg checkWithBlock:^BOOL(ServiceDescription *service) {
-        XCTAssertNotEqual([service.friendlyName rangeOfString:device
-                                                      options:NSCaseInsensitiveSearch].location,
-                          NSNotFound, @"The found device is not %@", device);
+        XCTAssertEqualObjects(service.friendlyName, friendlyName,
+                              @"The device's friendlyName doesn't match");
         [didFindServiceExpectation fulfill];
         return YES;
     }]]);

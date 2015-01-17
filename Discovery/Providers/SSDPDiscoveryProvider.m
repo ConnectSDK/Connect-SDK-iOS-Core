@@ -369,35 +369,30 @@ static double searchAttemptsBeforeKill = 6.0;
 
         if (!xmlError)
         {
-            NSDictionary *device = [[xml objectForKey:@"root"] objectForKey:@"device"];
-            NSString *friendlyName = [[device objectForKey:@"friendlyName"] objectForKey:@"text"];
-            
-            if (friendlyName)
+            NSDictionary *device = [self device:[xml valueForKeyPath:@"root.device"]
+                   containingServicesWithFilter:theType];
+
+            if (device)
             {
-                BOOL hasServices = [self device:device containsServicesWithFilter:theType];
-                
-                if (hasServices)
+                ServiceDescription *service;
+                @synchronized(_helloDevices) { service = [_helloDevices objectForKey:UUID]; }
+
+                if (service)
                 {
-                    ServiceDescription *service;
-                    @synchronized(_helloDevices) { service = [_helloDevices objectForKey:UUID]; }
+                    service.type = theType;
+                    service.friendlyName = [device valueForKeyPath:@"friendlyName.text"];
+                    service.modelName = [[device objectForKey:@"modelName"] objectForKey:@"text"];
+                    service.modelNumber = [[device objectForKey:@"modelNumber"] objectForKey:@"text"];
+                    service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
+                    service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
+                    service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    service.serviceList = [self serviceListForDevice:device];
+                    service.commandURL = response.URL;
+                    service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
 
-                    if (service)
-                    {
-                        service.type = theType;
-                        service.friendlyName = friendlyName;
-                        service.modelName = [[device objectForKey:@"modelName"] objectForKey:@"text"];
-                        service.modelNumber = [[device objectForKey:@"modelNumber"] objectForKey:@"text"];
-                        service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
-                        service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
-                        service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                        service.serviceList = [self serviceListForDevice:device];
-                        service.commandURL = response.URL;
-                        service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
+                    @synchronized(_foundServices) { [_foundServices setObject:service forKey:UUID]; }
 
-                        @synchronized(_foundServices) { [_foundServices setObject:service forKey:UUID]; }
-
-                        [self notifyDelegateOfNewService:service];
-                    }
+                    [self notifyDelegateOfNewService:service];
                 }
             }
         }
@@ -483,16 +478,19 @@ static double searchAttemptsBeforeKill = 6.0;
     return [requiredServicesSet isSubsetOfSet:discoveredServicesSet];
 }
 
-- (BOOL)device:(NSDictionary *)device containsRequiredServices:(NSArray *)requiredServices {
+/// Returns a device description that contains the given required services. It
+/// may be the root device or any of the subdevices. If no device matches,
+/// returns @c nil.
+- (NSDictionary *)device:(NSDictionary *)device containingRequiredServices:(NSArray *)requiredServices {
     NSArray *discoveredServices = [self discoveredServicesInDevice:device];
     if (!discoveredServices) {
-        return NO;
+        return nil;
     }
 
     const BOOL deviceHasAllRequiredServices = [self allRequiredServices:requiredServices
                                                 areInDiscoveredServices:discoveredServices];
     if (deviceHasAllRequiredServices) {
-        return YES;
+        return device;
     } else {
         // try to iterate through all the child devices
         NSArray *subDevices = [device valueForKeyPath:@"deviceList.device"];
@@ -502,24 +500,28 @@ static double searchAttemptsBeforeKill = 6.0;
             }
 
             for (NSDictionary *subDevice in subDevices) {
-                if ([self device:subDevice containsRequiredServices:requiredServices]) {
-                    return YES;
+                NSDictionary *foundDevice = [self device:subDevice containingRequiredServices:requiredServices];
+                if (foundDevice) {
+                    return foundDevice;
                 }
             }
         }
     }
 
-    return NO;
+    return nil;
 }
 
-- (BOOL)device:(NSDictionary *)device containsServicesWithFilter:(NSString *)filter
-{
+/// Returns a device description that contains services for the given filter. It
+/// may be the root device or any of the subdevices. If there are no required
+/// services for the filter, returns the root device. If no device matches,
+/// returns @c nil.
+- (NSDictionary *)device:(NSDictionary *)device containingServicesWithFilter:(NSString *)filter {
     NSArray *requiredServices = [self requiredServicesForFilter:filter];
     if (!requiredServices) {
-        return YES;
+        return device;
     }
 
-    return [self device:device containsRequiredServices:requiredServices];
+    return [self device:device containingRequiredServices:requiredServices];
 }
 
 - (NSArray *) serviceIdsForFilter:(NSString *)filter
