@@ -14,7 +14,6 @@
 #import "AirPlayServiceHTTPKeepAlive.h"
 #import "ServiceCommandDelegate.h"
 
-static const CGFloat kDefaultAsyncTestTimeout = 0.5f;
 static const CGFloat kDefaultKeepAliveInterval = 0.1f;
 
 

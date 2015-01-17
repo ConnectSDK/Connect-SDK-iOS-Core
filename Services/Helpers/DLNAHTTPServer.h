@@ -22,12 +22,8 @@
 #import "GCDWebServer.h"
 #import "ServiceSubscription.h"
 
-
-@class DLNAService;
-
 @interface DLNAHTTPServer : NSObject <GCDWebServerDelegate>
 
-- (instancetype) initWithService:(DLNAService *)service;
 - (void) start;
 - (void) stop;
 - (void) addSubscription:(ServiceSubscription *)subscription;

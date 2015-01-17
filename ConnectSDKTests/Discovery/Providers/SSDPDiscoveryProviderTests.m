@@ -35,8 +35,6 @@ static NSString *const kKeySSDP = @"ssdp";
 static NSString *const kKeyFilter = @"filter";
 static NSString *const kKeyServiceID = @"serviceId";
 
-static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
-
 static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) {
     return CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(msg, (__bridge CFStringRef)header));
 }

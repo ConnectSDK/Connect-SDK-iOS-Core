@@ -21,7 +21,7 @@
 #import <ifaddrs.h>
 #import <arpa/inet.h>
 #import "DLNAHTTPServer.h"
-#import "DLNAService.h"
+#import "DeviceService.h"
 #import "CTXMLReader.h"
 #import "GCDWebServerDataRequest.h"
 #import "GCDWebServerHTTPStatusCodes.h"
@@ -30,17 +30,14 @@
 
 @implementation DLNAHTTPServer
 {
-    DLNAService *_service;
     NSMutableDictionary *_allSubscriptions;
 }
 
-- (instancetype) initWithService:(DLNAService *)service
+- (instancetype) init
 {
-    self = [super init];
-
-    if (self)
+    if (self = [super init])
     {
-        _service = service;
+        _allSubscriptions = [NSMutableDictionary new];
     }
 
     return self;
@@ -58,7 +55,7 @@
 {
     [self stop];
 
-    _allSubscriptions = [NSMutableDictionary new];
+    [_allSubscriptions removeAllObjects];
 
     _server = [[GCDWebServer alloc] init];
     _server.delegate = self;
@@ -90,11 +87,26 @@
     _server = nil;
 }
 
+/// Returns a service subscription key for the given URL. Different service URLs
+/// should produce different keys by extracting the relative path, e.g.:
+/// "http://example.com:8888/foo/bar?q=a#abc" => "/foo/bar?q=a#abc"
+- (NSString *)serviceSubscriptionKeyForURL:(NSURL *)url {
+    // unfortunately, -[NSURL relativeString] works for URLs created with
+    // -initWithString:relativeToURL: only
+    NSString *resourceSpecifier = url.absoluteURL.resourceSpecifier;
+    // resourceSpecifier starts with two slashes, so we'll look for the third one
+    NSRange relativePathStartRange = [resourceSpecifier rangeOfString:@"/"
+                                                              options:0
+                                                                range:NSMakeRange(2, resourceSpecifier.length - 2)];
+    NSAssert(NSNotFound != relativePathStartRange.location, @"Couldn't find relative path in %@", resourceSpecifier);
+    return [resourceSpecifier substringFromIndex:relativePathStartRange.location];
+}
+
 - (void) addSubscription:(ServiceSubscription *)subscription
 {
     @synchronized (_allSubscriptions)
     {
-        NSString *serviceSubscriptionKey = subscription.target.path;
+        NSString *serviceSubscriptionKey = [self serviceSubscriptionKeyForURL:subscription.target];
 
         if (!_allSubscriptions[serviceSubscriptionKey])
             _allSubscriptions[serviceSubscriptionKey] = [NSMutableArray new];
@@ -109,7 +121,7 @@
 {
     @synchronized (_allSubscriptions)
     {
-        NSString *serviceSubscriptionKey = subscription.target.path;
+        NSString *serviceSubscriptionKey = [self serviceSubscriptionKeyForURL:subscription.target];
 
         NSMutableArray *serviceSubscriptions = _allSubscriptions[serviceSubscriptionKey];
 
@@ -137,7 +149,8 @@
     if (!request.data || request.data.length == 0)
         return;
 
-    NSString *serviceSubscriptionKey = [request.path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *serviceSubscriptionKey = [[self serviceSubscriptionKeyForURL:request.URL]
+                                        stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSArray *serviceSubscriptions;
 
     @synchronized (_allSubscriptions)

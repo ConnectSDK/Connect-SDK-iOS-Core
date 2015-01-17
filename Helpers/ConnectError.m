@@ -20,7 +20,7 @@
 
 #import "ConnectError.h"
 
-NSString *ConnectErrorDomain = @"com.lge.connectsdk.error";
+NSString *const ConnectErrorDomain = @"com.lge.connectsdk.error";
 
 @implementation ConnectError
 

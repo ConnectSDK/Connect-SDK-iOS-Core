@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
+/// The error domain for ConnectSDK errors.
+NSString *const ConnectErrorDomain;
 
 /*!
  * Helpful status codes that augment the localizedDescriptions of NSErrors that crop up throughout many places of the SDK. Most NSErrors that Connect SDK provides will have a ConnectStatusCode.
