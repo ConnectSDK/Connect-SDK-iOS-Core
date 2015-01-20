@@ -13,6 +13,7 @@
 
 #import "SSDPDiscoveryProvider_Private.h"
 #import "DLNAService.h"
+#import "NetcastTVService.h"
 #import "SSDPSocketListener.h"
 
 static const NSUInteger kSSDPMulticastTCPPort = 1900;
@@ -31,23 +32,67 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
 /// description with DLNA filter only and accepts the service.
 - (void)testShouldFindDLNAService_Sonos {
     [self checkShouldFindDevice:@"sonos"
-       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"];
+       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"
+        usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+/// Tests that the @c SSDPDiscoveryProvider properly parses Sonos' XML device
+/// description (without the root serviceList) with DLNA filter only and accepts
+/// the service.
+- (void)testShouldFindDLNAService_SonosBased_NoRootServices {
+    [self checkShouldFindDevice:@"sonos_no_root_services"
+       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"
+        usingDiscoveryProviders:@[[DLNAService class]]];
 }
 
 /// Tests that the @c SSDPDiscoveryProvider properly parses Xbox's XML device
 /// description with DLNA filter only and accepts the service.
 - (void)testShouldFindDLNAService_Xbox {
     [self checkShouldFindDevice:@"xbox"
-       withExpectedFriendlyName:@"XboxOne"];
+       withExpectedFriendlyName:@"XboxOne"
+        usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+/// Tests that the @c SSDPDiscoveryProvider properly parses Sonos' XML device
+/// description with Netcast and DLNA filters (in this order!) and accepts the
+/// service.
+- (void)testShouldFindDLNAServiceConsideringNetcast_Sonos {
+    // the Netcast, then DLNA order is crucial here, since the Netcast service
+    // doesn't have any required services, thus short-circuiting the check for
+    // all DLNA devices (both services have the same filter)
+    [self checkShouldFindDevice:@"sonos"
+       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"
+        usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
+}
+
+/// Tests that the @c SSDPDiscoveryProvider properly parses Sonos' XML device
+/// description (without the root serviceList) with Netcast and DLNA filters (in
+/// this order!) and accepts the service.
+- (void)testShouldFindDLNAServiceConsideringNetcast_SonosBased_NoRootServices {
+    [self checkShouldFindDevice:@"sonos_no_root_services"
+       withExpectedFriendlyName:@"Office - Sonos PLAY:1 Media Renderer"
+        usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
+}
+
+/// Tests that the @c SSDPDiscoveryProvider properly parses Xbox's XML device
+/// description with Netcast and DLNA filters (in this order!) and accepts the
+/// service.
+- (void)testShouldFindDLNAServiceConsideringNetcast_Xbox {
+    [self checkShouldFindDevice:@"xbox"
+       withExpectedFriendlyName:@"XboxOne"
+        usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
 }
 
 #pragma mark - Helpers
 
 - (void)checkShouldFindDevice:(NSString *)device
-     withExpectedFriendlyName:(NSString *)friendlyName {
+     withExpectedFriendlyName:(NSString *)friendlyName
+      usingDiscoveryProviders:(NSArray *)discoveryProviders {
     // Arrange
     SSDPDiscoveryProvider *provider = [SSDPDiscoveryProvider new];
-    [provider addDeviceFilter:[DLNAService discoveryParameters]];
+    [discoveryProviders enumerateObjectsUsingBlock:^(Class class, NSUInteger idx, BOOL *stop) {
+        [provider addDeviceFilter:[class discoveryParameters]];
+    }];
 
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     provider.searchSocket = searchSocketMock;
