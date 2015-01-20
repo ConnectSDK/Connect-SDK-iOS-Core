@@ -170,7 +170,7 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     self.provider.searchSocket = searchSocketMock;
 
-    NSString *serviceType = @"some:thing";
+    NSString *serviceType = @"urn:schemas-upnp-org:device:thing:1";
     NSDictionary *filter = @{kKeySSDP: @{kKeyFilter: serviceType},
                              kKeyServiceID: @"SomethingNew"};
     [self.provider addDeviceFilter:filter];
@@ -266,7 +266,7 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     self.provider.searchSocket = searchSocketMock;
 
-    NSString *serviceType = @"some:thing";
+    NSString *serviceType = @"urn:schemas-upnp-org:device:thing:1";
     NSDictionary *filter = @{kKeySSDP: @{kKeyFilter: serviceType},
                              kKeyServiceID: @"SomethingNew"};
     [self.provider addDeviceFilter:filter];
