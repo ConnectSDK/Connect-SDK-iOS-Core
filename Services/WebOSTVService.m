@@ -749,46 +749,15 @@
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
-    {
-        if (self.dlnaService)
-        {
-            id<MediaPlayer> mediaPlayer;
-
-            if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
-                mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
-
-            if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMedia:iconURL:title:description:mimeType:shouldLoop:success:failure:)])
-            {
-                [mediaPlayer displayImage:imageURL iconURL:iconURL title:title description:description mimeType:mimeType success:success failure:failure];
-                return;
-            }
-        }
-
-        NSDictionary *params = @{
-                @"target" : ensureString(imageURL.absoluteString),
-                @"iconSrc" : ensureString(iconURL.absoluteString),
-                @"title" : ensureString(title),
-                @"description" : ensureString(description),
-                @"mimeType" : ensureString(mimeType)
-        };
-
-        [self displayMediaWithParams:params success:success failure:failure];
-    } else
-    {
-        NSString *webAppId = @"MediaPlayer";
-
-        WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
-        {
-            WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
-            [session.mediaPlayer displayImage:imageURL iconURL:iconURL title:title description:description mimeType:mimeType success:success failure:failure];
-        };
-
-        [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
-        {
-            [self launchWebApp:webAppId success:connectSuccess failure:failure];
-        }];
-    }
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -804,49 +773,66 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
     if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
     {
         if (self.dlnaService)
         {
             id<MediaPlayer> mediaPlayer;
-
+            
             if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
                 mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
-
+            
             if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMedia:iconURL:title:description:mimeType:shouldLoop:success:failure:)])
             {
-                [mediaPlayer playMedia:mediaURL iconURL:iconURL title:title description:description mimeType:mimeType shouldLoop:shouldLoop success:success failure:failure];
+                [mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
                 return;
             }
         }
-
+        
         NSDictionary *params = @{
-                @"target" : ensureString(mediaURL.absoluteString),
-                @"iconSrc" : ensureString(iconURL.absoluteString),
-                @"title" : ensureString(title),
-                @"description" : ensureString(description),
-                @"mimeType" : ensureString(mimeType),
-                @"loop" : shouldLoop ? @"true" : @"false"
-        };
-
+                                 @"target" : ensureString(mediaInfo.url.absoluteString),
+                                 @"iconSrc" : ensureString(iconURL.absoluteString),
+                                 @"title" : ensureString(mediaInfo.title),
+                                 @"description" : ensureString(mediaInfo.description),
+                                 @"mimeType" : ensureString(mediaInfo.mimeType)
+                                 };
+        
         [self displayMediaWithParams:params success:success failure:failure];
     } else
     {
         NSString *webAppId = @"MediaPlayer";
-
+        
         WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
         {
             WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
-            [session.mediaPlayer playMedia:mediaURL iconURL:iconURL title:title description:description mimeType:mimeType shouldLoop:shouldLoop success:success failure:failure];
+            [session.mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
         };
-
+        
         [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
-        {
-            [self launchWebApp:webAppId success:connectSuccess failure:failure];
-        }];
+         {
+             [self launchWebApp:webAppId success:connectSuccess failure:failure];
+         }];
     }
+}
+
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -859,7 +845,58 @@
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void)displayMediaWithParams:(NSDictionary *)params success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
+    {
+        if (self.dlnaService)
+        {
+            id<MediaPlayer> mediaPlayer;
+            
+            if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
+                mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
+            
+            if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMediaWithMediaInfo:shouldLoop:success:failure:)])
+            {
+                [mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
+                return;
+            }
+        }
+        
+        NSDictionary *params = @{
+                                 @"target" : ensureString(mediaInfo.url.absoluteString),
+                                 @"iconSrc" : ensureString(iconURL.absoluteString),
+                                 @"title" : ensureString(mediaInfo.title),
+                                 @"description" : ensureString(mediaInfo.description),
+                                 @"mimeType" : ensureString(mediaInfo.mimeType),
+                                 @"loop" : shouldLoop ? @"true" : @"false"
+                                 };
+        
+        [self displayMediaWithParams:params success:success failure:failure];
+    } else
+    {
+        NSString *webAppId = @"MediaPlayer";
+        
+        WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
+        {
+            WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
+            [session.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
+        };
+        
+        [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
+         {
+             [self launchWebApp:webAppId success:connectSuccess failure:failure];
+         }];
+    }
+}
+
+- (void)displayMediaWithParams:(NSDictionary *)params success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
@@ -872,8 +909,10 @@
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
-        if (success)
-            success(launchSession, self.mediaControl);
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initLaunchSession:launchSession withMediaControl:self.mediaControl];
+        if(success){
+            success(launchObject);
+        }
     };
     command.callbackError = failure;
     [command send];
@@ -944,24 +983,6 @@
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
-}
-
-- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
-- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
-- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure

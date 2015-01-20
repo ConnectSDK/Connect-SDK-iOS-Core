@@ -1321,42 +1321,6 @@ NSString *lgeUDAPRequestURI[8] = {
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (self.dlnaService)
-    {
-        [self.dlnaService playNextWithSuccess:success failure:failure];
-        return;
-    }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
-- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (self.dlnaService)
-    {
-        [self.dlnaService playPreviousWithSuccess:success failure:failure];
-        return;
-    }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
-- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (self.dlnaService)
-    {
-        [self.dlnaService playPreviousWithSuccess:success failure:failure];
-        return;
-    }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
     if (self.dlnaService)

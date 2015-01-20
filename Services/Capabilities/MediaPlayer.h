@@ -23,12 +23,14 @@
 #import "Launcher.h"
 #import "MediaControl.h"
 #import "MediaInfo.h"
+#import "MediaLaunchObject.h"
 
 #define kMediaPlayerAny @"MediaPlayer.Any"
 
 #define kMediaPlayerDisplayImage @"MediaPlayer.Display.Image"
 #define kMediaPlayerPlayVideo @"MediaPlayer.Play.Video"
 #define kMediaPlayerPlayAudio @"MediaPlayer.Play.Audio"
+#define kMediaPlayerPlayPlaylist @"MediaPlayer.Play.Playlist"
 #define kMediaPlayerClose @"MediaPlayer.Close"
 #define kMediaPlayerMetaDataTitle @"MediaPlayer.MetaData.Title"
 #define kMediaPlayerMetaDataDescription @"MediaPlayer.MetaData.Description"
@@ -55,6 +57,8 @@
  * @param mediaControl MediaControl object used to control playback
  */
 typedef void (^MediaPlayerDisplaySuccessBlock)(LaunchSession *launchSession, id<MediaControl> mediaControl);
+typedef void (^MediaPlayerSuccessBlock)(MediaLaunchObject *mediaLanchObject);
+
 
 - (id<MediaPlayer>) mediaPlayer;
 - (CapabilityPriorityLevel) mediaPlayerPriority;
@@ -70,6 +74,11 @@ __attribute__((deprecated));
 
 - (void) displayImage:(MediaInfo *)mediaInfo
               success:(MediaPlayerDisplaySuccessBlock)success
+              failure:(FailureBlock)failure
+__attribute__((deprecated));
+
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo
+              success:(MediaPlayerSuccessBlock)success
               failure:(FailureBlock)failure;
 
 - (void) playMedia:(NSURL *)mediaURL
@@ -85,7 +94,13 @@ __attribute__((deprecated));
 - (void) playMedia:(MediaInfo *)mediaInfo
         shouldLoop:(BOOL)shouldLoop
            success:(MediaPlayerDisplaySuccessBlock)success
-           failure:(FailureBlock)failure;
+           failure:(FailureBlock)failure
+__attribute__((deprecated));
+
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo
+        shouldLoop:(BOOL)shouldLoop
+           success:(MediaPlayerSuccessBlock)success
+                        failure:(FailureBlock)failure;
 
 - (void) closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
 
