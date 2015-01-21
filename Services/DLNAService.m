@@ -914,7 +914,7 @@ static const NSInteger kValueNotFound = -1;
                 LaunchSession *launchSession = [LaunchSession new];
                 launchSession.sessionType = LaunchSessionTypeMedia;
                 launchSession.service = self;
-                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl andPlayListControl:self.playListControl];
+                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
                 success(launchObject);
             }
         } failure:failure];
@@ -997,7 +997,7 @@ static const NSInteger kValueNotFound = -1;
                 LaunchSession *launchSession = [LaunchSession new];
                 launchSession.sessionType = LaunchSessionTypeMedia;
                 launchSession.service = self;
-                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl andPlayListControl:self.playListControl];
+                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
                 success(launchObject);
             }
         } failure:failure];

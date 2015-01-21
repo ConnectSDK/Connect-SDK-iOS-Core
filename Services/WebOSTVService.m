@@ -909,7 +909,7 @@
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
         if(success){
             success(launchObject);
         }

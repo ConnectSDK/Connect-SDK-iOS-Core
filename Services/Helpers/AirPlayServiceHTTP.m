@@ -296,7 +296,7 @@
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
         
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
         if(success){
             dispatch_on_main(^{ success(launchObject); });
         }
@@ -418,7 +418,7 @@
         
         [self startKeepAliveTimer];
         
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
         if(success){
              dispatch_on_main(^{ success(launchObject); });
         }

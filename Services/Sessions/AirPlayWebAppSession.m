@@ -286,7 +286,7 @@
     command.callbackComplete = ^(id responseObject)
     {
         if (success){
-            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession withMediaControl:self.mediaControl];
+            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
             success(launchObject);
         }
     };
@@ -326,7 +326,7 @@
     command.callbackComplete = ^(id responseObject)
     {
         if (success){
-            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession withMediaControl:self.mediaControl];
+            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
             success(launchObject);
         }
     };

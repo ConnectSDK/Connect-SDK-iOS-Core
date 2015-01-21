@@ -31,7 +31,7 @@
  * @param mediaControl MediaControl object used to control playback
  * @param playListControl PlayListControl object used to control playlist
  */
-- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl;
-- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl;
+- (instancetype) initWithLaunchSession:(LaunchSession *)session andMediaControl:(id<MediaControl>)mediaControl;
+- (instancetype) initWithLaunchSession:(LaunchSession *)session andMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl;
 
 @end

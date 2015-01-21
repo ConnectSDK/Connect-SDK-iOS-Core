@@ -528,7 +528,7 @@ static NSMutableArray *registeredApps = nil;
         launchSession.sessionType = LaunchSessionTypeMedia;
         launchSession.service = self;
         
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
         if(success){
             success(launchObject);
         }
@@ -621,7 +621,7 @@ static NSMutableArray *registeredApps = nil;
         launchSession.name = @"simplevideoplayer";
         launchSession.sessionType = LaunchSessionTypeMedia;
         launchSession.service = self;
-         MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession withMediaControl:self.mediaControl];
+         MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
          if(success){
             success(launchObject);
          }

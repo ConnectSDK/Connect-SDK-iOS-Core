@@ -10,12 +10,12 @@
 
 @implementation MediaLaunchObject
 
-- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl
+- (instancetype) initWithLaunchSession:(LaunchSession *)session andMediaControl:(id<MediaControl>)mediaControl
 {
-    return [self initWithLaunchSession:session withMediaControl:mediaControl andPlayListControl:nil];
+    return [self initWithLaunchSession:session andMediaControl:mediaControl andPlayListControl:nil];
 }
 
-- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl
+- (instancetype) initWithLaunchSession:(LaunchSession *)session andMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl
 {
     self = [super init];
     
