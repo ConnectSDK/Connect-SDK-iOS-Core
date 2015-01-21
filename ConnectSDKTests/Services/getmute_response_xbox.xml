@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><m:GetMuteResponse xmlns:m="urn:schemas-upnp-org:service:RenderingControl:1"><CurrentMute xmlns:dt="urn:schemas-microsoft-com:datatypes" dt:dt="boolean">1</CurrentMute></m:GetMuteResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>

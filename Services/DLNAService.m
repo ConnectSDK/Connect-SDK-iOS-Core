@@ -18,12 +18,14 @@
 //  limitations under the License.
 //
 
-#import "DLNAService.h"
+#import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "CTXMLReader.h"
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DLNAHTTPServer.h"
+
+#import "NSDictionary+KeyPredicateSearch.h"
 
 #define kDataFieldName @"XMLData"
 #define kActionFieldName @"SOAPAction"
@@ -107,6 +109,13 @@ static const NSInteger kValueNotFound = -1;
 //    return nil;
 //}
 
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
+}
+
 #pragma mark - Helper methods
 
 //- (NSOperationQueue *)commandQueue
@@ -128,7 +137,7 @@ static const NSInteger kValueNotFound = -1;
         [self updateControlURLs];
 
         if (!_httpServer)
-            _httpServer = [[DLNAHTTPServer alloc] initWithService:self];
+            _httpServer = [DLNAHTTPServer new];
     } else
     {
         _avTransportControlURL = nil;
@@ -277,11 +286,12 @@ static const NSInteger kValueNotFound = -1;
                 dispatch_on_main(^{ command.callbackError([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not parse command response"]); });
         } else
         {
-            NSDictionary *upnpFault = [[[dataXML objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"s:Fault"];
+            NSDictionary *upnpFault = [self responseDataFromResponse:dataXML
+                                                           forMethod:@"Fault"];
 
             if (upnpFault)
             {
-                NSString *errorDescription = [[[[upnpFault objectForKey:@"detail"] objectForKey:@"UPnPError"] objectForKey:@"errorDescription"] objectForKey:@"text"];
+                NSString *errorDescription = [[[[upnpFault objectForKey:@"detail"] objectForKeyEndingWithString:@":UPnPError"] objectForKeyEndingWithString:@":errorDescription"] objectForKey:@"text"];
 
                 if (!errorDescription)
                     errorDescription = @"Unknown UPnP error";
@@ -595,10 +605,11 @@ static const NSInteger kValueNotFound = -1;
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetTransportInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetTransportInfoResponse"];
         NSString *transportState = [[[response objectForKey:@"CurrentTransportState"] objectForKey:@"text"] uppercaseString];
 
         MediaControlPlayState playState = MediaControlPlayStateUnknown;
@@ -629,7 +640,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetPositionInfoResponse"];
         NSString *durationString = [[response objectForKey:@"TrackDuration"] objectForKey:@"text"];
         NSTimeInterval duration = [self timeForString:durationString];
         if (success)
@@ -641,7 +653,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
-        NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+        NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                      forMethod:@"GetPositionInfoResponse"];
         NSString *currentTimeString = [[response objectForKey:@"RelTime"] objectForKey:@"text"];
         NSTimeInterval currentTime = [self timeForString:currentTimeString];
 
@@ -703,7 +716,7 @@ static const NSInteger kValueNotFound = -1;
             kDataFieldName : commandXML
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -713,7 +726,8 @@ static const NSInteger kValueNotFound = -1;
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
      {
-         NSDictionary *response = [[[responseObject objectForKey:@"s:Envelope"] objectForKey:@"s:Body"] objectForKey:@"u:GetPositionInfoResponse"];
+         NSDictionary *response = [self responseDataFromResponse:responseObject
+                                                       forMethod:@"GetPositionInfoResponse"];
          NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
@@ -807,9 +821,22 @@ static const NSInteger kValueNotFound = -1;
     return mediaMetaData;
 }
 
-- (BOOL)isValidUrl:(NSString *)urlString{
+//Checks if the url provided is valid or not
+- (BOOL)isValidUrl:(NSString *)urlString
+{
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     return [NSURLConnection canHandleRequest:request];
+}
+
+/// Returns a dictionary for the specified method in the given response object.
+- (NSDictionary *)responseDataFromResponse:(NSDictionary *)responseObject
+                                 forMethod:(NSString *)method {
+    NSDictionary *envelopeObject = [responseObject objectForKeyEndingWithString:@":Envelope"];
+    NSDictionary *bodyObject = [envelopeObject objectForKeyEndingWithString:@":Body"];
+    NSDictionary *responseData = [bodyObject objectForKeyEndingWithString:
+                                  [@":" stringByAppendingString:method]];
+
+    return responseData;
 }
 
 #pragma mark - Media Player
@@ -1044,7 +1071,8 @@ static const NSInteger kValueNotFound = -1;
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int volume = -1;
 
-        volume = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetVolumeResponse"][@"CurrentVolume"][@"text"] intValue];
+        volume = [[self responseDataFromResponse:responseXML
+                                       forMethod:@"GetVolumeResponse"][@"CurrentVolume"][@"text"] intValue];
 
         if (volume == -1)
         {
@@ -1057,7 +1085,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];
@@ -1136,7 +1164,8 @@ static const NSInteger kValueNotFound = -1;
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int mute = -1;
 
-        mute = [responseXML[@"s:Envelope"][@"s:Body"][@"u:GetMuteResponse"][@"CurrentMute"][@"text"] intValue];
+        mute = [[self responseDataFromResponse:responseXML
+                                     forMethod:@"GetMuteResponse"][@"CurrentMute"][@"text"] intValue];
 
         if (mute == -1)
         {
@@ -1149,7 +1178,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];
