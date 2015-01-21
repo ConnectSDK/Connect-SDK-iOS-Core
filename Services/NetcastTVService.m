@@ -1198,21 +1198,15 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    if (self.dlnaService)
-    {
-        [self.dlnaService.mediaPlayer displayImage:imageURL iconURL:iconURL title:title description:description mimeType:mimeType success:^(LaunchSession *launchSession, id<MediaControl> mediaControl)
-        {
-            launchSession.appId = kSmartShareName;
-            launchSession.name = kSmartShareName;
-
-            if (success)
-                success(launchSession, self.mediaControl);
-        } failure:failure];
-        return;
-    }
-
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -1228,23 +1222,44 @@ NSString *lgeUDAPRequestURI[8] = {
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)videoURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+-(void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
     if (self.dlnaService)
     {
-        [self.dlnaService.mediaPlayer playMedia:videoURL iconURL:iconURL title:title description:description mimeType:mimeType shouldLoop:shouldLoop success:^(LaunchSession *launchSession, id <MediaControl> mediaControl)
-        {
-            launchSession.appId = kSmartShareName;
-            launchSession.name = kSmartShareName;
-
-            if (success)
-                success(launchSession, self.mediaControl);
-        } failure:failure];
+        [self.dlnaService.mediaPlayer displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *launchObject)
+         {
+             
+             launchObject.session.appId = kSmartShareName;
+             launchObject.session.name = kSmartShareName;
+             
+             if (success)
+                 success(launchObject);
+         } failure:failure];
         return;
     }
-
+    
     if (failure)
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+
+}
+
+- (void) playMedia:(NSURL *)videoURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:videoURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -1255,6 +1270,31 @@ NSString *lgeUDAPRequestURI[8] = {
         iconURL = imageInfo.url;
     }
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
+}
+
+-(void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    if (self.dlnaService)
+    {
+        [self.dlnaService.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *launchObject)
+         {
+             launchObject.session.appId = kSmartShareName;
+             launchObject.session.name = kSmartShareName;
+             
+             if (success)
+                 success(launchObject);
+         } failure:failure];
+        return;
+    }
+    
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure

@@ -10,26 +10,12 @@
 
 @implementation MediaLaunchObject
 
-// return nil here so that we force users to have URL and mime-type
-- (instancetype) init
+- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl
 {
-    return nil;
+    return [self initWithLaunchSession:session withMediaControl:mediaControl andPlayListControl:nil];
 }
 
-- (instancetype) initLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl
-{
-    self = [super init];
-    
-    if (self)
-    {
-        self.session = session;
-        self.mediaControl = mediaControl;
-    }
-    
-    return self;
-}
-
-- (instancetype) initLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl
+- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl
 {
     self = [super init];
     

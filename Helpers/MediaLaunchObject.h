@@ -11,6 +11,7 @@
 #import "PlayListControl.h"
 #import "LaunchSession.h"
 
+/*! MediaLaunchObject is a container object which holds LaunchSession object,MediaControl object/or and PlayListControl object*/
 @interface MediaLaunchObject : NSObject
 
 /*! MediaControl object of Media player*/
@@ -23,14 +24,14 @@
 @property (nonatomic, strong) LaunchSession *session;
 
 
-/*
- * Creates an instance of MediaLaunch with given property values.
+/*!
+ * Creates an instance of MediaLaunchObject with given property values.
  *
  * @param launchSession LaunchSession to allow closing this media player
  * @param mediaControl MediaControl object used to control playback
  * @param playListControl PlayListControl object used to control playlist
  */
-- (instancetype) initLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl;
-- (instancetype) initLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl;
+- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl;
+- (instancetype) initWithLaunchSession:(LaunchSession *)session withMediaControl:(id<MediaControl>)mediaControl andPlayListControl:(id<PlayListControl>)playListControl;
 
 @end

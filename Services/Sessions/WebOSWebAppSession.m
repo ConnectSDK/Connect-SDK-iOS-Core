@@ -493,7 +493,7 @@
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initLaunchSession:self.launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession withMediaControl:self.mediaControl];
         if(success){
             success(launchObject);
         }
@@ -554,7 +554,7 @@
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initLaunchSession:self.launchSession withMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession withMediaControl:self.mediaControl];
         if(success){
             success(launchObject);
         }
