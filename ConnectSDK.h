@@ -41,6 +41,7 @@
 #import "TextInputControl.h"
 #import "Launcher.h"
 #import "MediaControl.h"
+#import "PlayListControl.h"
 #import "MediaPlayer.h"
 #import "MouseControl.h"
 #import "PowerControl.h"

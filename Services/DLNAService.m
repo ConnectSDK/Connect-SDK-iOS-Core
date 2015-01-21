@@ -59,6 +59,7 @@ static const NSInteger kValueNotFound = -1;
         kMediaPlayerDisplayImage,
         kMediaPlayerPlayVideo,
         kMediaPlayerPlayAudio,
+        kMediaPlayerPlayPlaylist,
         kMediaPlayerClose,
         kMediaPlayerMetaDataTitle,
         kMediaPlayerMetaDataMimeType,
@@ -71,7 +72,10 @@ static const NSInteger kValueNotFound = -1;
         kMediaControlPlayState,
         kMediaControlPlayStateSubscribe,
         kMediaControlMetadata,
-        kMediaControlMetadataSubscribe
+        kMediaControlMetadataSubscribe,
+        kPlayListControlNext,
+        kPlayListControlPrevious,
+        kPlayListControlJumpTrack
     ];
 
     capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
@@ -802,10 +806,26 @@ static const NSInteger kValueNotFound = -1;
     if([mediaMetadataResponse objectForKey:@"dc:description"])
         [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"dc:description"] objectForKey:@"text"] forKey:@"subtitle"];
     
-    if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"])
-        [mediaMetaData setObject:[[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"] forKey:@"iconURL"];
+    if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"]){
+        NSString *imageURL = [[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"];
+        if(![self isValidUrl:imageURL]){
+            imageURL = [NSString stringWithFormat:@"http://%@:%@%@",
+                                     self.serviceDescription.commandURL.host,
+                                     self.serviceDescription.commandURL.port,
+                                     imageURL];
+        }
+        [mediaMetaData setObject:imageURL forKey:@"iconURL"];
+    }
+    
     
     return mediaMetaData;
+}
+
+//Checks if the url provided is valid or not
+- (BOOL)isValidUrl:(NSString *)urlString
+{
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    return [NSURLConnection canHandleRequest:request];
 }
 
 /// Returns a dictionary for the specified method in the given response object.
@@ -833,41 +853,15 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *shareXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                                                            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-                                                            "<s:Body>"
-                                                            "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-                                                            "<InstanceID>0</InstanceID>"
-                                                            "<CurrentURI>%@</CurrentURI>"
-                                                            "<CurrentURIMetaData>"
-                                                            "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;1000&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_OP=01&quot;&gt;%@&lt;/res&gt;&lt;upnp:class&gt;object.item.imageItem&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
-                                                            "</CurrentURIMetaData>"
-                                                            "</u:SetAVTransportURI>"
-                                                            "</s:Body>"
-                                                            "</s:Envelope>",
-                                                    imageURL.absoluteString, title, mimeType, imageURL.absoluteString];
-    NSDictionary *sharePayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-            kDataFieldName : shareXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
-    command.callbackComplete = ^(NSDictionary *responseDic)
-    {
-        [self playWithSuccess:^(id responseObject) {
-            if (success)
-            {
-                LaunchSession *launchSession = [LaunchSession new];
-                launchSession.sessionType = LaunchSessionTypeMedia;
-                launchSession.service = self;
-                
-                success(launchSession, self.mediaControl);
-            }
-        } failure:failure];
-    };
-
-    command.callbackError = failure;
-    [command send];
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -883,41 +877,34 @@ static const NSInteger kValueNotFound = -1;
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo
+              success:(MediaPlayerSuccessBlock)success
+              failure:(FailureBlock)failure
 {
-    NSArray *mediaElements = [mimeType componentsSeparatedByString:@"/"];
-    NSString *mediaType = mediaElements[0];
-    NSString *mediaFormat = mediaElements[1];
-
-    if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0)
-    {
-        if (failure)
-            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc"]);
-
-        return;
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
     }
-
-    mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
-    mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
-
+    
     NSString *shareXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                                                            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-                                                            "<s:Body>"
-                                                            "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-                                                            "<InstanceID>0</InstanceID>"
-                                                            "<CurrentURI>%@</CurrentURI>"
-                                                            "<CurrentURIMetaData>"
-                                                            "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;0&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;dc:description&gt;%@&lt;/dc:description&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000&quot;&gt;%@&lt;/res&gt;&lt;upnp:albumArtURI&gt;%@&lt;/upnp:albumArtURI&gt;&lt;upnp:class&gt;object.item.%@Item&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
-                                                            "</CurrentURIMetaData>"
-                                                            "</u:SetAVTransportURI>"
-                                                            "</s:Body>"
-                                                            "</s:Envelope>",
-                                                    mediaURL.absoluteString, title, description, mimeType, mediaURL.absoluteString, iconURL.absoluteString, mediaType];
+                          "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+                          "<s:Body>"
+                          "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+                          "<InstanceID>0</InstanceID>"
+                          "<CurrentURI>%@</CurrentURI>"
+                          "<CurrentURIMetaData>"
+                          "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;1000&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_OP=01&quot;&gt;%@&lt;/res&gt;&lt;upnp:class&gt;object.item.imageItem&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
+                          "</CurrentURIMetaData>"
+                          "</u:SetAVTransportURI>"
+                          "</s:Body>"
+                          "</s:Envelope>",
+                          mediaInfo.url.absoluteString, mediaInfo.title, mediaInfo.mimeType, mediaInfo.url.absoluteString];
     NSDictionary *sharePayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-            kDataFieldName : shareXML
-    };
-
+                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
+                                   kDataFieldName : shareXML
+                                   };
+    
     ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
@@ -927,14 +914,27 @@ static const NSInteger kValueNotFound = -1;
                 LaunchSession *launchSession = [LaunchSession new];
                 launchSession.sessionType = LaunchSessionTypeMedia;
                 launchSession.service = self;
-                
-                success(launchSession, self.mediaControl);
+                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
+                success(launchObject);
             }
         } failure:failure];
     };
-
+    
     command.callbackError = failure;
     [command send];
+}
+
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -945,6 +945,67 @@ static const NSInteger kValueNotFound = -1;
         iconURL = imageInfo.url;
     }
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
+}
+
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    NSArray *mediaElements = [mediaInfo.mimeType componentsSeparatedByString:@"/"];
+    NSString *mediaType = mediaElements[0];
+    NSString *mediaFormat = mediaElements[1];
+    
+    if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc"]);
+        
+        return;
+    }
+    
+    mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
+    NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
+    
+    NSString *shareXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                          "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+                          "<s:Body>"
+                          "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+                          "<InstanceID>0</InstanceID>"
+                          "<CurrentURI>%@</CurrentURI>"
+                          "<CurrentURIMetaData>"
+                          "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;0&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;dc:description&gt;%@&lt;/dc:description&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000&quot;&gt;%@&lt;/res&gt;&lt;upnp:albumArtURI&gt;%@&lt;/upnp:albumArtURI&gt;&lt;upnp:class&gt;object.item.%@Item&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
+                          "</CurrentURIMetaData>"
+                          "</u:SetAVTransportURI>"
+                          "</s:Body>"
+                          "</s:Envelope>",
+                          mediaInfo.url.absoluteString, mediaInfo.title, mediaInfo.description, mimeType, mediaInfo.url.absoluteString, iconURL.absoluteString, mediaType];
+    NSDictionary *sharePayload = @{
+                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
+                                   kDataFieldName : shareXML
+                                   };
+    
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
+    command.callbackComplete = ^(NSDictionary *responseDic)
+    {
+        [self playWithSuccess:^(id responseObject) {
+            if (success)
+            {
+                LaunchSession *launchSession = [LaunchSession new];
+                launchSession.sessionType = LaunchSessionTypeMedia;
+                launchSession.service = self;
+                MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
+                success(launchObject);
+            }
+        } failure:failure];
+    };
+    
+    command.callbackError = failure;
+    [command send];
+    
 }
 
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1172,6 +1233,98 @@ static const NSInteger kValueNotFound = -1;
     [subscription addFailure:failure];
     [subscription subscribe];
     return subscription;
+}
+
+#pragma Playlist controls
+
+- (id <PlayListControl>)playListControl
+{
+    return self;
+}
+
+- (CapabilityPriorityLevel) playListControlPriority
+{
+    return CapabilityPriorityLevelNormal;
+}
+
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *nextXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    "<s:Body>"
+    "<u:Next xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+    "<InstanceID>0</InstanceID>"
+    "</u:Next>"
+    "</s:Body>"
+    "</s:Envelope>";
+    
+    NSDictionary *nextPayload = @{
+                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
+                                  kDataFieldName : nextXML
+                                  };
+    
+    ServiceCommand *nextCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:nextPayload];
+    nextCommand.callbackComplete = ^(NSDictionary *responseDic){
+        if (success)
+            success(nil);
+    };
+    nextCommand.callbackError = failure;
+    [nextCommand send];
+}
+
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    NSString *previousXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    "<s:Body>"
+    "<u:Previous xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+    "<InstanceID>0</InstanceID>"
+    "</u:Previous>"
+    "</s:Body>"
+    "</s:Envelope>";
+    
+    NSDictionary *previousPayload = @{
+                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
+                                  kDataFieldName : previousXML
+                                  };
+    
+    ServiceCommand *previousCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:previousPayload];
+    previousCommand.callbackComplete = ^(NSDictionary *responseDic){
+        if (success)
+            success(nil);
+    };
+    previousCommand.callbackError = failure;
+    [previousCommand send];
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    //Track Number should be trackIndex+1
+    
+    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld",(long)index+1];
+    
+    NSString *commandXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+                            "<s:Body>"
+                            "<u:Seek xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+                            "<InstanceID>0</InstanceID>"
+                            "<Unit>TRACK_NR</Unit>"
+                            "<Target>%@</Target>"
+                            "</u:Seek>"
+                            "</s:Body>"
+                            "</s:Envelope>",
+                            trackNumberInString
+                            ];
+    
+    NSDictionary *commandPayload = @{
+                                     kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
+                                     kDataFieldName : commandXML
+                                     };
+    
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
 }
 
 @end

@@ -24,7 +24,8 @@
 #import "MediaControl.h"
 #import "MediaPlayer.h"
 #import "VolumeControl.h"
+#import "PlayListControl.h"
 
-@interface DLNAService : DeviceService <MediaPlayer, MediaControl, VolumeControl>
+@interface DLNAService : DeviceService <MediaPlayer, MediaControl, VolumeControl, PlayListControl>
 
 @end

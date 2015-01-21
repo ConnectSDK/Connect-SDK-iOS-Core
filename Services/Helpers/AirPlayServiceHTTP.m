@@ -249,73 +249,15 @@
 
 - (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    _assetId = [[CTGuid randomGuid] stringValue];
-
-    NSString *commandPathComponent = @"photo";
-    NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
-
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:nil];
-    command.HTTPMethod = @"POST";
-    command.callbackComplete = ^(id responseObject) {
-        LaunchSession *launchSession = [LaunchSession launchSessionForAppId:commandPathComponent];
-        launchSession.sessionType = LaunchSessionTypeMedia;
-        launchSession.service = self.service;
-        launchSession.sessionId = self.sessionId;
-
-        if (success)
-            dispatch_on_main(^{ success(launchSession, self.service.mediaControl); });
-    };
-
-    command.callbackError = failure;
-
-    dispatch_async(self.imageProcessingQueue, ^{
-        NSError *downloadError;
-        NSData *downloadedImageData = [NSData dataWithContentsOfURL:imageURL options:0 error:&downloadError];
-
-        if (!downloadedImageData || downloadError)
-        {
-            if (failure)
-            {
-                if (downloadError)
-                    dispatch_on_main(^{ failure(downloadError); });
-                else
-                    dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not download requested image"]); });
-            }
-
-            return;
-        }
-
-        NSData *processedImageData;
-
-        if ([imageURL.absoluteString hasSuffix:@"jpg"] || [imageURL.absoluteString hasSuffix:@"jpeg"])
-            processedImageData = downloadedImageData;
-        else
-        {
-            UIImage *image = [UIImage imageWithData:downloadedImageData];
-
-            if (image)
-            {
-                processedImageData = UIImageJPEGRepresentation(image, 1.0);
-
-                if (!processedImageData)
-                {
-                    if (failure)
-                        dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded image to JPEG format"]); });
-
-                    return;
-                }
-            } else
-            {
-                if (failure)
-                    dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded data to a suitable image format"]); });
-
-                return;
-            }
-        }
-
-        command.payload = processedImageData;
-        [command send];
-    });
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -331,49 +273,97 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    _assetId = [[CTGuid randomGuid] stringValue];
-
-    NSMutableDictionary *plist = [NSMutableDictionary new];
-    plist[@"Content-Location"] = mediaURL.absoluteString;
-    plist[@"Start-Position"] = @(0.0);
-
-    NSError *parseError;
-    NSData *plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 options:0 error:&parseError];
-
-    if (parseError || !plistData)
-    {
-        NSError *error = parseError;
-
-        if (!error)
-            error = [ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
-
-        if (failure)
-            failure(error);
-
-        return;
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
     }
     
-    NSString *commandPathComponent = @"play";
+    NSURL *imageURL = mediaInfo.url;
+    
+    _assetId = [[CTGuid randomGuid] stringValue];
+    
+    NSString *commandPathComponent = @"photo";
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
-
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:plist];
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:nil];
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject) {
         LaunchSession *launchSession = [LaunchSession launchSessionForAppId:commandPathComponent];
         launchSession.sessionType = LaunchSessionTypeMedia;
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
-
-        [self startKeepAliveTimer];
-
-        if (success)
-            dispatch_on_main(^{ success(launchSession, self.service.mediaControl); });
+        
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
+        if(success){
+            dispatch_on_main(^{ success(launchObject); });
+        }
     };
+    
     command.callbackError = failure;
+    
+    dispatch_async(self.imageProcessingQueue, ^{
+        NSError *downloadError;
+        NSData *downloadedImageData = [NSData dataWithContentsOfURL:imageURL options:0 error:&downloadError];
+        
+        if (!downloadedImageData || downloadError)
+        {
+            if (failure)
+            {
+                if (downloadError)
+                    dispatch_on_main(^{ failure(downloadError); });
+                else
+                    dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not download requested image"]); });
+            }
+            
+            return;
+        }
+        
+        NSData *processedImageData;
+        
+        if ([imageURL.absoluteString hasSuffix:@"jpg"] || [imageURL.absoluteString hasSuffix:@"jpeg"])
+            processedImageData = downloadedImageData;
+        else
+        {
+            UIImage *image = [UIImage imageWithData:downloadedImageData];
+            
+            if (image)
+            {
+                processedImageData = UIImageJPEGRepresentation(image, 1.0);
+                
+                if (!processedImageData)
+                {
+                    if (failure)
+                        dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded image to JPEG format"]); });
+                    
+                    return;
+                }
+            } else
+            {
+                if (failure)
+                    dispatch_on_main(^{ failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded data to a suitable image format"]); });
+                
+                return;
+            }
+        }
+        
+        command.payload = processedImageData;
+        [command send];
+    });
+}
 
-    [command send];
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -384,6 +374,58 @@
         iconURL = imageInfo.url;
     }
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
+}
+
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    _assetId = [[CTGuid randomGuid] stringValue];
+    
+    NSMutableDictionary *plist = [NSMutableDictionary new];
+    plist[@"Content-Location"] = mediaInfo.url.absoluteString;
+    plist[@"Start-Position"] = @(0.0);
+    
+    NSError *parseError;
+    NSData *plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 options:0 error:&parseError];
+    
+    if (parseError || !plistData)
+    {
+        NSError *error = parseError;
+        
+        if (!error)
+            error = [ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
+        
+        if (failure)
+            failure(error);
+        
+        return;
+    }
+    
+    NSString *commandPathComponent = @"play";
+    NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:plist];
+    command.HTTPMethod = @"POST";
+    command.callbackComplete = ^(id responseObject) {
+        LaunchSession *launchSession = [LaunchSession launchSessionForAppId:commandPathComponent];
+        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.service = self.service;
+        launchSession.sessionId = self.sessionId;
+        
+        [self startKeepAliveTimer];
+        
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
+        if(success){
+             dispatch_on_main(^{ success(launchObject); });
+        }
+    };
+    command.callbackError = failure;
+    
+    [command send];
 }
 
 - (void) closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -567,6 +609,24 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
+}
+
+- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Helpers
