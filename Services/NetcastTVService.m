@@ -229,10 +229,26 @@ NSString *lgeUDAPRequestURI[8] = {
 
 + (NSDictionary *) discoveryParameters
 {
+    /*
+     NetcastTVService and DLNAService have the same ssdp.filter, but
+     requiredServices was missing here. That could create differences in device
+     discovery with DLNA and (with or without Netcast). e.g., when a device had
+     this filter, but not the required services, Netcast would pass it even if
+     it is a generic DLNA device. Moreover, that would depend on the order of
+     adding services to the DiscoveryManager.
+     To avoid the inconsistency, NetcastTVService has the same requiredServices
+     as DLNAService.
+     */
+
     return @{
              @"serviceId": kConnectSDKNetcastTVServiceId,
              @"ssdp":@{
                     @"filter":@"urn:schemas-upnp-org:device:MediaRenderer:1",
+                    // `requiredServices` from the `DLNAService`, see comment above
+                    @"requiredServices": @[
+                            @"urn:schemas-upnp-org:service:AVTransport:1",
+                            @"urn:schemas-upnp-org:service:RenderingControl:1"
+                    ],
                     @"userAgentToken":@"UDAP/2.0"
                 }
              };

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+
+ <device>
+  <deviceType>urn:dial-multiscreen-org:device:dial:1</deviceType>
+  <friendlyName>MR</friendlyName>
+  <UDN>ee157bca-a2c7-4f33-bff8-5a177bd17181</UDN>
+  <serviceList>
+    <service>
+   <serviceType>urn:dial-multiscreen-org:service:dial:1</serviceType>
+   <serviceId>urn:dial-multiscreen-org:serviceId:dial</serviceId>
+   <controlURL>/ssdp/notfound</controlURL>
+   <eventSubURL>/ssdp/notfound</eventSubURL>
+   <SCPDURL>/ssdp/notfound</SCPDURL>
+    </service>
+  </serviceList>
+ </device>
+</root>
