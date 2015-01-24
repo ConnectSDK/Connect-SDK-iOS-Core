@@ -12,9 +12,13 @@
 #import <OHHTTPStubs/OHHTTPStubs.h>
 
 #import "SSDPDiscoveryProvider_Private.h"
+#import "SSDPSocketListener.h"
+
+#import "DIALService.h"
 #import "DLNAService.h"
 #import "NetcastTVService.h"
-#import "SSDPSocketListener.h"
+#import "RokuService.h"
+#import "WebOSTVService.h"
 
 static const NSUInteger kSSDPMulticastTCPPort = 1900;
 
@@ -26,7 +30,7 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
 
 @implementation SSDPDiscoveryProvider_FilteringTests
 
-#pragma mark - Filtering Tests
+#pragma mark - DLNA/Netcast Services Filtering Tests
 
 /// Tests that the @c SSDPDiscoveryProvider properly parses Sonos' XML device
 /// description with DLNA filter only and accepts the service.
@@ -83,6 +87,92 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
         usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
 }
 
+- (void)testShouldNotFindDLNAServiceWithoutRequiredServices {
+    [self checkShouldNotFindDevice:@"dlna_no_required_services"
+           usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+- (void)testShouldNotFindDLNAServiceConsideringNetcastWithoutRequiredServices {
+    [self checkShouldNotFindDevice:@"dlna_no_required_services"
+           usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
+}
+
+- (void)testShouldNotFindDLNAServiceWithoutRequiredServicesInRoot {
+    [self checkShouldNotFindDevice:@"dlna_root_no_required_services"
+           usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+- (void)testShouldNotFindDLNAServiceConsideringNetcastWithoutRequiredServicesInRoot {
+    [self checkShouldNotFindDevice:@"dlna_root_no_required_services"
+           usingDiscoveryProviders:@[[NetcastTVService class], [DLNAService class]]];
+}
+
+- (void)testShouldFindSamsungTVWithDLNAService {
+    [self checkShouldFindDevice:@"samsung_tv_dlna"
+       withExpectedFriendlyName:@"Samsung LED"
+        usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+- (void)testShouldFindWebosWithDLNAService {
+    [self checkShouldFindDevice:@"webos_minor_dlna"
+       withExpectedFriendlyName:@"MR"
+        usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
+#pragma mark - DIAL Service Filtering Tests
+
+- (void)testShouldFindFireTVWithDIALService {
+    [self checkShouldFindDevice:@"firetv"
+       withExpectedFriendlyName:@"Fire TV"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+- (void)testShouldFindChromecastWithDIALService {
+    [self checkShouldFindDevice:@"chromecast"
+       withExpectedFriendlyName:@"Chromecast"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+- (void)testShouldFindRokuWithDIALService {
+    [self checkShouldFindDevice:@"roku2"
+       withExpectedFriendlyName:@"Roku2"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+- (void)testShouldFindSamsungTVWithDIALService {
+    [self checkShouldFindDevice:@"samsung_tv"
+       withExpectedFriendlyName:@"Samsung LED"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+- (void)testShouldFindXboxWithDIALService {
+    [self checkShouldFindDevice:@"xbox_dial"
+       withExpectedFriendlyName:@"XboxOne"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+- (void)testShouldFindWebosWithDIALService {
+    [self checkShouldFindDevice:@"webos_minor"
+       withExpectedFriendlyName:@"MR"
+        usingDiscoveryProviders:@[[DIALService class]]];
+}
+
+#pragma mark - Roku Service Filtering Tests
+
+- (void)testShouldFindRokuWithRokuService {
+    [self checkShouldFindDevice:@"roku2"
+       withExpectedFriendlyName:@"Roku2"
+        usingDiscoveryProviders:@[[RokuService class]]];
+}
+
+#pragma mark - WebOS Service Filtering Tests
+
+- (void)testShouldFindWebOSWithWebOSService {
+    [self checkShouldFindDevice:@"webos_minor_webos"
+       withExpectedFriendlyName:@"MR"
+        usingDiscoveryProviders:@[[WebOSTVService class]]];
+}
+
 #pragma mark - Helpers
 
 - (void)checkShouldFindDevice:(NSString *)device
@@ -97,7 +187,7 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     provider.searchSocket = searchSocketMock;
 
-    NSString *serviceType = [DLNAService discoveryParameters][@"ssdp"][@"filter"];
+    NSString *serviceType = [discoveryProviders.firstObject discoveryParameters][@"ssdp"][@"filter"];
     OCMStub([searchSocketMock sendData:OCMOCK_NOTNIL
                              toAddress:OCMOCK_NOTNIL
                                andPort:kSSDPMulticastTCPPort]).andDo((^(NSInvocation *invocation) {
@@ -112,6 +202,9 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
                                     @"USN: uuid:f21e800a-1000-ab08-8e5a-76f4fcb5e772::urn:schemas-upnp-org:device:thing:1\r\n"
                                     @"Content-Length: 0\r\n"
                                     @"\r\n",
+                                    // NOTE: be careful with setting the service type from
+                                    // the discovery parameters. properly, it should be the
+                                    // value from the real device
                                     serviceType];
         NSData *searchResponseData = [searchResponse dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -129,27 +222,63 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
                                                    headers:nil];
     }];
 
-    XCTestExpectation *didFindServiceExpectation = [self expectationWithDescription:@"Did find device with DLNA service"];
-
     id discoveryProviderDelegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
     provider.delegate = discoveryProviderDelegateMock;
-    OCMExpect([discoveryProviderDelegateMock discoveryProvider:[OCMArg isEqual:provider]
-                                                didFindService:[OCMArg checkWithBlock:^BOOL(ServiceDescription *service) {
-        XCTAssertEqualObjects(service.friendlyName, friendlyName,
-                              @"The device's friendlyName doesn't match");
-        [didFindServiceExpectation fulfill];
-        return YES;
-    }]]);
 
-    // Act
-    [provider startDiscovery];
+    if (friendlyName) {
+        XCTestExpectation *didFindServiceExpectation = [self expectationWithDescription:@"Did find device with given service"];
 
-    // Assert
-    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
-                                 handler:^(NSError *error) {
-                                     XCTAssertNil(error);
-                                     OCMVerifyAll(discoveryProviderDelegateMock);
-                                 }];
+        OCMExpect([discoveryProviderDelegateMock discoveryProvider:[OCMArg isEqual:provider]
+                                                    didFindService:[OCMArg checkWithBlock:^BOOL(ServiceDescription *service) {
+            XCTAssertEqualObjects(service.friendlyName, friendlyName,
+                                  @"The device's friendlyName doesn't match");
+            [didFindServiceExpectation fulfill];
+            return YES;
+        }]]);
+
+        // Act
+        [provider startDiscovery];
+
+        // Assert
+        [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                     handler:^(NSError *error) {
+                                         XCTAssertNil(error);
+                                         OCMVerifyAll(discoveryProviderDelegateMock);
+                                     }];
+    } else {
+        // I tried to use [mock reject] and strict mocks at first, but they
+        // throw an `NSInternalInconsistencyException` that terminates the test
+        // process. It's impossible to catch, `XCTAssertNoThrow()` and
+        // `@try/@catch` don't work. So this is a workaround to make sure the
+        // method isn't called without throwing an exception.
+        // /* yeah, Xcode and iOS SDK don't seem to be test-friendly :( */
+        OCMStub([discoveryProviderDelegateMock discoveryProvider:OCMOCK_ANY
+                                                  didFindService:OCMOCK_ANY]).andDo(^(NSInvocation *_) {
+            XCTFail(@"discoveryProvider:didFindService: must not be called");
+        });
+
+        // Act
+        [provider startDiscovery];
+        [self runRunLoopForInterval:kDefaultAsyncTestTimeout];
+
+        // Assert
+        OCMVerifyAll(discoveryProviderDelegateMock);
+    }
+}
+
+- (void)checkShouldNotFindDevice:(NSString *)device
+         usingDiscoveryProviders:(NSArray *)discoveryProviders {
+    [self checkShouldFindDevice:device
+       withExpectedFriendlyName:nil
+        usingDiscoveryProviders:discoveryProviders];
+}
+
+- (void)runRunLoopForInterval:(CGFloat)interval {
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:interval];
+    while ([timeoutDate timeIntervalSinceNow] > 0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:timeoutDate];
+    }
 }
 
 @end

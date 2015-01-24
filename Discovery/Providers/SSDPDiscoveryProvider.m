@@ -478,36 +478,31 @@ static double searchAttemptsBeforeKill = 6.0;
     return [requiredServicesSet isSubsetOfSet:discoveredServicesSet];
 }
 
-/// Returns a device description that is of the specified type and contains the
-/// given required services. It may be the root device or any of the subdevices.
-/// If no device matches, returns @c nil.
+/// Returns a device description that contains the given required services. It
+/// may be the root device or any of the subdevices. If no device matches,
+/// returns @c nil.
 - (NSDictionary *)device:(NSDictionary *)device
-                withType:(NSString *)type
 containingRequiredServices:(NSArray *)requiredServices {
-    NSString *discoveredType = [device valueForKeyPath:@"deviceType.text"];
-    const BOOL typeMatches = [type isEqualToString:discoveredType];
-
     NSArray *discoveredServices = [self discoveredServicesInDevice:device];
     const BOOL deviceHasAllRequiredServices = [self allRequiredServices:requiredServices
                                                 areInDiscoveredServices:discoveredServices];
 
-    if (typeMatches && deviceHasAllRequiredServices) {
+    if (deviceHasAllRequiredServices) {
         return device;
-    } else {
-        // try to iterate through all the child devices
-        NSArray *subDevices = [device valueForKeyPath:@"deviceList.device"];
-        if (subDevices) {
-            if (![subDevices isKindOfClass:[NSArray class]]) {
-                subDevices = [NSArray arrayWithObject:subDevices];
-            }
+    }
 
-            for (NSDictionary *subDevice in subDevices) {
-                NSDictionary *foundDevice = [self device:subDevice
-                                                withType:type
-                              containingRequiredServices:requiredServices];
-                if (foundDevice) {
-                    return foundDevice;
-                }
+    // try to iterate through all the child devices
+    NSArray *subDevices = [device valueForKeyPath:@"deviceList.device"];
+    if (subDevices) {
+        if (![subDevices isKindOfClass:[NSArray class]]) {
+            subDevices = [NSArray arrayWithObject:subDevices];
+        }
+
+        for (NSDictionary *subDevice in subDevices) {
+            NSDictionary *foundDevice = [self device:subDevice
+                          containingRequiredServices:requiredServices];
+            if (foundDevice) {
+                return foundDevice;
             }
         }
     }
@@ -521,7 +516,6 @@ containingRequiredServices:(NSArray *)requiredServices {
 - (NSDictionary *)device:(NSDictionary *)device containingServicesWithFilter:(NSString *)filter {
     NSArray *requiredServices = [self requiredServicesForFilter:filter];
     return [self device:device
-               withType:filter
 containingRequiredServices:requiredServices];
 }
 

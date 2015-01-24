@@ -200,10 +200,7 @@
     return @{
              @"serviceId": kConnectSDKWebOSTVServiceId,
              @"ssdp":@{
-                     @"filter":@"urn:schemas-upnp-org:device:Basic:1",
-                     @"requiredServices": @[
-                             @"urn:lge-com:service:webos-second-screen:1"
-                     ]
+                     @"filter":@"urn:lge-com:service:webos-second-screen:1"
                   }
              };
 }
