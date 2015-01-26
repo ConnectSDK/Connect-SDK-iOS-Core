@@ -1820,7 +1820,7 @@
     NSURL *URL = [NSURL URLWithString:@"ssap://webapp/pinWebApp"];
     NSMutableDictionary *payload = [NSMutableDictionary new];
     [payload setObject:webAppSession.appId forKey:@"webAppId"];
-     __unsafe_unretained typeof(self) weakSelf = self;
+     __weak typeof(self) weakSelf = self;
     __block ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:payload success:^(NSDictionary *responseDict)
                                          {
                                              if([responseDict valueForKey:@"pairingType"]){
