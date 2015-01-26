@@ -96,6 +96,12 @@ static AirPlayServiceMode airPlayServiceMode;
     [super setCapabilities:caps];
 }
 
+- (void) sendNotSupportedFailure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
 - (BOOL) isConnectable
 {
     return YES;
@@ -371,6 +377,27 @@ static AirPlayServiceMode airPlayServiceMode;
 - (void) closeWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self.webAppLauncher closeWebApp:launchSession success:success failure:failure];
+}
+
+-(void)pinWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+-(void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+    return nil;
 }
 
 @end

@@ -75,6 +75,13 @@ typedef void (^ WebAppMessageBlock)(id message);
 typedef void (^ WebAppStatusBlock)(WebAppStatus status);
 
 /*!
+ * Success block that is called upon successfully getting a web app's status.
+ *
+ * @param status The current running & foreground status of the web app
+ */
+typedef void (^ WebAppPinStatusBlock)(BOOL status);
+
+/*!
  * LaunchSession object containing key session information. Much of this information is required for web app messaging & closing the web app.
  */
 @property (nonatomic, strong) LaunchSession *launchSession;
@@ -130,6 +137,23 @@ typedef void (^ WebAppStatusBlock)(WebAppStatus status);
  * Closes any open communication channel with the web app.
  */
 - (void) disconnectFromWebApp;
+
+/*!
+ * Pin the web app on the launcher.
+ */
+- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+
+/*!
+ * UnPin the web app on the launcher.
+ *
+ * @param webAppId NSString webAppId to be unpinned.
+ */
+- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+
+/*!
+ * To check if the web app is pinned or not
+ */
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
 
 #pragma mark - Communication
 

@@ -55,6 +55,12 @@
     return self;
 }
 
+- (void) sendNotSupportedFailure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
 - (void) connect
 {
     [self checkForExistingScreenAndInitializeIfPresent];
@@ -410,6 +416,28 @@
     if (success)
         success(nil);
 }
+
+-(void)pinWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+-(void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+    return nil;
+}
+
 
 #pragma mark - UIWebViewDelegate
 
