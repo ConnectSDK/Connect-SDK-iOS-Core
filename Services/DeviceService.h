@@ -92,7 +92,7 @@
  * - First screen device configuration (apps installed, settings, etc)
  * - Physical region
  */
-@property (nonatomic) NSArray *capabilities;
+@property (nonatomic, weak) NSArray *capabilities;
 
 // @cond INTERNAL
 - (void) updateCapabilities;
