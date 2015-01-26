@@ -164,7 +164,7 @@
  *
  * To disable the ConnectableDeviceStore capabilities of Connect SDK, set this value to nil. This may be done at the time of instantiation with `[DiscoveryManager sharedManagerWithDeviceStore:nil]`.
  */
-@property (nonatomic) id<ConnectableDeviceStore> deviceStore;
+@property (nonatomic, strong) id<ConnectableDeviceStore> deviceStore;
 
 /*!
  * Whether pairing state will be automatically loaded/saved in the deviceStore. This property is not available for direct modification. To disable the device store,

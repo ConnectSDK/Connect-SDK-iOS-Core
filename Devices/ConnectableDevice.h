@@ -90,10 +90,10 @@ typedef enum {
 @property (nonatomic, readonly) NSString *modelNumber;
 
 /*! Last IP address this ConnectableDevice was discovered at. */
-@property (nonatomic) NSString *lastKnownIPAddress;
+@property (nonatomic, copy) NSString *lastKnownIPAddress;
 
 /*! Name of the last wireless network this ConnectableDevice was discovered on. */
-@property (nonatomic) NSString *lastSeenOnWifi;
+@property (nonatomic, copy) NSString *lastSeenOnWifi;
 
 /*! Last time (in seconds from 1970) that this ConnectableDevice was connected to. */
 @property (nonatomic) double lastConnected;
