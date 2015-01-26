@@ -26,6 +26,7 @@
 {
     ServiceSubscription *_playStateSubscription;
     ServiceSubscription *_messageSubscription;
+    ServiceSubscription *_webAppPinnedSubscription;
     NSMutableDictionary *_activeCommands;
 
     SuccessBlock _connectSuccess;
@@ -191,6 +192,8 @@
             _playStateSubscription = nil;
         else if (subscription == _messageSubscription)
             _messageSubscription = nil;
+        else if (subscription == _webAppPinnedSubscription)
+            _webAppPinnedSubscription = nil;
     }
 
     return -1;
@@ -424,8 +427,30 @@
     _playStateSubscription = nil;
 
     _messageSubscription = nil;
+    _webAppPinnedSubscription = nil;
 
     [self.service.webAppLauncher closeWebApp:self.launchSession success:success failure:failure];
+}
+
+- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self.service.webAppLauncher pinWebApp:self.launchSession success:success failure:failure];
+}
+
+- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self.service.webAppLauncher unPinWebApp:webAppId success:success failure:failure];
+}
+
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self.service.webAppLauncher isWebAppPinned:webAppId success:success failure:failure];
+}
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    _webAppPinnedSubscription = [self.service.webAppLauncher subscribeIsWebAppPinned:webAppId success:success failure:failure];
+    return _webAppPinnedSubscription;
 }
 
 #pragma mark - Media Player

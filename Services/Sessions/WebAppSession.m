@@ -111,6 +111,27 @@
     [self sendNotSupportedFailure:failure];
 }
 
+- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+   [self sendNotSupportedFailure:failure];
+    return nil;
+}
+
 #pragma mark - Media Player
 
 - (id <MediaPlayer>) mediaPlayer
