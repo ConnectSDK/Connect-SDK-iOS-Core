@@ -187,7 +187,7 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
     id searchSocketMock = OCMClassMock([SSDPSocketListener class]);
     provider.searchSocket = searchSocketMock;
 
-    NSString *serviceType = [discoveryProviders.firstObject discoveryParameters][@"ssdp"][@"filter"];
+    NSString *serviceType = [discoveryProviders.firstObject discoveryParameters].filter;
     OCMStub([searchSocketMock sendData:OCMOCK_NOTNIL
                              toAddress:OCMOCK_NOTNIL
                                andPort:kSSDPMulticastTCPPort]).andDo((^(NSInvocation *invocation) {

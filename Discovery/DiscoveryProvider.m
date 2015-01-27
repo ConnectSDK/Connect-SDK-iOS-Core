@@ -22,8 +22,8 @@
 
 @implementation DiscoveryProvider
 
-- (void)addDeviceFilter:(NSDictionary *)parameters { }
-- (void)removeDeviceFilter:(NSDictionary *)parameters { }
+- (void)addDeviceFilter:(DiscoveryFilter *)filter { }
+- (void)removeDeviceFilter:(DiscoveryFilter *)filter { }
 - (BOOL)isEmpty { return YES; }
 
 - (void)startDiscovery { }

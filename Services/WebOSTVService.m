@@ -196,14 +196,10 @@
     [self setCapabilities:capabilities];
 }
 
-+ (NSDictionary *) discoveryParameters
++ (DiscoveryFilter *) discoveryParameters
 {
-    return @{
-             @"serviceId": kConnectSDKWebOSTVServiceId,
-             @"ssdp":@{
-                     @"filter":@"urn:lge-com:service:webos-second-screen:1"
-                  }
-             };
+    return [DiscoveryFilter filterWithServiceId:kConnectSDKWebOSTVServiceId
+                                      andFilter:@"urn:lge-com:service:webos-second-screen:1"];
 }
 
 - (BOOL) isConnectable

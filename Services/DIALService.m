@@ -80,14 +80,10 @@ static NSMutableArray *registeredApps = nil;
         [registeredApps addObject:appId];
 }
 
-+ (NSDictionary *) discoveryParameters
++ (DiscoveryFilter *) discoveryParameters
 {
-    return @{
-             @"serviceId":kConnectSDKDIALServiceId,
-             @"ssdp":@{
-                     @"filter":@"urn:dial-multiscreen-org:service:dial:1"
-                     }
-             };
+    return [DiscoveryFilter filterWithServiceId:kConnectSDKDIALServiceId
+                                      andFilter:@"urn:dial-multiscreen-org:service:dial:1"];
 }
 
 - (void)setServiceDescription:(ServiceDescription *)serviceDescription

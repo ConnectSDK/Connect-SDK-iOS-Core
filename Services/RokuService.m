@@ -45,14 +45,10 @@ static NSMutableArray *registeredApps = nil;
     ]];
 }
 
-+ (NSDictionary *)discoveryParameters
++ (DiscoveryFilter *)discoveryParameters
 {
-    return @{
-            @"serviceId" : kConnectSDKRokuServiceId,
-            @"ssdp" : @{
-                    @"filter" : @"roku:ecp"
-            }
-    };
+    return [DiscoveryFilter filterWithServiceId:kConnectSDKRokuServiceId
+                                      andFilter:@"roku:ecp"];
 }
 
 - (void) updateCapabilities

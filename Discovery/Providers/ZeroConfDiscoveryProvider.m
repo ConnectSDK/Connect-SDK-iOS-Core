@@ -80,37 +80,34 @@
 
 - (void) searchForServices
 {
-    [_serviceFilters enumerateObjectsUsingBlock:^(NSDictionary *serviceFilter, NSUInteger idx, BOOL *stop)
+    [_serviceFilters enumerateObjectsUsingBlock:^(DiscoveryFilter *serviceFilter, NSUInteger idx, BOOL *stop)
     {
-        NSString *filterType = serviceFilter[@"zeroconf"][@"filter"];
+        NSString *filterType = serviceFilter.filter;
 
         if (filterType)
             [_netServiceBrowser searchForServicesOfType:filterType inDomain:@"local."];
     }];
 }
 
-- (void)addDeviceFilter:(NSDictionary *)parameters
+- (void)addDeviceFilter:(DiscoveryFilter *)filter
 {
     if (!_serviceFilters)
         _serviceFilters = [NSArray new];
 
-    NSDictionary *ssdpInfo = [parameters objectForKey:@"zeroconf"];
-    NSAssert(ssdpInfo != nil, @"This device filter does not have zeroconf discovery info");
+    NSString *searchFilter = filter.filter;
+    NSAssert(searchFilter != nil, @"The discovery filter has no search filter parameter");
 
-    NSString *searchFilter = [ssdpInfo objectForKey:@"filter"];
-    NSAssert(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
-
-    _serviceFilters = [_serviceFilters arrayByAddingObject:parameters];
+    _serviceFilters = [_serviceFilters arrayByAddingObject:filter];
 }
 
-- (void)removeDeviceFilter:(NSDictionary *)parameters
+- (void)removeDeviceFilter:(DiscoveryFilter *)filter
 {
-    NSString *searchTerm = [parameters objectForKey:@"serviceId"];
+    NSString *searchTerm = filter.serviceId;
     __block BOOL shouldRemove = NO;
     __block NSUInteger removalIndex;
 
-    [_serviceFilters enumerateObjectsUsingBlock:^(NSDictionary *searchFilter, NSUInteger idx, BOOL *stop) {
-        NSString *serviceId = [searchFilter objectForKey:@"serviceId"];
+    [_serviceFilters enumerateObjectsUsingBlock:^(DiscoveryFilter *searchFilter, NSUInteger idx, BOOL *stop) {
+        NSString *serviceId = searchFilter.serviceId;
 
         if ([serviceId isEqualToString:searchTerm])
         {
@@ -269,13 +266,13 @@
 
     __block NSString *serviceId;
 
-    [_serviceFilters enumerateObjectsUsingBlock:^(NSDictionary *serviceFilter, NSUInteger idx, BOOL *stop)
+    [_serviceFilters enumerateObjectsUsingBlock:^(DiscoveryFilter *serviceFilter, NSUInteger idx, BOOL *stop)
     {
-        NSString *serviceFilterType = serviceFilter[@"zeroconf"][@"filter"];
+        NSString *serviceFilterType = serviceFilter.filter;
 
         if ([filter rangeOfString:serviceFilterType].location != NSNotFound)
         {
-            serviceId = serviceFilter[@"serviceId"];
+            serviceId = serviceFilter.serviceId;
             *stop = YES;
         }
     }];

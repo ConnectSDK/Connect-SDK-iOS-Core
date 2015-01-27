@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DiscoveryFilter.h"
 #import "DiscoveryProviderDelegate.h"
-
 
 /*!
  * ###Overview
@@ -49,16 +49,16 @@
 /*!
  * Adds a device filter for a particular DeviceService.
  *
- * @param parameters Parameters to be used for discovering a particular DeviceService
+ * @param filter Filter to be used for discovering a particular DeviceService
  */
-- (void) addDeviceFilter:(NSDictionary *)parameters;
+- (void) addDeviceFilter:(DiscoveryFilter *)filter;
 
 /*!
  * Removes a device filter for a particular DeviceService. If the DiscoveryProvider has no other devices to be searching for, the DiscoveryProvider will be stopped and de-referenced.
  *
- * @param parameters Parameters to be used for discovering a particular DeviceService
+ * @param filter Filter to be used for discovering a particular DeviceService
  */
-- (void) removeDeviceFilter:(NSDictionary *)parameters;
+- (void) removeDeviceFilter:(DiscoveryFilter *)filter;
 
 /*!
  * Starts the DiscoveryProvider.

@@ -23,6 +23,7 @@
 #import "ServiceConfig.h"
 #import "ConnectableDeviceDelegate.h"
 #import "DeviceServiceDelegate.h"
+#import "DiscoveryFilter.h"
 #import "Capability.h"
 #import "LaunchSession.h"
 
@@ -59,9 +60,10 @@
 @property (nonatomic, strong, readonly) NSString *serviceName;
 
 /*!
- * A dictionary of keys/values that will be used by the DiscoveryProvider used to discover this DeviceService. Some keys that are used are: service name, SSDP filter, etc.
+ * A discovery filter object that will be used by the DiscoveryProvider used to
+ * discover this DeviceService.
  */
-+ (NSDictionary *) discoveryParameters;
++ (DiscoveryFilter *)discoveryParameters;
 
 /*!
  * Returns an instantiated DeviceService of the proper subclass (CastService, WebOSTVService, etc).

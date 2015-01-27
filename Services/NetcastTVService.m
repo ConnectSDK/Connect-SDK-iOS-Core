@@ -227,7 +227,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [self setCapabilities:capabilities];
 }
 
-+ (NSDictionary *) discoveryParameters
++ (DiscoveryFilter *) discoveryParameters
 {
     /*
      NetcastTVService and DLNAService have the same ssdp.filter, but
@@ -240,18 +240,13 @@ NSString *lgeUDAPRequestURI[8] = {
      as DLNAService.
      */
 
-    return @{
-             @"serviceId": kConnectSDKNetcastTVServiceId,
-             @"ssdp":@{
-                    @"filter":@"urn:schemas-upnp-org:device:MediaRenderer:1",
-                    // `requiredServices` from the `DLNAService`, see comment above
-                    @"requiredServices": @[
-                            @"urn:schemas-upnp-org:service:AVTransport:1",
-                            @"urn:schemas-upnp-org:service:RenderingControl:1"
-                    ],
-                    @"userAgentToken":@"UDAP/2.0"
-                }
-             };
+    return [DiscoveryFilter filterWithServiceId:kConnectSDKNetcastTVServiceId
+                                         filter:@"urn:schemas-upnp-org:device:MediaRenderer:1"
+            // `requiredServices` from the `DLNAService`, see comment above
+                            andRequiredServices:@[
+                                                  @"urn:schemas-upnp-org:service:AVTransport:1",
+                                                  @"urn:schemas-upnp-org:service:RenderingControl:1"
+                                                ]];
 }
 
 - (void) dealloc

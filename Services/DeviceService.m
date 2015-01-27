@@ -35,7 +35,7 @@
     return self.serviceDescription.serviceId;
 }
 
-+ (NSDictionary *) discoveryParameters { return nil; }
++ (DiscoveryFilter *) discoveryParameters { return nil; }
 
 + (instancetype) deviceServiceWithClass:(Class)_class serviceConfig:(ServiceConfig *)serviceConfig
 {

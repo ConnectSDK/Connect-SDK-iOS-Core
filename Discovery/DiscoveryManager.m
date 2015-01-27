@@ -157,9 +157,8 @@
         _discoveryProviders = [_discoveryProviders arrayByAddingObject:discoveryProvider];
     }
     
-    NSDictionary *discoveryParameters = [deviceClass discoveryParameters];
-    
-    NSString *serviceId = [discoveryParameters objectForKey:@"serviceId"];
+    DiscoveryFilter *discoveryParameters = [deviceClass discoveryParameters];
+    NSString *serviceId = discoveryParameters.serviceId;
 
     NSMutableDictionary *mutableClasses = [NSMutableDictionary dictionaryWithDictionary:_deviceClasses];
     [mutableClasses setObject:deviceClass forKey:serviceId];
@@ -189,9 +188,8 @@
     if (discoveryProvider == nil)
         return;
     
-    NSDictionary *discoveryParameters = [discoveryClass discoveryParameters];
-    
-    NSString *serviceId = [discoveryParameters objectForKey:@"serviceId"];
+    DiscoveryFilter *discoveryParameters = [discoveryClass discoveryParameters];
+    NSString *serviceId = discoveryParameters.serviceId;
 
     NSMutableDictionary *mutableClasses = [NSMutableDictionary dictionaryWithDictionary:_deviceClasses];
     [mutableClasses removeObjectForKey:serviceId];

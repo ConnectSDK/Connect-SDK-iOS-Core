@@ -83,18 +83,14 @@ static const NSInteger kValueNotFound = -1;
     [self setCapabilities:capabilities];
 }
 
-+ (NSDictionary *) discoveryParameters
++ (DiscoveryFilter *) discoveryParameters
 {
-    return @{
-            @"serviceId": kConnectSDKDLNAServiceId,
-            @"ssdp":@{
-                    @"filter":@"urn:schemas-upnp-org:device:MediaRenderer:1",
-                    @"requiredServices":@[
-                            @"urn:schemas-upnp-org:service:AVTransport:1",
-                            @"urn:schemas-upnp-org:service:RenderingControl:1"
-                    ]
-            }
-    };
+    return [DiscoveryFilter filterWithServiceId:kConnectSDKDLNAServiceId
+                                         filter:@"urn:schemas-upnp-org:device:MediaRenderer:1"
+                            andRequiredServices:@[
+                                                  @"urn:schemas-upnp-org:service:AVTransport:1",
+                                                  @"urn:schemas-upnp-org:service:RenderingControl:1"
+                                                ]];
 }
 
 - (id) initWithJSONObject:(NSDictionary *)dict
