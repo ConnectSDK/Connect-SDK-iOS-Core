@@ -16,8 +16,13 @@
     }
 
     NSArray *predicateKeys = [self.allKeys filteredArrayUsingPredicate:predicate];
-    NSAssert(predicateKeys.count <= 1, @"There are %ld object for predicate %@",
-             (unsigned long)predicateKeys.count, predicate);
+    if (predicateKeys.count > 1) {
+        NSString *reason = [NSString stringWithFormat:@"There are %ld object for predicate %@",
+                            (unsigned long)predicateKeys.count, predicate];
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:reason
+                                     userInfo:nil];
+    }
     return self[predicateKeys.firstObject];
 }
 
