@@ -16,6 +16,7 @@
 
 #import "DIALService.h"
 #import "DLNAService.h"
+#import "FireTVService.h"
 #import "NetcastTVService.h"
 #import "RokuService.h"
 #import "WebOSTVService.h"
@@ -171,6 +172,31 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
     [self checkShouldFindDevice:@"webos_minor_webos"
        withExpectedFriendlyName:@"MR"
         usingDiscoveryProviders:@[[WebOSTVService class]]];
+}
+
+#pragma mark - FireTV Service Filtering Tests
+
+- (void)testShouldFindFireTVWithFireTVService {
+    [self checkShouldFindDevice:@"firetv"
+       withExpectedFriendlyName:@"Fire TV"
+        usingDiscoveryProviders:@[[FireTVService class]]];
+}
+
+- (void)testShouldFindFireTVWithDIALAndFireTVService {
+    [self checkShouldFindDevice:@"firetv"
+       withExpectedFriendlyName:@"Fire TV"
+        usingDiscoveryProviders:@[[DIALService class], [FireTVService class]]];
+}
+
+- (void)testShouldFindRokuWithFireTVAndDIALService {
+    [self checkShouldFindDevice:@"roku2"
+       withExpectedFriendlyName:@"Roku2"
+        usingDiscoveryProviders:@[[FireTVService class], [DIALService class]]];
+}
+
+- (void)testShouldNotFindRokuWithFireTVService {
+    [self checkShouldNotFindDevice:@"roku2"
+           usingDiscoveryProviders:@[[FireTVService class]]];
 }
 
 #pragma mark - Helpers

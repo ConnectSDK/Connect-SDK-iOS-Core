@@ -399,7 +399,8 @@ static double searchAttemptsBeforeKill = 6.0;
 
 - (void) notifyDelegateOfNewService:(ServiceDescription *)service
 {
-    NSArray *serviceIds = [self serviceIdsForFilter:service.type];
+    NSArray *serviceIds = [self serviceIdsForFilter:service.type
+                                       andModelName:service.modelName];
 
     [serviceIds enumerateObjectsUsingBlock:^(NSString *serviceId, NSUInteger idx, BOOL *stop) {
         ServiceDescription *newService = [service copy];
@@ -411,7 +412,8 @@ static double searchAttemptsBeforeKill = 6.0;
 
 - (void) notifyDelegateOfLostService:(ServiceDescription *)service
 {
-    NSArray *serviceIds = [self serviceIdsForFilter:service.type];
+    NSArray *serviceIds = [self serviceIdsForFilter:service.type
+                                       andModelName:service.modelName];
 
     [serviceIds enumerateObjectsUsingBlock:^(NSString *serviceId, NSUInteger idx, BOOL *stop) {
         ServiceDescription *newService = [service copy];
@@ -509,24 +511,23 @@ containingRequiredServices:(NSArray *)requiredServices {
 /// Returns a device description that contains services for the given filter. It
 /// may be the root device or any of the subdevices. If no device matches,
 /// returns @c nil.
-- (NSDictionary *)device:(NSDictionary *)device containingServicesWithFilter:(NSString *)filter {
-    NSArray *requiredServices = [self requiredServicesForFilter:filter];
-    return [self device:device
-containingRequiredServices:requiredServices];
+- (NSDictionary *)device:(NSDictionary *)device containingServicesWithFilter:(NSString *)filterName {
+    NSArray *requiredServices = [self requiredServicesForFilter:filterName];
+    return [self device:device containingRequiredServices:requiredServices];
 }
 
 - (NSArray *) serviceIdsForFilter:(NSString *)filter
+                     andModelName:(NSString *)modelName
 {
-    __block NSMutableArray *serviceIds = [NSMutableArray new];
-    
-    [_serviceFilters enumerateObjectsUsingBlock:^(DiscoveryFilter *serviceFilter, NSUInteger idx, BOOL *stop) {
-        NSString *ssdpFilter = serviceFilter.filter;
-        
-        if ([ssdpFilter isEqualToString:filter])
-            [serviceIds addObject:serviceFilter.serviceId];
+    NSPredicate *filterNamePredicate = [NSPredicate predicateWithFormat:@"%K LIKE %@",
+                                        @"filter", filter];
+    NSPredicate *modelNamePredicate = [NSPredicate predicateWithBlock:^BOOL(DiscoveryFilter *filter, NSDictionary *bindings) {
+        return ((!filter.modelNameMatcherBlock) ||
+                (filter.modelNameMatcherBlock && modelName && filter.modelNameMatcherBlock(modelName)));
     }];
-    
-    return [NSArray arrayWithArray:serviceIds];
+    NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[filterNamePredicate,
+                                                                                  modelNamePredicate]];
+    return [[_serviceFilters filteredArrayUsingPredicate:predicate] valueForKey:@"serviceId"];
 }
 
 - (NSArray *) serviceListForDevice:(id)device
