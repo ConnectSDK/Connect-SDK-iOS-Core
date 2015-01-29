@@ -546,6 +546,8 @@
 
 - (void) addServiceDescription:(ServiceDescription *)description toDevice:(ConnectableDevice *)device
 {
+    
+    NSLog(@"Service Name : %@ , %@",description.friendlyName, description.version);
     Class deviceServiceClass = [_deviceClasses objectForKey:description.serviceId];
 
     // TODO: move this logic into DeviceService subclass init methods
