@@ -590,7 +590,6 @@ static NSMutableArray *registeredApps = nil;
     
     if (isVideo)
     {
-        NSLog(@"Service Desc %@",self.serviceDescription);
         mediaType = @"hls";
         mediaURL = [self getPlayListURLFromURL:mediaURL andMediaType:mediaType];
         applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=%@&h=%@&videoName=%@&videoFormat=%@",
