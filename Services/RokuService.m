@@ -24,11 +24,14 @@
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
 
 @interface RokuService () <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
     DIALService *_dialService;
     DeviceServiceReachability *_serviceReachability;
+    GCDWebServer *_webServer;
 }
 @end
 
@@ -587,8 +590,11 @@ static NSMutableArray *registeredApps = nil;
     
     if (isVideo)
     {
-        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=(null)&h=%@&videoName=%@&videoFormat=%@",
+        mediaType = @"hls";
+        mediaURL = [self playListURLFromURL:mediaURL andMediaType:mediaType];
+        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=%@&h=%@&videoName=%@&videoFormat=%@",
                            [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
+                           [ConnectUtil urlEncode:iconURL.absoluteString], // host
                            [ConnectUtil urlEncode:host], // host
                            title ? [ConnectUtil urlEncode:title] : @"(null)", // video name
                            ensureString(mediaType) // video format
@@ -628,6 +634,34 @@ static NSMutableArray *registeredApps = nil;
     };
     command.callbackError = failure;
     [command send];
+}
+
+//Creates a playlist with the specified videoURL and returns the new URL
+-(NSURL *)playListURLFromURL:(NSURL *)videoURL andMediaType:(NSString *)mediaType{
+    
+    NSString *playListData = [NSString stringWithFormat:@"#EXTM3U \n #EXT-X-TARGETDURATION:10 \n #EXTINF:10,\n %@ \n #EXT-X-ENDLIST \n",videoURL.absoluteString];
+    NSData *content = [playListData dataUsingEncoding:NSUTF8StringEncoding];
+     __weak typeof(self) weakSelf = self;
+    if(_webServer == nil){
+        _webServer = [[GCDWebServer alloc] init];
+    }
+    [_webServer addDefaultHandlerForMethod:@"GET"
+                              requestClass:[GCDWebServerRequest class]
+                              processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+                                  GCDWebServerDataResponse* response = [GCDWebServerDataResponse responseWithData:content contentType:mediaType];
+                                  [weakSelf stopServer];
+                                  return response;
+                              }];
+    [_webServer startWithPort:8080 bonjourName:nil];
+    NSString *newURL = [NSString stringWithFormat:@"%@",_webServer.serverURL];
+    
+    return [NSURL URLWithString:newURL];
+}
+
+- (void)stopServer {
+    if(_webServer){
+        [_webServer stop];
+    }
 }
 
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
