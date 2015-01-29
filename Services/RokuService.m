@@ -591,7 +591,7 @@ static NSMutableArray *registeredApps = nil;
     if (isVideo)
     {
         mediaType = @"hls";
-        mediaURL = [self getPlayListURLFromURL:mediaURL andMediaType:mediaType];
+        mediaURL = [self playListURLFromURL:mediaURL andMediaType:mediaType];
         applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=%@&h=%@&videoName=%@&videoFormat=%@",
                            [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
                            [ConnectUtil urlEncode:iconURL.absoluteString], // host
@@ -637,7 +637,7 @@ static NSMutableArray *registeredApps = nil;
 }
 
 //Creates a playlist with the specified videoURL and returns the new URL
--(NSURL *)getPlayListURLFromURL:(NSURL *)videoURL andMediaType:(NSString *)mediaType{
+-(NSURL *)playListURLFromURL:(NSURL *)videoURL andMediaType:(NSString *)mediaType{
     
     NSString *playListData = [NSString stringWithFormat:@"#EXTM3U \n #EXT-X-TARGETDURATION:10 \n #EXTINF:10,\n %@ \n #EXT-X-ENDLIST \n",videoURL.absoluteString];
     NSData *content = [playListData dataUsingEncoding:NSUTF8StringEncoding];
