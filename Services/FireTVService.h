@@ -7,10 +7,14 @@
 //
 
 #import "DeviceService.h"
+#import "WebAppLauncher.h"
 
 /// Service ID for Fire TV devices.
 extern NSString *const kConnectSDKFireTVServiceId;
 
-@interface FireTVService : DeviceService
+/**
+ * This service requires DIALService.
+ */
+@interface FireTVService : DeviceService <WebAppLauncher>
 
 @end
