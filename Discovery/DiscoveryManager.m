@@ -411,7 +411,7 @@
         [_currentPicker discoveryManager:self didLoseDevice:device];
 }
 
-- (void)setPairingLevel:(ConnectableDevicePairingLevel)pairingLevel
+- (void)setPairingLevel:(DeviceServicePairingLevel)pairingLevel
 {
     NSAssert(!_searching, @"Cannot change pairing level while DiscoveryManager is running.");
 

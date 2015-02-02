@@ -152,7 +152,7 @@ NSString *lgeUDAPRequestURI[8] = {
 {
     NSArray *capabilities = [NSArray array];
 
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {
         capabilities = [capabilities arrayByAddingObjectsFromArray:kTextInputControlCapabilities];
         capabilities = [capabilities arrayByAddingObjectsFromArray:kMouseControlCapabilities];
@@ -279,7 +279,7 @@ NSString *lgeUDAPRequestURI[8] = {
         [self pairWithData:self.serviceConfig.pairingCode];
     else
     {
-        if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+        if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
             [self invokePairing];
         else
             [self hConnectSuccess];
@@ -492,7 +492,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (BOOL) requiresPairing
 {
-    return [DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn;
+    return [DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn;
 }
 
 - (DeviceServicePairingType)pairingType
@@ -1329,7 +1329,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (id <MediaControl>)mediaControl
 {
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOff)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOff)
         return self.dlnaService;
     else
         return self;

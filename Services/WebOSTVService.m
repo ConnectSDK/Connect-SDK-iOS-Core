@@ -122,7 +122,7 @@
 {
     NSArray *capabilities = [NSArray array];
 
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
                 kKeyControlSendKeyCode,
@@ -213,7 +213,7 @@
 
 - (BOOL) connected
 {
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
         return self.socket.connected && self.serviceConfig.clientKey != nil;
     else
         return self.socket.connected;
@@ -253,7 +253,7 @@
 
 - (BOOL) requiresPairing
 {
-    return [DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn;
+    return [DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn;
 }
 
 #pragma mark - Paring alert
@@ -349,7 +349,7 @@
     NSMutableArray *defaultPermissions = [[NSMutableArray alloc] init];
     [defaultPermissions addObjectsFromArray:kWebOSTVServiceOpenPermissions];
 
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {
         [defaultPermissions addObjectsFromArray:kWebOSTVServiceProtectedPermissions];
         [defaultPermissions addObjectsFromArray:kWebOSTVServicePersonalActivityPermissions];

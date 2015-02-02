@@ -124,11 +124,11 @@
 /*!
  * The pairingLevel property determines whether capabilities that require pairing (such as entering a PIN) will be available.
  *
- * If pairingLevel is set to ConnectableDevicePairingLevelOn, ConnectableDevices that require pairing will prompt the user to pair when connecting to the ConnectableDevice.
+ * If pairingLevel is set to DeviceServicePairingLevelOn, ConnectableDevices that require pairing will prompt the user to pair when connecting to the ConnectableDevice.
  *
- * If pairingLevel is set to ConnectableDevicePairingLevelOff (the default), connecting to the device will avoid requiring pairing if possible but some capabilities may not be available.
+ * If pairingLevel is set to DeviceServicePairingLevelOff (the default), connecting to the device will avoid requiring pairing if possible but some capabilities may not be available.
  */
-@property (nonatomic) ConnectableDevicePairingLevel pairingLevel;
+@property (nonatomic) DeviceServicePairingLevel pairingLevel;
 
 #pragma mark - Control
 

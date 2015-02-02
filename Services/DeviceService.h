@@ -31,10 +31,21 @@
  */
 typedef enum {
     /*! DeviceServices will never try to pair with a device */
-    ConnectableDevicePairingLevelOff = 0,
+    DeviceServicePairingLevelOff = 0,
     
     /*! DeviceServices will try to pair with a device, if needed */
-    ConnectableDevicePairingLevelOn
+    DeviceServicePairingLevelOn
+}DeviceServicePairingLevel;
+
+/*!
+ * Enumerated value for determining how a DeviceService should handle pairing when attempting to connect.
+ */
+typedef enum {
+    /*! DeviceServices will never try to pair with a device */
+    ConnectableDevicePairingLevelOff __attribute__((deprecated)) = DeviceServicePairingLevelOff,
+    
+    /*! DeviceServices will try to pair with a device, if needed */
+    ConnectableDevicePairingLevelOn __attribute__((deprecated)) = DeviceServicePairingLevelOn
 } ConnectableDevicePairingLevel;
 
 /*!
