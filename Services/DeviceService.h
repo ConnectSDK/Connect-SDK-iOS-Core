@@ -26,6 +26,16 @@
 #import "Capability.h"
 #import "LaunchSession.h"
 
+/*!
+ * Enumerated value for determining how a DeviceService should handle pairing when attempting to connect.
+ */
+typedef enum {
+    /*! DeviceServices will never try to pair with a device */
+    ConnectableDevicePairingLevelOff = 0,
+    
+    /*! DeviceServices will try to pair with a device, if needed */
+    ConnectableDevicePairingLevelOn
+} ConnectableDevicePairingLevel;
 
 /*!
  * ###Overview
