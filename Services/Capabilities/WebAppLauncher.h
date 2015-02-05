@@ -82,7 +82,7 @@ typedef void (^ WebAppLaunchSuccessBlock)(WebAppSession *webAppSession);
 
 - (void) closeWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
 
-- (void) pinWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 - (void) unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
 

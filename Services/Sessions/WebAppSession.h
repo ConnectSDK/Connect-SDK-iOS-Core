@@ -140,8 +140,10 @@ typedef void (^ WebAppPinStatusBlock)(BOOL status);
 
 /*!
  * Pin the web app on the launcher.
+ *
+ * @param webAppId NSString webAppId to be pinned.
  */
-- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 /*!
  * UnPin the web app on the launcher.

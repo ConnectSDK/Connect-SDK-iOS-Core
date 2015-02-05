@@ -417,7 +417,7 @@
         success(nil);
 }
 
--(void)pinWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }

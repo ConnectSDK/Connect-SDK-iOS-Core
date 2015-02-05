@@ -111,7 +111,7 @@
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }

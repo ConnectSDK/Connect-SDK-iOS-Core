@@ -379,7 +379,7 @@ static AirPlayServiceMode airPlayServiceMode;
     [self.webAppLauncher closeWebApp:launchSession success:success failure:failure];
 }
 
--(void)pinWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }

@@ -432,9 +432,9 @@
     [self.service.webAppLauncher closeWebApp:self.launchSession success:success failure:failure];
 }
 
-- (void)pinWebAppWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self.service.webAppLauncher pinWebApp:self.launchSession success:success failure:failure];
+    [self.service.webAppLauncher pinWebApp:webAppId success:success failure:failure];
 }
 
 - (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure

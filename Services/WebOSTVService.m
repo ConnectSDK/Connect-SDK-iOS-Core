@@ -1806,17 +1806,19 @@
 }
 
 
-- (void)pinWebApp:(LaunchSession *)webAppSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (!webAppSession)
+    if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid LaunchSession object."]);
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+        
         return;
     }
+    
     NSURL *URL = [NSURL URLWithString:@"ssap://webapp/pinWebApp"];
     NSMutableDictionary *payload = [NSMutableDictionary new];
-    [payload setObject:webAppSession.appId forKey:@"webAppId"];
+    [payload setObject:webAppId forKey:@"webAppId"];
      __weak typeof(self) weakSelf = self;
     __block ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:payload success:^(NSDictionary *responseDict)
                                          {
