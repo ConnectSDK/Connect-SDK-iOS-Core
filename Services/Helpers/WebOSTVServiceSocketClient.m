@@ -134,7 +134,7 @@
     if (self.service.serviceConfig.SSLCertificates)
         [urlRequest setLGSR_SSLPinnedCertificates:self.service.serviceConfig.SSLCertificates];
 
-    _socket = [[LGSRWebSocket alloc] initWithURLRequest:urlRequest];
+    _socket = [self createSocketWithURLRequest:[urlRequest copy]];
     _socket.delegate = self;
     [_socket open];
 }
@@ -418,24 +418,20 @@
 
     NSNumber *comId = [decodeData objectForKey:@"id"];
     NSString *type = [decodeData objectForKey:@"type"];
+    NSDictionary *payload = [decodeData objectForKey:@"payload"];
+
     NSString *connectionKey = [self connectionKeyForMessageId:comId];
+    ServiceCommand *connectionCommand = [_activeConnections objectForKey:connectionKey];
 
     if ([type isEqualToString:@"error"])
     {
-        if (comId)
+        if (comId && connectionCommand.callbackError)
         {
-            ServiceCommand *comm = [_activeConnections objectForKey:connectionKey];
-
-            if (comm.callbackError != nil)
-            {
-                NSError *err = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:decodeData];
-                dispatch_on_main(^{ comm.callbackError(err); });
-            }
+            NSError *err = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:decodeData];
+            dispatch_on_main(^{ connectionCommand.callbackError(err); });
         }
     } else
     {
-        NSDictionary *payload = [decodeData objectForKey:@"payload"];
-
         if ([type isEqualToString:@"registered"])
         {
             NSString *client = [payload objectForKey:@"client-key"];
@@ -454,17 +450,19 @@
             [_activeConnections removeObjectForKey:@"hello"];
         }
 
-        if (comId)
-        {
-            ServiceCommand *comm = [_activeConnections objectForKey:connectionKey];
-
-            if(comm.callbackComplete)
-                dispatch_on_main(^{ comm.callbackComplete(payload); });
+        if (comId && connectionCommand.callbackComplete) {
+            dispatch_on_main(^{ connectionCommand.callbackComplete(payload); });
         }
     }
 
-    if (![[_activeConnections objectForKey:connectionKey] isKindOfClass:[ServiceSubscription class]])
+    // don't remove subscriptions and "register" command
+    const BOOL isRegistrationResponse = ([payload isKindOfClass:[NSDictionary class]] &&
+                                         (payload[@"pairingType"] != nil));
+    const BOOL leaveConnection = ([connectionCommand isKindOfClass:[ServiceSubscription class]] ||
+                                  isRegistrationResponse);
+    if (!leaveConnection) {
         [_activeConnections removeObjectForKey:connectionKey];
+    }
 }
 
 #pragma mark - Subscription methods
@@ -652,6 +650,12 @@
     [self sendStringOverSocket:sendString];
 
     return callId;
+}
+
+#pragma mark - Private
+
+- (LGSRWebSocket *)createSocketWithURLRequest:(NSURLRequest *)request {
+    return [[LGSRWebSocket alloc] initWithURLRequest:request];
 }
 
 @end
