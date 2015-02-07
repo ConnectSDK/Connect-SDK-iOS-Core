@@ -233,14 +233,12 @@
 
 - (void) disconnect
 {
-    if (self.connected)
-        [self disconnectWithError:nil];
+    [self disconnectWithError:nil];
 }
 
 - (void) disconnectWithError:(NSError *)error
 {
-    if (self.connected)
-        [self.socket disconnectWithError:error];
+    [self.socket disconnectWithError:error];
 
     [_webAppSessions enumerateKeysAndObjectsUsingBlock:^(id key, WebOSWebAppSession *session, BOOL *stop) {
         [session disconnectFromWebApp];
@@ -308,6 +306,8 @@
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(deviceService:pairingFailedWithError:)])
         dispatch_on_main(^{ [self.delegate deviceService:self pairingFailedWithError:error]; });
+
+    [self disconnect];
 }
 
 - (void) socketDidConnect:(WebOSTVServiceSocketClient *)socket
