@@ -24,11 +24,14 @@
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
 
 @interface RokuService () <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
     DIALService *_dialService;
     DeviceServiceReachability *_serviceReachability;
+    GCDWebServer *_webServer;
 }
 @end
 
@@ -462,43 +465,15 @@ static NSMutableArray *registeredApps = nil;
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    if (!imageURL)
-    {
-        if (failure)
-            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a video URL"]);
-
-        return;
-    }
-
-    NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
-
-    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&h=%@&tr=crossfade",
-                                                           [ConnectUtil urlEncode:imageURL.absoluteString], // content path
-                                                           [ConnectUtil urlEncode:host] // host
-    ];
-
-    NSString *commandPath = [NSString pathWithComponents:@[
-            self.serviceDescription.commandURL.absoluteString,
-            @"input",
-            applicationPath
-    ]];
-
-    NSURL *targetURL = [NSURL URLWithString:commandPath];
-
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
-    command.HTTPMethod = @"POST";
-    command.callbackComplete = ^(id responseObject)
-    {
-        LaunchSession *launchSession = [LaunchSession launchSessionForAppId:@"15985"];
-        launchSession.name = @"simplevideoplayer";
-        launchSession.sessionType = LaunchSessionTypeMedia;
-        launchSession.service = self;
-
-        if (success)
-            success(launchSession, self.mediaControl);
-    };
-    command.callbackError = failure;
-    [command send];
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -514,50 +489,39 @@ static NSMutableArray *registeredApps = nil;
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (!mediaURL)
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    NSURL *imageURL = mediaInfo.url;
+    
+    if (!imageURL)
     {
         if (failure)
-            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a media URL"]);
-
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a video URL"]);
+        
         return;
     }
-
-    NSString *mediaType = [[mimeType componentsSeparatedByString:@"/"] lastObject];
-    BOOL isVideo = [[mimeType substringToIndex:1] isEqualToString:@"v"];
-
+    
     NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
-    NSString *applicationPath;
-
-    if (isVideo)
-    {
-        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=(null)&h=%@&videoName=%@&videoFormat=%@",
-                                                     [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
-                                                     [ConnectUtil urlEncode:host], // host
-                                                     title ? [ConnectUtil urlEncode:title] : @"(null)", // video name
-                                                     ensureString(mediaType) // video format
-        ];
-    } else
-    {
-        applicationPath = [NSString stringWithFormat:@"15985?t=a&u=%@&k=(null)&h=%@&songname=%@&artistname=%@&songformat=%@&albumarturl=%@",
-                                                     [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
-                                                     [ConnectUtil urlEncode:host], // host
-                                                     title ? [ConnectUtil urlEncode:title] : @"(null)", // song name
-                                                     description ? [ConnectUtil urlEncode:description] : @"(null)", // artist name
-                                                     ensureString(mediaType), // audio format
-                                                     iconURL ? [ConnectUtil urlEncode:iconURL.absoluteString] : @"(null)"
-        ];
-    }
-
+    
+    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&h=%@&tr=crossfade",
+                                 [ConnectUtil urlEncode:imageURL.absoluteString], // content path
+                                 [ConnectUtil urlEncode:host] // host
+                                 ];
+    
     NSString *commandPath = [NSString pathWithComponents:@[
-            self.serviceDescription.commandURL.absoluteString,
-            @"input",
-            applicationPath
-    ]];
-
+                                                           self.serviceDescription.commandURL.absoluteString,
+                                                           @"input",
+                                                           applicationPath
+                                                           ]];
+    
     NSURL *targetURL = [NSURL URLWithString:commandPath];
-
+    
     ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject)
@@ -566,12 +530,27 @@ static NSMutableArray *registeredApps = nil;
         launchSession.name = @"simplevideoplayer";
         launchSession.sessionType = LaunchSessionTypeMedia;
         launchSession.service = self;
-
-        if (success)
-            success(launchSession, self.mediaControl);
+        
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
+        if(success){
+            success(launchObject);
+        }
     };
     command.callbackError = failure;
     [command send];
+}
+
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -582,6 +561,107 @@ static NSMutableArray *registeredApps = nil;
         iconURL = imageInfo.url;
     }
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
+}
+
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    NSURL *mediaURL = mediaInfo.url;
+    NSString *mimeType = mediaInfo.mimeType;
+    NSString *title = mediaInfo.title;
+    NSString *description = mediaInfo.description;
+    if (!mediaURL)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a media URL"]);
+        
+        return;
+    }
+    
+    NSString *mediaType = [[mimeType componentsSeparatedByString:@"/"] lastObject];
+    BOOL isVideo = [[mimeType substringToIndex:1] isEqualToString:@"v"];
+    
+    NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
+    NSString *applicationPath;
+    
+    if (isVideo)
+    {
+        mediaType = @"hls";
+        mediaURL = [self playListURLFromURL:mediaURL andMediaType:mediaType];
+        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=%@&h=%@&videoName=%@&videoFormat=%@",
+                           [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
+                           [ConnectUtil urlEncode:iconURL.absoluteString], // host
+                           [ConnectUtil urlEncode:host], // host
+                           title ? [ConnectUtil urlEncode:title] : @"(null)", // video name
+                           ensureString(mediaType) // video format
+                           ];
+    } else
+    {
+        applicationPath = [NSString stringWithFormat:@"15985?t=a&u=%@&k=(null)&h=%@&songname=%@&artistname=%@&songformat=%@&albumarturl=%@",
+                           [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
+                           [ConnectUtil urlEncode:host], // host
+                           title ? [ConnectUtil urlEncode:title] : @"(null)", // song name
+                           description ? [ConnectUtil urlEncode:description] : @"(null)", // artist name
+                           ensureString(mediaType), // audio format
+                           iconURL ? [ConnectUtil urlEncode:iconURL.absoluteString] : @"(null)"
+                           ];
+    }
+    
+    NSString *commandPath = [NSString pathWithComponents:@[
+                                                           self.serviceDescription.commandURL.absoluteString,
+                                                           @"input",
+                                                           applicationPath
+                                                           ]];
+    
+    NSURL *targetURL = [NSURL URLWithString:commandPath];
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    command.HTTPMethod = @"POST";
+    command.callbackComplete = ^(id responseObject)
+    {
+        LaunchSession *launchSession = [LaunchSession launchSessionForAppId:@"15985"];
+        launchSession.name = @"simplevideoplayer";
+        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.service = self;
+         MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
+         if(success){
+            success(launchObject);
+         }
+    };
+    command.callbackError = failure;
+    [command send];
+}
+
+//Creates a playlist with the specified videoURL and returns the new URL
+-(NSURL *)playListURLFromURL:(NSURL *)videoURL andMediaType:(NSString *)mediaType{
+    
+    NSString *playListData = [NSString stringWithFormat:@"#EXTM3U \n #EXT-X-TARGETDURATION:10 \n #EXTINF:10,\n %@ \n #EXT-X-ENDLIST \n",videoURL.absoluteString];
+    NSData *content = [playListData dataUsingEncoding:NSUTF8StringEncoding];
+     __weak typeof(self) weakSelf = self;
+    if(_webServer == nil){
+        _webServer = [[GCDWebServer alloc] init];
+    }
+    [_webServer addDefaultHandlerForMethod:@"GET"
+                              requestClass:[GCDWebServerRequest class]
+                              processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+                                  GCDWebServerDataResponse* response = [GCDWebServerDataResponse responseWithData:content contentType:mediaType];
+                                  [weakSelf stopServer];
+                                  return response;
+                              }];
+    [_webServer startWithPort:8080 bonjourName:nil];
+    NSString *newURL = [NSString stringWithFormat:@"%@",_webServer.serverURL];
+    
+    return [NSURL URLWithString:newURL];
+}
+
+- (void)stopServer {
+    if(_webServer){
+        [_webServer stop];
+    }
 }
 
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure

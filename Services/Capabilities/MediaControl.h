@@ -37,7 +37,6 @@
 #define kMediaControlMetadata @"MediaControl.MetaData"
 #define kMediaControlMetadataSubscribe @"MediaControl.MetaData.Subscribe"
 
-
 #define kMediaControlCapabilities @[\
     kMediaControlPlay,\
     kMediaControlPause,\

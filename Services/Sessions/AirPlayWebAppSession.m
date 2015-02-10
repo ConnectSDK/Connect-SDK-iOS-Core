@@ -21,7 +21,7 @@
 #import "AirPlayWebAppSession.h"
 #import "ConnectError.h"
 #import "ConnectUtil.h"
-
+#import "MediaLaunchObject.h"
 
 @interface AirPlayWebAppSession () <ServiceCommandDelegate>
 {
@@ -258,39 +258,7 @@
     return CapabilityPriorityLevelHigh;
 }
 
-- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
-{
-    int requestIdNumber = [self getNextId];
-    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-
-    NSDictionary *message = @{
-            @"contentType" : @"connectsdk.mediaCommand",
-            @"mediaCommand" : @{
-                    @"type" : @"displayImage",
-                    @"mediaURL" : ensureString(imageURL.absoluteString),
-                    @"iconURL" : ensureString(iconURL.absoluteString),
-                    @"title" : ensureString(title),
-                    @"description" : ensureString(description),
-                    @"mimeType" : ensureString(mimeType),
-                    @"requestId" : requestId
-            }
-    };
-
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
-    command.callbackComplete = ^(id responseObject)
-    {
-        if (success)
-            success(self.launchSession, self.mediaControl);
-    };
-    command.callbackError = failure;
-    [_activeCommands setObject:command forKey:requestId];
-
-    [self sendJSON:message success:nil failure:failure];
-}
-
-- (void) displayImage:(MediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+-(void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -298,48 +266,74 @@
         iconURL = imageInfo.url;
     }
     
-    [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
-}
-
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
-{
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-
+    
     NSDictionary *message = @{
-            @"contentType" : @"connectsdk.mediaCommand",
-            @"mediaCommand" : @{
-                    @"type" : @"playMedia",
-                    @"mediaURL" : ensureString(mediaURL.absoluteString),
-                    @"iconURL" : ensureString(iconURL.absoluteString),
-                    @"title" : ensureString(title),
-                    @"description" : ensureString(description),
-                    @"mimeType" : ensureString(mimeType),
-                    @"shouldLoop" : @(shouldLoop),
-                    @"requestId" : requestId
-            }
-    };
-
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : @{
+                                      @"type" : @"displayImage",
+                                      @"mediaURL" : ensureString(mediaInfo.url.absoluteString),
+                                      @"iconURL" : ensureString(iconURL.absoluteString),
+                                      @"title" : ensureString(mediaInfo.title),
+                                      @"description" : ensureString(mediaInfo.description),
+                                      @"mimeType" : ensureString(mediaInfo.mimeType),
+                                      @"requestId" : requestId
+                                      }
+                              };
+    
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
-        if (success)
-            success(self.launchSession, self.mediaControl);
+        if (success){
+            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
+            success(launchObject);
+        }
     };
     command.callbackError = failure;
     [_activeCommands setObject:command forKey:requestId];
-
+    
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+
+-(void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
         ImageInfo *imageInfo = [mediaInfo.images firstObject];
         iconURL = imageInfo.url;
     }
-    [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
+    
+    int requestIdNumber = [self getNextId];
+    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
+    
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : @{
+                                      @"type" : @"playMedia",
+                                      @"mediaURL" : ensureString(mediaInfo.url.absoluteString),
+                                      @"iconURL" : ensureString(iconURL.absoluteString),
+                                      @"title" : ensureString(mediaInfo.title),
+                                      @"description" : ensureString(mediaInfo.description),
+                                      @"mimeType" : ensureString(mediaInfo.mimeType),
+                                      @"shouldLoop" : @(shouldLoop),
+                                      @"requestId" : requestId
+                                      }
+                              };
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
+    command.callbackComplete = ^(id responseObject)
+    {
+        if (success){
+            MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
+            success(launchObject);
+        }
+    };
+    command.callbackError = failure;
+    [_activeCommands setObject:command forKey:requestId];
+    
+    [self sendJSON:message success:nil failure:failure];
 }
 
 - (void) closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure

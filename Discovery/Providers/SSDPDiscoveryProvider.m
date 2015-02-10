@@ -56,7 +56,7 @@ NSString* machineName()
 @implementation SSDPDiscoveryProvider
 
 static double refreshTime = 10.0;
-static double searchAttemptsBeforeKill = 3.0;
+static double searchAttemptsBeforeKill = 6.0;
 
 #pragma mark - Setup/creation
 
@@ -183,7 +183,7 @@ static double searchAttemptsBeforeKill = 3.0;
         BOOL refresh = NO;
         NSMutableArray *killKeys = [NSMutableArray array];
         
-        // 3 detection attempts, if still not present then kill it.
+        // 6 detection attempts, if still not present then kill it.
         double killPoint = [[NSDate date] timeIntervalSince1970] - (refreshTime * searchAttemptsBeforeKill);
 
         @synchronized (_foundServices)
@@ -369,35 +369,30 @@ static double searchAttemptsBeforeKill = 3.0;
 
         if (!xmlError)
         {
-            NSDictionary *device = [[xml objectForKey:@"root"] objectForKey:@"device"];
-            NSString *friendlyName = [[device objectForKey:@"friendlyName"] objectForKey:@"text"];
-            
-            if (friendlyName)
+            NSDictionary *device = [self device:[xml valueForKeyPath:@"root.device"]
+                   containingServicesWithFilter:theType];
+
+            if (device)
             {
-                BOOL hasServices = [self device:device containsServicesWithFilter:theType];
-                
-                if (hasServices)
+                ServiceDescription *service;
+                @synchronized(_helloDevices) { service = [_helloDevices objectForKey:UUID]; }
+
+                if (service)
                 {
-                    ServiceDescription *service;
-                    @synchronized(_helloDevices) { service = [_helloDevices objectForKey:UUID]; }
+                    service.type = theType;
+                    service.friendlyName = [device valueForKeyPath:@"friendlyName.text"];
+                    service.modelName = [[device objectForKey:@"modelName"] objectForKey:@"text"];
+                    service.modelNumber = [[device objectForKey:@"modelNumber"] objectForKey:@"text"];
+                    service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
+                    service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
+                    service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    service.serviceList = [self serviceListForDevice:device];
+                    service.commandURL = response.URL;
+                    service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
 
-                    if (service)
-                    {
-                        service.type = theType;
-                        service.friendlyName = friendlyName;
-                        service.modelName = [[device objectForKey:@"modelName"] objectForKey:@"text"];
-                        service.modelNumber = [[device objectForKey:@"modelNumber"] objectForKey:@"text"];
-                        service.modelDescription = [[device objectForKey:@"modelDescription"] objectForKey:@"text"];
-                        service.manufacturer = [[device objectForKey:@"manufacturer"] objectForKey:@"text"];
-                        service.locationXML = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                        service.serviceList = [self serviceListForDevice:device];
-                        service.commandURL = response.URL;
-                        service.locationResponseHeaders = [((NSHTTPURLResponse *)response) allHeaderFields];
+                    @synchronized(_foundServices) { [_foundServices setObject:service forKey:UUID]; }
 
-                        @synchronized(_foundServices) { [_foundServices setObject:service forKey:UUID]; }
-
-                        [self notifyDelegateOfNewService:service];
-                    }
+                    [self notifyDelegateOfNewService:service];
                 }
             }
         }
@@ -449,56 +444,79 @@ static double searchAttemptsBeforeKill = 3.0;
     return containsFilter;
 }
 
-- (BOOL)device:(NSDictionary *)device containsServicesWithFilter:(NSString *)filter
-{
-    __block NSArray *servicesRequired;
+/// Returns the required services strings array for the given registered filter,
+/// or @c nil.
+- (NSArray *)requiredServicesForFilter:(NSString *)filter {
+    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"%K LIKE %@",
+                                    @"ssdp.filter", filter];
+    NSDictionary *serviceFilter = [_serviceFilters filteredArrayUsingPredicate:filterPredicate].firstObject;
+    return [serviceFilter valueForKeyPath:@"ssdp.requiredServices"];
+}
 
-    [_serviceFilters enumerateObjectsUsingBlock:^(NSDictionary *serviceFilter, NSUInteger idx, BOOL *stop) {
-        NSString *ssdpFilter = [[serviceFilter objectForKey:@"ssdp"] objectForKey:@"filter"];
+/// Returns the discovered services strings array for the given XML device
+/// description, or @c nil.
+- (NSArray *)discoveredServicesInDevice:(NSDictionary *)device {
+    id serviceList = [device valueForKeyPath:@"serviceList.service"];
+    NSArray *discoveredServices;
+    NSString *const kServiceTypeKeyPath = @"serviceType.text";
 
-        if ([ssdpFilter isEqualToString:filter])
-        {
-            servicesRequired = [[serviceFilter objectForKey:@"ssdp"] objectForKey:@"requiredServices"];
-            *stop = YES;
-        }
-    }];
-
-    if (!servicesRequired)
-        return YES;
-    
-    id servicesDiscovered = [[device objectForKey:@"serviceList"] objectForKey:@"service"];
-    NSMutableArray *serviceTypesDiscovered = [NSMutableArray new];
-    
-    void (^ssdpServiceTypeHandler)(NSDictionary *serviceObject) = ^(NSDictionary *serviceObject) {
-        NSString *serviceType = [[serviceObject objectForKey:@"serviceType"] objectForKey:@"text"];
-        
-        if (serviceType)
-            [serviceTypesDiscovered addObject:serviceType];
-    };
-    
-    if ([servicesDiscovered isKindOfClass:[NSDictionary class]])
-        ssdpServiceTypeHandler(servicesDiscovered);
-    else if ([servicesDiscovered isKindOfClass:[NSArray class]])
-    {
-        [servicesDiscovered enumerateObjectsUsingBlock:^(NSDictionary *serviceObject, NSUInteger idx, BOOL *stop) {
-            ssdpServiceTypeHandler(serviceObject);
-        }];
+    if ([serviceList isKindOfClass:[NSDictionary class]]) {
+        discoveredServices = [NSArray arrayWithObject:[serviceList valueForKeyPath:kServiceTypeKeyPath]];
+    } else if ([serviceList isKindOfClass:[NSArray class]]) {
+        discoveredServices = [serviceList valueForKeyPath:kServiceTypeKeyPath];
     }
-    
-    if (!servicesDiscovered)
-        return NO;
-    
-    __block BOOL deviceHasAllServices = YES;
-    
-    [servicesRequired enumerateObjectsUsingBlock:^(NSString *service, NSUInteger idx, BOOL *stop) {
-        if (![serviceTypesDiscovered containsObject:service])
-        {
-            deviceHasAllServices = NO;
-            *stop = YES;
+
+    return discoveredServices;
+}
+
+/// Returns YES if all of the required services are available among the
+/// discovered ones.
+- (BOOL)allRequiredServices:(NSArray *)requiredServices
+    areInDiscoveredServices:(NSArray *)discoveredServices {
+    NSSet *requiredServicesSet = [NSSet setWithArray:requiredServices];
+    NSSet *discoveredServicesSet = [NSSet setWithArray:discoveredServices];
+    return [requiredServicesSet isSubsetOfSet:discoveredServicesSet];
+}
+
+/// Returns a device description that contains the given required services. It
+/// may be the root device or any of the subdevices. If no device matches,
+/// returns @c nil.
+- (NSDictionary *)device:(NSDictionary *)device
+containingRequiredServices:(NSArray *)requiredServices {
+    NSArray *discoveredServices = [self discoveredServicesInDevice:device];
+    const BOOL deviceHasAllRequiredServices = [self allRequiredServices:requiredServices
+                                                areInDiscoveredServices:discoveredServices];
+
+    if (deviceHasAllRequiredServices) {
+        return device;
+    }
+
+    // try to iterate through all the child devices
+    NSArray *subDevices = [device valueForKeyPath:@"deviceList.device"];
+    if (subDevices) {
+        if (![subDevices isKindOfClass:[NSArray class]]) {
+            subDevices = [NSArray arrayWithObject:subDevices];
         }
-    }];
-    
-    return deviceHasAllServices;
+
+        for (NSDictionary *subDevice in subDevices) {
+            NSDictionary *foundDevice = [self device:subDevice
+                          containingRequiredServices:requiredServices];
+            if (foundDevice) {
+                return foundDevice;
+            }
+        }
+    }
+
+    return nil;
+}
+
+/// Returns a device description that contains services for the given filter. It
+/// may be the root device or any of the subdevices. If no device matches,
+/// returns @c nil.
+- (NSDictionary *)device:(NSDictionary *)device containingServicesWithFilter:(NSString *)filter {
+    NSArray *requiredServices = [self requiredServicesForFilter:filter];
+    return [self device:device
+containingRequiredServices:requiredServices];
 }
 
 - (NSArray *) serviceIdsForFilter:(NSString *)filter

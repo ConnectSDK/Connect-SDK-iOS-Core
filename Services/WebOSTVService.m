@@ -43,6 +43,7 @@
     BOOL _keyboardQueueProcessing;
 
     BOOL _mouseInit;
+    UIAlertView *_pinAlertView;
 }
 
 @end
@@ -121,7 +122,7 @@
 {
     NSArray *capabilities = [NSArray array];
 
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
                 kKeyControlSendKeyCode,
@@ -212,7 +213,7 @@
 
 - (BOOL) connected
 {
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
         return self.socket.connected && self.serviceConfig.clientKey != nil;
     else
         return self.socket.connected;
@@ -232,14 +233,12 @@
 
 - (void) disconnect
 {
-    if (self.connected)
-        [self disconnectWithError:nil];
+    [self disconnectWithError:nil];
 }
 
 - (void) disconnectWithError:(NSError *)error
 {
-    if (self.connected)
-        [self.socket disconnectWithError:error];
+    [self.socket disconnectWithError:error];
 
     [_webAppSessions enumerateKeysAndObjectsUsingBlock:^(id key, WebOSWebAppSession *session, BOOL *stop) {
         [session disconnectFromWebApp];
@@ -252,7 +251,7 @@
 
 - (BOOL) requiresPairing
 {
-    return [DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn;
+    return [DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn;
 }
 
 #pragma mark - Paring alert
@@ -270,8 +269,27 @@
 
 -(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == 0)
-        [self disconnect];
+    if(alertView == _pairingAlert){
+        if (buttonIndex == 0)
+            [self disconnect];
+    }
+}
+
+-(void) showAlertWithTitle:(NSString *)title andMessage:(NSString *)message
+{
+    NSString *alertTitle = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Title" value:title table:@"ConnectSDK"];
+    NSString *alertMessage = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request" value:message table:@"ConnectSDK"];
+    NSString *ok = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_OK" value:@"OK" table:@"ConnectSDK"];
+    if(!_pinAlertView){
+        _pinAlertView = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:nil otherButtonTitles:ok, nil];
+    }
+    dispatch_on_main(^{ [_pinAlertView show]; });
+}
+
+-(void)dismissPinAlertView{
+    if (_pinAlertView && _pinAlertView.isVisible){
+        [_pinAlertView dismissWithClickedButtonIndex:0 animated:NO];
+    }
 }
 
 #pragma - WebOSTVServiceSocketClientDelegate
@@ -288,6 +306,8 @@
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(deviceService:pairingFailedWithError:)])
         dispatch_on_main(^{ [self.delegate deviceService:self pairingFailedWithError:error]; });
+
+    [self disconnect];
 }
 
 - (void) socketDidConnect:(WebOSTVServiceSocketClient *)socket
@@ -329,7 +349,7 @@
     NSMutableArray *defaultPermissions = [[NSMutableArray alloc] init];
     [defaultPermissions addObjectsFromArray:kWebOSTVServiceOpenPermissions];
 
-    if ([DiscoveryManager sharedManager].pairingLevel == ConnectableDevicePairingLevelOn)
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {
         [defaultPermissions addObjectsFromArray:kWebOSTVServiceProtectedPermissions];
         [defaultPermissions addObjectsFromArray:kWebOSTVServicePersonalActivityPermissions];
@@ -749,46 +769,15 @@
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
 {
-    if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
-    {
-        if (self.dlnaService)
-        {
-            id<MediaPlayer> mediaPlayer;
-
-            if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
-                mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
-
-            if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMedia:iconURL:title:description:mimeType:shouldLoop:success:failure:)])
-            {
-                [mediaPlayer displayImage:imageURL iconURL:iconURL title:title description:description mimeType:mimeType success:success failure:failure];
-                return;
-            }
-        }
-
-        NSDictionary *params = @{
-                @"target" : ensureString(imageURL.absoluteString),
-                @"iconSrc" : ensureString(iconURL.absoluteString),
-                @"title" : ensureString(title),
-                @"description" : ensureString(description),
-                @"mimeType" : ensureString(mimeType)
-        };
-
-        [self displayMediaWithParams:params success:success failure:failure];
-    } else
-    {
-        NSString *webAppId = @"MediaPlayer";
-
-        WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
-        {
-            WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
-            [session.mediaPlayer displayImage:imageURL iconURL:iconURL title:title description:description mimeType:mimeType success:success failure:failure];
-        };
-
-        [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
-        {
-            [self launchWebApp:webAppId success:connectSuccess failure:failure];
-        }];
-    }
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) displayImage:(MediaInfo *)mediaInfo
@@ -804,49 +793,66 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
     if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
     {
         if (self.dlnaService)
         {
             id<MediaPlayer> mediaPlayer;
-
+            
             if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
                 mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
-
+            
             if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMedia:iconURL:title:description:mimeType:shouldLoop:success:failure:)])
             {
-                [mediaPlayer playMedia:mediaURL iconURL:iconURL title:title description:description mimeType:mimeType shouldLoop:shouldLoop success:success failure:failure];
+                [mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
                 return;
             }
         }
-
+        
         NSDictionary *params = @{
-                @"target" : ensureString(mediaURL.absoluteString),
-                @"iconSrc" : ensureString(iconURL.absoluteString),
-                @"title" : ensureString(title),
-                @"description" : ensureString(description),
-                @"mimeType" : ensureString(mimeType),
-                @"loop" : shouldLoop ? @"true" : @"false"
-        };
-
+                                 @"target" : ensureString(mediaInfo.url.absoluteString),
+                                 @"iconSrc" : ensureString(iconURL.absoluteString),
+                                 @"title" : ensureString(mediaInfo.title),
+                                 @"description" : ensureString(mediaInfo.description),
+                                 @"mimeType" : ensureString(mediaInfo.mimeType)
+                                 };
+        
         [self displayMediaWithParams:params success:success failure:failure];
     } else
     {
         NSString *webAppId = @"MediaPlayer";
-
+        
         WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
         {
             WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
-            [session.mediaPlayer playMedia:mediaURL iconURL:iconURL title:title description:description mimeType:mimeType shouldLoop:shouldLoop success:success failure:failure];
+            [session.mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
         };
-
+        
         [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
-        {
-            [self launchWebApp:webAppId success:connectSuccess failure:failure];
-        }];
+         {
+             [self launchWebApp:webAppId success:connectSuccess failure:failure];
+         }];
     }
+}
+
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+{
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
+    mediaInfo.title = title;
+    mediaInfo.description = description;
+    ImageInfo *imageInfo = [[ImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    [mediaInfo addImage:imageInfo];
+    
+    [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
+        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+    } failure:failure];
 }
 
 - (void) playMedia:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -859,7 +865,58 @@
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void)displayMediaWithParams:(NSDictionary *)params success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+{
+    NSURL *iconURL;
+    if(mediaInfo.images){
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+    
+    if ([self.serviceDescription.version isEqualToString:@"4.0.0"])
+    {
+        if (self.dlnaService)
+        {
+            id<MediaPlayer> mediaPlayer;
+            
+            if ([self.dlnaService respondsToSelector:@selector(mediaPlayer)])
+                mediaPlayer = [self.dlnaService performSelector:@selector(mediaPlayer)];
+            
+            if (mediaPlayer && [mediaPlayer respondsToSelector:@selector(playMediaWithMediaInfo:shouldLoop:success:failure:)])
+            {
+                [mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
+                return;
+            }
+        }
+        
+        NSDictionary *params = @{
+                                 @"target" : ensureString(mediaInfo.url.absoluteString),
+                                 @"iconSrc" : ensureString(iconURL.absoluteString),
+                                 @"title" : ensureString(mediaInfo.title),
+                                 @"description" : ensureString(mediaInfo.description),
+                                 @"mimeType" : ensureString(mediaInfo.mimeType),
+                                 @"loop" : shouldLoop ? @"true" : @"false"
+                                 };
+        
+        [self displayMediaWithParams:params success:success failure:failure];
+    } else
+    {
+        NSString *webAppId = @"MediaPlayer";
+        
+        WebAppLaunchSuccessBlock connectSuccess = ^(WebAppSession *webAppSession)
+        {
+            WebOSWebAppSession *session = (WebOSWebAppSession *)webAppSession;
+            [session.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
+        };
+        
+        [self joinWebAppWithId:webAppId success:connectSuccess failure:^(NSError *error)
+         {
+             [self launchWebApp:webAppId success:connectSuccess failure:failure];
+         }];
+    }
+}
+
+- (void)displayMediaWithParams:(NSDictionary *)params success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
@@ -872,8 +929,10 @@
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
-        if (success)
-            success(launchSession, self.mediaControl);
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
+        if(success){
+            success(launchObject);
+        }
     };
     command.callbackError = failure;
     [command send];
@@ -1744,6 +1803,120 @@
     
     webAppSession.appToAppSubscription = appToAppSubscription;
     [appToAppSubscription subscribe];
+}
+
+
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (!webAppId || webAppId.length == 0)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+        
+        return;
+    }
+    
+    NSURL *URL = [NSURL URLWithString:@"ssap://webapp/pinWebApp"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:webAppId forKey:@"webAppId"];
+     __weak typeof(self) weakSelf = self;
+    __block ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:payload success:^(NSDictionary *responseDict)
+                                         {
+                                             if([responseDict valueForKey:@"pairingType"]){
+                                                [weakSelf showAlertWithTitle:@"Pin Web App" andMessage:@"Please confirm on your device"];
+                                                 
+                                             }
+                                             else
+                                             {
+                                                 [weakSelf dismissPinAlertView];
+                                                 [subscription unsubscribe];
+                                                 success(responseDict);
+                                             }
+                                             
+                                         }failure:^(NSError *error){
+                                             [weakSelf dismissPinAlertView];
+                                             [subscription unsubscribe];
+                                             failure(error);
+                                         }];
+}
+
+- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    if (!webAppId || webAppId.length == 0)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+        
+        return;
+    }
+    
+    NSURL *URL = [NSURL URLWithString:@"ssap://webapp/removePinnedWebApp"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:webAppId forKey:@"webAppId"];
+    
+    __weak typeof(self) weakSelf = self;
+    __block ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:payload success:^(NSDictionary *responseDict)
+                                         {
+                                             if([responseDict valueForKey:@"pairingType"]){
+                                                [weakSelf showAlertWithTitle:@"Un Pin Web App" andMessage:@"Please confirm on your device"];
+                                                
+                                             }
+                                             else
+                                             {
+                                                 [weakSelf dismissPinAlertView];
+                                                 [subscription unsubscribe];
+                                                  success(responseDict);
+                                             }
+                                             
+                                             
+                                         }failure:^(NSError *error){
+                                             [weakSelf dismissPinAlertView];
+                                             [subscription unsubscribe];
+                                             failure(error);
+                                         }];
+}
+
+- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    if (!webAppId || webAppId.length == 0)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+        
+        return;
+    }
+    NSURL *URL = [NSURL URLWithString:@"ssap://webapp/isWebAppPinned"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:webAppId forKey:@"webAppId"];
+    
+    ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
+    command.callbackComplete = (^(NSDictionary *responseDic)
+                                {
+                                    BOOL status = [[responseDic objectForKey:@"pinned"] boolValue];
+                                    if(success){
+                                        success(status);
+                                    }
+                                    
+                                });
+    command.callbackError = failure;
+    [command send];
+}
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+{
+    NSURL *URL = [NSURL URLWithString:@"ssap://webapp/isWebAppPinned"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:webAppId forKey:@"webAppId"];
+    
+    ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:payload success:^(NSDictionary *responseObject)
+                                         {
+                                             BOOL status = [[responseObject objectForKey:@"pinned"] boolValue];
+                                             if (success){
+                                                 success(status);
+                                             }
+                                             
+                                         } failure:failure];    
+    return subscription;
 }
 
 - (WebOSWebAppSession *) webAppSessionForLaunchSession:(LaunchSession *)launchSession

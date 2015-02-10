@@ -134,7 +134,7 @@
     if (self.service.serviceConfig.SSLCertificates)
         [urlRequest setLGSR_SSLPinnedCertificates:self.service.serviceConfig.SSLCertificates];
 
-    _socket = [[LGSRWebSocket alloc] initWithURLRequest:urlRequest];
+    _socket = [self createSocketWithURLRequest:[urlRequest copy]];
     _socket.delegate = self;
     [_socket open];
 }
@@ -308,7 +308,7 @@
 
     int dataId = [self getNextId];
 
-    [_activeConnections setObject:reg forKey:[NSString stringWithFormat:@"req%d",dataId]];
+    [_activeConnections setObject:reg forKey:[self connectionKeyForMessageId:@(dataId)]];
 
     NSDictionary *registerInfo = @{
             @"manifest" : self.manifest
@@ -418,23 +418,20 @@
 
     NSNumber *comId = [decodeData objectForKey:@"id"];
     NSString *type = [decodeData objectForKey:@"type"];
+    NSDictionary *payload = [decodeData objectForKey:@"payload"];
+
+    NSString *connectionKey = [self connectionKeyForMessageId:comId];
+    ServiceCommand *connectionCommand = [_activeConnections objectForKey:connectionKey];
 
     if ([type isEqualToString:@"error"])
     {
-        if (comId)
+        if (comId && connectionCommand.callbackError)
         {
-            ServiceCommand *comm = [_activeConnections objectForKey:[NSString stringWithFormat:@"req%@", comId]];
-
-            if (comm.callbackError != nil)
-            {
-                NSError *err = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:decodeData];
-                dispatch_on_main(^{ comm.callbackError(err); });
-            }
+            NSError *err = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:decodeData];
+            dispatch_on_main(^{ connectionCommand.callbackError(err); });
         }
     } else
     {
-        NSDictionary *payload = [decodeData objectForKey:@"payload"];
-
         if ([type isEqualToString:@"registered"])
         {
             NSString *client = [payload objectForKey:@"client-key"];
@@ -453,17 +450,19 @@
             [_activeConnections removeObjectForKey:@"hello"];
         }
 
-        if (comId)
-        {
-            ServiceCommand *comm = [_activeConnections objectForKey:[NSString stringWithFormat:@"req%@", comId]];
-
-            if(comm.callbackComplete)
-                dispatch_on_main(^{ comm.callbackComplete(payload); });
+        if (comId && connectionCommand.callbackComplete) {
+            dispatch_on_main(^{ connectionCommand.callbackComplete(payload); });
         }
     }
 
-    if (![[_activeConnections objectForKey:[NSString stringWithFormat:@"req%@", comId]] isKindOfClass:[ServiceSubscription class]])
-        [_activeConnections removeObjectForKey:[NSString stringWithFormat:@"req%@", comId]];
+    // don't remove subscriptions and "register" command
+    const BOOL isRegistrationResponse = ([payload isKindOfClass:[NSDictionary class]] &&
+                                         (payload[@"pairingType"] != nil));
+    const BOOL leaveConnection = ([connectionCommand isKindOfClass:[ServiceSubscription class]] ||
+                                  isRegistrationResponse);
+    if (!leaveConnection) {
+        [_activeConnections removeObjectForKey:connectionKey];
+    }
 }
 
 #pragma mark - Subscription methods
@@ -568,13 +567,18 @@
     return _UID;
 }
 
+/// Returns a connection key unique for the given message id.
+- (NSString *)connectionKeyForMessageId:(NSNumber *)messageId {
+    return [NSString stringWithFormat:@"req%@", messageId];
+}
+
 #pragma mark - ServiceCommandDelegate
 
 - (int) sendCommand:(ServiceCommand *)comm withPayload:(NSDictionary *)payload toURL:(NSURL *)URL
 {
     int callId = [self getNextId];
 
-    [_activeConnections setObject:comm forKey:[NSString stringWithFormat:@"req%d",callId]];
+    [_activeConnections setObject:comm forKey:[self connectionKeyForMessageId:@(callId)]];
 
     NSString *sendString = [self encodeData:payload andAddress:URL withId:callId];
 
@@ -619,9 +623,7 @@
     if (callId < 0)
         callId = [self getNextId];
 
-    NSString *subscriptionKey = [NSString stringWithFormat:@"req%d", callId];
-
-    [_activeConnections setObject:subscription forKey:subscriptionKey];
+    [_activeConnections setObject:subscription forKey:[self connectionKeyForMessageId:@(callId)]];
 
     NSMutableDictionary *subscriptionPayload = [[NSMutableDictionary alloc] init];
     [subscriptionPayload setObject:@(callId) forKey:@"id"];
@@ -648,6 +650,12 @@
     [self sendStringOverSocket:sendString];
 
     return callId;
+}
+
+#pragma mark - Private
+
+- (LGSRWebSocket *)createSocketWithURLRequest:(NSURLRequest *)request {
+    return [[LGSRWebSocket alloc] initWithURLRequest:request];
 }
 
 @end

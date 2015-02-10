@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" xmlns:df="http://schemas.microsoft.com/windows/2008/09/devicefoundation" xmlns:microsoft="urn:schemas-microsoft-com:WMPDMR-1-0" xmlns:pnpx="http://schemas.microsoft.com/windows/pnpx/2005/11">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType><friendlyName>XboxOne</friendlyName><modelName>Xbox One</modelName><modelDescription>Digital Media Renderer</modelDescription><manufacturer>Microsoft Corporation</manufacturer><manufacturerURL>http://www.microsoft.com</manufacturerURL><modelURL>http://xbox.com</modelURL>
+        <UDN>uuid:f887c686-27c7-4fa7-b8d4-43d7d74da84f</UDN>
+    </device>
+</root>
+

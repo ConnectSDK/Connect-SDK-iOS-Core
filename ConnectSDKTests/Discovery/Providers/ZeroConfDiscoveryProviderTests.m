@@ -32,8 +32,6 @@ static NSString *const kKeyZeroconf = @"zeroconf";
 static NSString *const kKeyFilter = @"filter";
 static NSString *const kKeyServiceID = @"serviceId";
 
-static const CGFloat kDefaultAsyncTestTimeout = 2.0f;
-
 
 /// Tests for the ZeroConfDiscoveryProvider class.
 /// NSNetServiceBrowser and NSNetService classes are mocked to avoid using the

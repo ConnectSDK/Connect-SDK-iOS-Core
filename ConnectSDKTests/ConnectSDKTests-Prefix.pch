@@ -28,4 +28,9 @@
 
 #define DLog(...)
 
+#define OCMOCK_NOTNIL [OCMArg isNotNil]
+
+/// Default timeout for asynchronous tests, in seconds
+#define kDefaultAsyncTestTimeout 0.5
+
 #endif

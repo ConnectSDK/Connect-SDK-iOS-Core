@@ -39,17 +39,6 @@
 #import "PowerControl.h"
 
 /*!
- * Enumerated value for determining how a DeviceService should handle pairing when attempting to connect.
- */
-typedef enum {
-    /*! DeviceServices will never try to pair with a device */
-    ConnectableDevicePairingLevelOff = 0,
-
-    /*! DeviceServices will try to pair with a device, if needed */
-    ConnectableDevicePairingLevelOn
-} ConnectableDevicePairingLevel;
-
-/*!
  * ###Overview
  * ConnectableDevice serves as a normalization layer between your app and each of the device's services. It consolidates a lot of key data about the physical device and provides access to underlying functionality.
  *
@@ -90,10 +79,10 @@ typedef enum {
 @property (nonatomic, readonly) NSString *modelNumber;
 
 /*! Last IP address this ConnectableDevice was discovered at. */
-@property (nonatomic) NSString *lastKnownIPAddress;
+@property (nonatomic, copy) NSString *lastKnownIPAddress;
 
 /*! Name of the last wireless network this ConnectableDevice was discovered on. */
-@property (nonatomic) NSString *lastSeenOnWifi;
+@property (nonatomic, copy) NSString *lastSeenOnWifi;
 
 /*! Last time (in seconds from 1970) that this ConnectableDevice was connected to. */
 @property (nonatomic) double lastConnected;

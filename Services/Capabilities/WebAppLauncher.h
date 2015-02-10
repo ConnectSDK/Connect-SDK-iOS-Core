@@ -36,6 +36,7 @@
 #define kWebAppLauncherDisconnect @"WebAppLauncher.Disconnect"
 #define kWebAppLauncherJoin @"WebAppLauncher.Join"
 #define kWebAppLauncherClose @"WebAppLauncher.Close"
+#define kWebAppLauncherPin @"WebAppLauncher.Pin"
 
 #define kWebAppLauncherCapabilities @[\
     kWebAppLauncherLaunch,\
@@ -47,7 +48,8 @@
     kWebAppLauncherConnect,\
     kWebAppLauncherDisconnect,\
     kWebAppLauncherJoin,\
-    kWebAppLauncherClose\
+    kWebAppLauncherClose,\
+    kWebAppLauncherPin\
 ]
 
 @protocol WebAppLauncher <NSObject>
@@ -80,4 +82,11 @@ typedef void (^ WebAppLaunchSuccessBlock)(WebAppSession *webAppSession);
 
 - (void) closeWebApp:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
 
+- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+
+- (void) unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+
+- (void) isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
+
+- (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
 @end
