@@ -72,13 +72,17 @@
 - (NSDictionary *) manifest
 {
     NSDictionary *infoDic = [[NSBundle mainBundle] infoDictionary];
-
+    NSString *bundleName = [infoDic valueForKey:@"CFBundleDisplayName"] ? [infoDic objectForKey:@"CFBundleDisplayName"] : [infoDic objectForKey:@"CFBundleName"];
+    if(bundleName == nil){
+        bundleName = @"";
+    }
+    
     return @{
             @"manifestVersion" : @(1),
             @"appId" : [infoDic objectForKey:@"CFBundleIdentifier"],
             @"vendorId" : @"",
             @"localizedAppNames" : @{
-                    @"" : [infoDic objectForKey:@"CFBundleDisplayName"]
+                    @"" :bundleName
             },
             @"permissions" : self.service.permissions
     };
