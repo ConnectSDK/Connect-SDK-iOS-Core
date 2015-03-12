@@ -119,6 +119,12 @@ static const NSUInteger kSSDPMulticastTCPPort = 1900;
         usingDiscoveryProviders:@[[DLNAService class]]];
 }
 
+- (void)testShouldFindLGSpeakerWithDLNAService {
+    [self checkShouldFindDevice:@"lg_speaker"
+       withExpectedFriendlyName:@"Music Flow H3"
+        usingDiscoveryProviders:@[[DLNAService class]]];
+}
+
 #pragma mark - DIAL Service Filtering Tests
 
 - (void)testShouldFindFireTVWithDIALService {
