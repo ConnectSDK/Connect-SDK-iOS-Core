@@ -27,7 +27,7 @@
 
 #import "NSDictionary+KeyPredicateSearch.h"
 
-#define kDataFieldName @"XMLData"
+NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
 #define kSubscriptionTimeoutSeconds 300
 
@@ -988,7 +988,7 @@ static const NSInteger kValueNotFound = -1;
                                    kDataFieldName : shareXML
                                    };
     
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:sharePayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
