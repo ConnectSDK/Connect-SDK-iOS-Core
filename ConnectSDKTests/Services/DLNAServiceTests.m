@@ -50,8 +50,8 @@ static NSString *const kPlatformSonos = @"sonos";
 - (void)testPlayMediaShouldCreateProperSetAVTransportURIXML {
     // Arrange
     NSString *sampleURL = @"http://example.com/media.ogg";
-    NSString *sampleDescription = @"Description";
-    NSString *sampleTitle = @"hello";// @"Hello <World> & others…";
+    NSString *sampleDescription = @"<Description> &\"'";
+    NSString *sampleTitle = @"Hello, <World> &]]> \"others'\\ ура ξ中]]>…";
     NSString *sampleMimeType = @"audio/ogg";
     NSString *sampleAlbumArtURL = @"http://example.com/media.png";
 
@@ -67,7 +67,7 @@ static NSString *const kPlatformSonos = @"sonos";
         NSError *error = nil;
         NSDictionary *dict = [CTXMLReader dictionaryForXMLString:xmlString
                                                            error:&error];
-        XCTAssertNil(error, @"XML parsing error: %@", error);
+        XCTAssertNil(error, @"XML parsing error");
         XCTAssertNotNil(dict, @"Couldn't parse XML");
 
         NSDictionary *envelope = [dict objectForKeyEndingWithString:@":Envelope"];
@@ -86,7 +86,7 @@ static NSString *const kPlatformSonos = @"sonos";
         error = nil;
         NSDictionary *metadata = [CTXMLReader dictionaryForXMLString:metadataString
                                                                error:&error];
-        XCTAssertNil(error, @"Metadata XML parsing error: %@", error);
+        XCTAssertNil(error, @"Metadata XML parsing error");
         XCTAssertNotNil(metadata, @"Couldn't parse metadata XML");
 
         NSDictionary *didl = metadata[@"DIDL-Lite"];

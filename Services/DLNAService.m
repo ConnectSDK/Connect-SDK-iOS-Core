@@ -24,6 +24,7 @@
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DLNAHTTPServer.h"
+#import "XMLWriter+ConvenienceMethods.h"
 
 #import "NSDictionary+KeyPredicateSearch.h"
 
@@ -969,20 +970,68 @@ static const NSInteger kValueNotFound = -1;
     
     mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
     NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
-    
-    NSString *shareXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                          "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-                          "<s:Body>"
-                          "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-                          "<InstanceID>0</InstanceID>"
-                          "<CurrentURI>%@</CurrentURI>"
-                          "<CurrentURIMetaData>"
-                          "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;0&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;dc:description&gt;%@&lt;/dc:description&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000&quot;&gt;%@&lt;/res&gt;&lt;upnp:albumArtURI&gt;%@&lt;/upnp:albumArtURI&gt;&lt;upnp:class&gt;object.item.%@Item&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
-                          "</CurrentURIMetaData>"
-                          "</u:SetAVTransportURI>"
-                          "</s:Body>"
-                          "</s:Envelope>",
-                          mediaInfo.url.absoluteString, mediaInfo.title, mediaInfo.description, mimeType, mediaInfo.url.absoluteString, iconURL.absoluteString, mediaType];
+
+    // FIXME: title/description nil? => replace with empty strings
+    // TODO: return error if URL is invalid
+    NSString *metadataXML = ({
+        XMLWriter *writer = [XMLWriter new];
+
+        static NSString *const kUPNPNamespace = @"urn:schemas-upnp-org:metadata-1-0/upnp/";
+        static NSString *const kDCNamespace = @"http://purl.org/dc/elements/1.1/";
+
+        [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
+        [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
+
+        [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
+            [writer writeAttribute:@"xmlns" value:@"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"];
+            [writer writeElement:@"item" withContentsBlock:^(XMLWriter *writer) {
+                [writer writeAttributes:@{@"id": @"0",
+                                          @"parentID": @"0",
+                                          @"restricted": @"0"}];
+
+                [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
+                [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
+
+                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                    NSString *value = [NSString stringWithFormat:
+                                       @"http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000",
+                                       mimeType];
+                    [writer writeAttribute:@"protocolInfo" value:value];
+                    [writer writeCharacters:mediaInfo.url.absoluteString];
+                }];
+
+                [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURL.absoluteString];
+                NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", mediaType];
+                [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
+            }];
+        }];
+
+        [writer toString];
+    });
+
+    NSString *shareXML = ({
+        XMLWriter *writer = [XMLWriter new];
+        [writer writeStartDocumentWithEncodingAndVersion:@"UTF-8" version:@"1.0"];
+
+        static NSString *const kSOAPNamespace = @"http://schemas.xmlsoap.org/soap/envelope/";
+        static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
+
+        [writer setPrefix:@"s" namespaceURI:kSOAPNamespace];
+        [writer setPrefix:@"u" namespaceURI:kAVTransportNamespace];
+
+        [writer writeElement:@"Envelope" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
+            [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
+                [writer writeElement:@"SetAVTransportURI" withNamespace:kAVTransportNamespace andContentsBlock:^(XMLWriter *writer) {
+                    [writer writeElement:@"InstanceID" withContents:@"0"];
+                    [writer writeElement:@"CurrentURI" withContents:mediaInfo.url.absoluteString];
+                    [writer writeElement:@"CurrentURIMetaData" withContents:metadataXML];
+                }];
+            }];
+        }];
+
+        [writer toString];
+    });
+
     NSDictionary *sharePayload = @{
                                    kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
                                    kDataFieldName : shareXML
