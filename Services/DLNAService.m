@@ -24,9 +24,10 @@
 #import "ConnectUtil.h"
 #import "DeviceServiceReachability.h"
 #import "DLNAHTTPServer.h"
-#import "XMLWriter+ConvenienceMethods.h"
 
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "NSString+Common.h"
+#import "XMLWriter+ConvenienceMethods.h"
 
 NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
@@ -970,6 +971,7 @@ static const NSInteger kValueNotFound = -1;
     
     mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
     NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
+    NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
 
     // FIXME: title/description nil? => replace with empty strings
     // TODO: return error if URL is invalid
@@ -989,19 +991,24 @@ static const NSInteger kValueNotFound = -1;
                                           @"parentID": @"0",
                                           @"restricted": @"0"}];
 
-                [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
-                [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
+                if (mediaInfo.title) {
+                    [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
+                }
+                if (mediaInfo.description) {
+                    [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
+                }
 
                 [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
                     NSString *value = [NSString stringWithFormat:
                                        @"http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000",
-                                       mimeType];
+                                       [mimeType orEmpty]];
                     [writer writeAttribute:@"protocolInfo" value:value];
-                    [writer writeCharacters:mediaInfo.url.absoluteString];
+                    [writer writeCharacters:mediaInfoURLString];
                 }];
 
-                [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURL.absoluteString];
-                NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", mediaType];
+                NSString *iconURLString = iconURL.absoluteString ?: @"";
+                [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURLString];
+                NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
                 [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
             }];
         }];
@@ -1023,8 +1030,8 @@ static const NSInteger kValueNotFound = -1;
             [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
                 [writer writeElement:@"SetAVTransportURI" withNamespace:kAVTransportNamespace andContentsBlock:^(XMLWriter *writer) {
                     [writer writeElement:@"InstanceID" withContents:@"0"];
-                    [writer writeElement:@"CurrentURI" withContents:mediaInfo.url.absoluteString];
-                    [writer writeElement:@"CurrentURIMetaData" withContents:metadataXML];
+                    [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
+                    [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
                 }];
             }];
         }];
