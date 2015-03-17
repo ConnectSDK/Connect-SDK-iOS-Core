@@ -576,26 +576,16 @@ static const NSInteger kValueNotFound = -1;
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *timeString = [self stringForTime:position];
+    NSString *seekXML = [self commandXMLForCommandName:@"Seek"
+                                      commandNamespace:kAVTransportNamespace
+                                        andWriterBlock:^(XMLWriter *writer) {
+                                            [writer writeElement:@"Unit" withContents:@"REL_TIME"];
+                                            [writer writeElement:@"Target" withContents:timeString];
+                                        }];
+    NSDictionary *seekPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
+                                  kDataFieldName : seekXML};
 
-    NSString *commandXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:Seek xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Unit>REL_TIME</Unit>"
-            "<Target>%@</Target>"
-            "</u:Seek>"
-            "</s:Body>"
-            "</s:Envelope>",
-            timeString
-    ];
-
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
-            kDataFieldName : commandXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:seekPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -603,21 +593,13 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:GetTransportInfo xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-            "<InstanceID>0</InstanceID>"
-            "</u:GetTransportInfo>"
-            "</s:Body>"
-            "</s:Envelope>";
+    NSString *getPlayStateXML = [self commandXMLForCommandName:@"GetTransportInfo"
+                                              commandNamespace:kAVTransportNamespace
+                                                andWriterBlock:nil];
+    NSDictionary *getPlayStatePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetTransportInfo\"",
+                                          kDataFieldName : getPlayStateXML};
 
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetTransportInfo\"",
-            kDataFieldName : commandXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:getPlayStatePayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         NSDictionary *response = [self responseDataFromResponse:responseObject
@@ -714,21 +696,13 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) getPositionInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:GetPositionInfo xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-            "<InstanceID>0</InstanceID>"
-            "</u:GetPositionInfo>"
-            "</s:Body>"
-            "</s:Envelope>";
+    NSString *getPositionInfoXML = [self commandXMLForCommandName:@"GetPositionInfo"
+                                                 commandNamespace:kAVTransportNamespace
+                                                   andWriterBlock:nil];
+    NSDictionary *getPositionInfoPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetPositionInfo\"",
+                                             kDataFieldName : getPositionInfoXML};
 
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetPositionInfo\"",
-            kDataFieldName : commandXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:getPositionInfoPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];

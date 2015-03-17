@@ -143,6 +143,54 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            } andVerificationBlock:nil];
 }
 
+/// Tests that @c -seek:success:failure: creates a proper and valid Seek XML
+/// request.
+- (void)testSeekShouldCreateProperSeekXML {
+    [self setupSendCommandTestWithName:@"Seek"
+                             namespace:kAVTransportNamespace
+                           actionBlock:^{
+                               [self.service seek:(1 * 60 * 60) + (45 * 60) + 33
+                                          success:^(id responseObject) {
+                                              XCTFail(@"success?");
+                                          } failure:^(NSError *error) {
+                                              XCTFail(@"fail? %@", error);
+                                          }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Target.text"],
+                                                     @"01:45:33", @"Seek position is incorrect");
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Unit.text"],
+                                                     @"REL_TIME", @"Unit is incorrect");
+                           }];
+}
+
+/// Tests that @c -getPlayStateWithSuccess:failure: creates a proper and valid
+/// GetTransportInfo XML request.
+- (void)testGetPlayStateShouldCreateProperGetTransportInfoXML {
+    [self setupSendCommandTestWithName:@"GetTransportInfo"
+                             namespace:kAVTransportNamespace
+                           actionBlock:^{
+                               [self.service getPlayStateWithSuccess:^(MediaControlPlayState playState) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
+/// Tests that @c -getPositionWithSuccess:failure: creates a proper and valid
+/// GetPositionInfo XML request.
+- (void)testGetPositionInfoShouldCreateProperGetPositionInfoXML {
+    [self setupSendCommandTestWithName:@"GetPositionInfo"
+                             namespace:kAVTransportNamespace
+                           actionBlock:^{
+                               [self.service getPositionWithSuccess:^(NSTimeInterval position) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
 /// Tests that @c -getVolumeWithSuccess:failure: creates a proper and valid
 /// GetVolume XML request.
 - (void)testGetVolumeShouldCreateProperGetVolumeXML {
