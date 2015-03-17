@@ -217,6 +217,36 @@ static const NSInteger kValueNotFound = -1;
         [_serviceReachability stop];
 }
 
+/// Builds a request XML for the given command name. Prepares the outer, common
+/// XML and the @c writerBlock is called to add any extra information to the XML.
+- (NSString *)commandXMLForCommandName:(NSString *)commandName
+                        andWriterBlock:(void (^)(XMLWriter *writer))writerBlock {
+    NSParameterAssert(commandName);
+
+    XMLWriter *writer = [XMLWriter new];
+    [writer writeStartDocumentWithEncodingAndVersion:@"UTF-8" version:@"1.0"];
+
+    static NSString *const kSOAPNamespace = @"http://schemas.xmlsoap.org/soap/envelope/";
+    static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
+
+    [writer setPrefix:@"s" namespaceURI:kSOAPNamespace];
+    [writer setPrefix:@"u" namespaceURI:kAVTransportNamespace];
+
+    [writer writeElement:@"Envelope" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
+        [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
+            [writer writeElement:commandName withNamespace:kAVTransportNamespace andContentsBlock:^(XMLWriter *writer) {
+                [writer writeElement:@"InstanceID" withContents:@"0"];
+
+                if (writerBlock) {
+                    writerBlock(writer);
+                }
+            }];
+        }];
+    }];
+
+    return [writer toString];
+}
+
 #pragma mark -
 
 /// Parses the DLNA notification and returns the value for the given key in the
@@ -973,8 +1003,6 @@ static const NSInteger kValueNotFound = -1;
     NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
     NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
 
-    // FIXME: title/description nil? => replace with empty strings
-    // TODO: return error if URL is invalid
     NSString *metadataXML = ({
         XMLWriter *writer = [XMLWriter new];
 
@@ -1016,35 +1044,15 @@ static const NSInteger kValueNotFound = -1;
         [writer toString];
     });
 
-    NSString *shareXML = ({
-        XMLWriter *writer = [XMLWriter new];
-        [writer writeStartDocumentWithEncodingAndVersion:@"UTF-8" version:@"1.0"];
-
-        static NSString *const kSOAPNamespace = @"http://schemas.xmlsoap.org/soap/envelope/";
-        static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
-
-        [writer setPrefix:@"s" namespaceURI:kSOAPNamespace];
-        [writer setPrefix:@"u" namespaceURI:kAVTransportNamespace];
-
-        [writer writeElement:@"Envelope" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
-            [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
-                [writer writeElement:@"SetAVTransportURI" withNamespace:kAVTransportNamespace andContentsBlock:^(XMLWriter *writer) {
-                    [writer writeElement:@"InstanceID" withContents:@"0"];
-                    [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
-                    [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
-                }];
-            }];
-        }];
-
-        [writer toString];
-    });
-
-    NSDictionary *sharePayload = @{
-                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-                                   kDataFieldName : shareXML
-                                   };
+    NSString *setURLXML = [self commandXMLForCommandName:@"SetAVTransportURI"
+                                          andWriterBlock:^(XMLWriter *writer) {
+                                              [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
+                                              [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
+                                          }];
+    NSDictionary *setURLPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
+                                    kDataFieldName : setURLXML};
     
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:sharePayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:setURLPayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {

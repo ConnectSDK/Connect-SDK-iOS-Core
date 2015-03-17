@@ -421,14 +421,12 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     });
 }
 
-- (void)checkPlayMediaShouldCreateProperSetAVTransportURIXMLWithTitle:(NSString *)sampleTitle
-                                                          description:(NSString *)sampleDescription
-                                                                  url:(NSString *)sampleURL
-                                                       andAlbumArtURL:(NSString *)sampleAlbumArtURL {
+- (void)setupSendCommandTestWithName:(NSString *)commandName
+                               actionBlock:(void (^)())actionBlock
+                      andVerificationBlock:(void (^)(NSDictionary *request))checkBlock {
     // Arrange
-    NSString *sampleMimeType = @"audio/ogg";
-
-    XCTestExpectation *commandIsSent = [self expectationWithDescription:@"SetAVTransportURI command is sent"];
+    XCTestExpectation *commandIsSent = [self expectationWithDescription:
+                                        [NSString stringWithFormat:@"%@ command is sent", commandName]];
 
     [OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
                                                 withPayload:OCMOCK_NOTNIL
@@ -447,60 +445,21 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
         XCTAssertNotNil(envelope, @"Envelope tag must be present");
         NSDictionary *body = [envelope objectForKeyEndingWithString:@":Body"];
         XCTAssertNotNil(body, @"Body tag must be present");
-        NSDictionary *request = [body objectForKeyEndingWithString:@":SetAVTransportURI"];
-        XCTAssertNotNil(request, @"SetAVTransportURI tag must be present");
+        NSDictionary *request = [body objectForKeyEndingWithString:[@":" stringByAppendingString:commandName]];
+        XCTAssertNotNil(request, @"%@ tag must be present", commandName);
 
         XCTAssertNotNil(request[@"InstanceID"], @"InstanceID must be present");
-        XCTAssertEqualObjects([request valueForKeyPath:@"CurrentURI.text"], sampleURL, @"CurrentURI must match");
 
-        NSString *metadataString = [request valueForKeyPath:@"CurrentURIMetaData.text"];
-        XCTAssertNotNil(metadataString, @"CurrentURIMetaData must be present");
-
-        error = nil;
-        NSDictionary *metadata = [CTXMLReader dictionaryForXMLString:metadataString
-                                                               error:&error];
-        XCTAssertNil(error, @"Metadata XML parsing error");
-        XCTAssertNotNil(metadata, @"Couldn't parse metadata XML");
-
-        NSDictionary *didl = metadata[@"DIDL-Lite"];
-        XCTAssertNotNil(didl, @"DIDL-Lite tag must be present");
-        NSDictionary *item = didl[@"item"];
-        XCTAssertNotNil(item, @"item tag must be present");
-
-        NSString *title = [item objectForKeyEndingWithString:@":title"][@"text"];
-        XCTAssertEqualObjects(title, sampleTitle, @"Title must match");
-
-        NSString *description = [item objectForKeyEndingWithString:@":description"][@"text"];
-        XCTAssertEqualObjects(description, sampleDescription, @"Description must match");
-
-        NSDictionary *res = item[@"res"];
-        XCTAssertEqualObjects(res[@"text"], sampleURL, @"res URL must match");
-        XCTAssertNotEqual([res[@"protocolInfo"] rangeOfString:sampleMimeType].location, NSNotFound, @"mimeType must be in protocolInfo");
-
-        NSString *albumArtURI = [item objectForKeyEndingWithString:@":albumArtURI"][@"text"];
-        XCTAssertEqualObjects(albumArtURI, sampleAlbumArtURL, @"albumArtURI must match");
-
-        NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
-        XCTAssertEqualObjects(itemClass, @"object.item.audioItem", @"class must be audioItem");
+        // any extra verification required?
+        if (checkBlock) {
+            checkBlock(request);
+        }
 
         [commandIsSent fulfill];
     }];
 
-    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
-                                                 mimeType:sampleMimeType];
-    mediaInfo.title = sampleTitle;
-    mediaInfo.description = sampleDescription;
-    mediaInfo.images = @[[[ImageInfo alloc] initWithURL:[NSURL URLWithString:sampleAlbumArtURL]
-                                                   type:ImageTypeAlbumArt]];
-
     // Act
-    [self.service playMediaWithMediaInfo:mediaInfo
-                              shouldLoop:NO
-                                 success:^(MediaLaunchObject *mediaLanchObject) {
-                                     XCTFail(@"success?");
-                                 } failure:^(NSError *error) {
-                                     XCTFail(@"fail? %@", error);
-                                 }];
+    actionBlock();
 
     // Assert
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
@@ -508,6 +467,63 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                      XCTAssertNil(error);
                                      OCMVerifyAll(self.serviceCommandDelegateMock);
                                  }];
+}
+
+- (void)checkPlayMediaShouldCreateProperSetAVTransportURIXMLWithTitle:(NSString *)sampleTitle
+                                                          description:(NSString *)sampleDescription
+                                                                  url:(NSString *)sampleURL
+                                                       andAlbumArtURL:(NSString *)sampleAlbumArtURL {
+    NSString *sampleMimeType = @"audio/ogg";
+
+    [self setupSendCommandTestWithName:@"SetAVTransportURI"
+                           actionBlock:^{
+                               MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
+                                                                            mimeType:sampleMimeType];
+                               mediaInfo.title = sampleTitle;
+                               mediaInfo.description = sampleDescription;
+                               mediaInfo.images = @[[[ImageInfo alloc] initWithURL:[NSURL URLWithString:sampleAlbumArtURL]
+                                                                              type:ImageTypeAlbumArt]];
+
+                               [self.service playMediaWithMediaInfo:mediaInfo
+                                                         shouldLoop:NO
+                                                            success:^(MediaLaunchObject *mediaLanchObject) {
+                                                                XCTFail(@"success?");
+                                                            } failure:^(NSError *error) {
+                                                                XCTFail(@"fail? %@", error);
+                                                            }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"CurrentURI.text"], sampleURL, @"CurrentURI must match");
+
+                               NSString *metadataString = [request valueForKeyPath:@"CurrentURIMetaData.text"];
+                               XCTAssertNotNil(metadataString, @"CurrentURIMetaData must be present");
+
+                               NSError *error = nil;
+                               NSDictionary *metadata = [CTXMLReader dictionaryForXMLString:metadataString
+                                                                                      error:&error];
+                               XCTAssertNil(error, @"Metadata XML parsing error");
+                               XCTAssertNotNil(metadata, @"Couldn't parse metadata XML");
+
+                               NSDictionary *didl = metadata[@"DIDL-Lite"];
+                               XCTAssertNotNil(didl, @"DIDL-Lite tag must be present");
+                               NSDictionary *item = didl[@"item"];
+                               XCTAssertNotNil(item, @"item tag must be present");
+
+                               NSString *title = [item objectForKeyEndingWithString:@":title"][@"text"];
+                               XCTAssertEqualObjects(title, sampleTitle, @"Title must match");
+
+                               NSString *description = [item objectForKeyEndingWithString:@":description"][@"text"];
+                               XCTAssertEqualObjects(description, sampleDescription, @"Description must match");
+
+                               NSDictionary *res = item[@"res"];
+                               XCTAssertEqualObjects(res[@"text"], sampleURL, @"res URL must match");
+                               XCTAssertNotEqual([res[@"protocolInfo"] rangeOfString:sampleMimeType].location, NSNotFound, @"mimeType must be in protocolInfo");
+
+                               NSString *albumArtURI = [item objectForKeyEndingWithString:@":albumArtURI"][@"text"];
+                               XCTAssertEqualObjects(albumArtURI, sampleAlbumArtURL, @"albumArtURI must match");
+
+                               NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
+                               XCTAssertEqualObjects(itemClass, @"object.item.audioItem", @"class must be audioItem");
+                           }];
 }
 
 @end
