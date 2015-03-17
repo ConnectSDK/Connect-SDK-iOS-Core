@@ -20,6 +20,10 @@
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
 
+static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
+static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
+
+
 /// Tests for the @c DLNAService class.
 @interface DLNAServiceTests : XCTestCase
 
@@ -99,6 +103,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 /// request.
 - (void)testPlayShouldCreateProperPlayXML {
     [self setupSendCommandTestWithName:@"Play"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service playWithSuccess:^(id responseObject) {
                                    XCTFail(@"success?");
@@ -114,6 +119,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 /// XML request.
 - (void)testPauseShouldCreateProperPauseXML {
     [self setupSendCommandTestWithName:@"Pause"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service pauseWithSuccess:^(id responseObject) {
                                    XCTFail(@"success?");
@@ -127,6 +133,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 /// request.
 - (void)testStopShouldCreateProperStopXML {
     [self setupSendCommandTestWithName:@"Stop"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service stopWithSuccess:^(id responseObject) {
                                    XCTFail(@"success?");
@@ -136,10 +143,85 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            } andVerificationBlock:nil];
 }
 
+/// Tests that @c -getVolumeWithSuccess:failure: creates a proper and valid
+/// GetVolume XML request.
+- (void)testGetVolumeShouldCreateProperGetVolumeXML {
+    [self setupSendCommandTestWithName:@"GetVolume"
+                             namespace:kRenderingControlNamespace
+                           actionBlock:^{
+                               [self.service getVolumeWithSuccess:^(float volume) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Channel.text"],
+                                                     @"Master", @"Channel must be Master");
+                           }];
+}
+
+/// Tests that @c -setVolume:success:failure: creates a proper and valid
+/// SetVolume XML request.
+- (void)testSetVolumeShouldCreateProperSetVolumeXML {
+    [self setupSendCommandTestWithName:@"SetVolume"
+                             namespace:kRenderingControlNamespace
+                           actionBlock:^{
+                               [self.service setVolume:0.99
+                                               success:^(id responseObject) {
+                                                   XCTFail(@"success?");
+                                               } failure:^(NSError *error) {
+                                                   XCTFail(@"fail? %@", error);
+                                               }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Channel.text"],
+                                                     @"Master", @"Channel must be Master");
+                               XCTAssertEqualObjects([request valueForKeyPath:@"DesiredVolume.text"],
+                                                     @"99", @"Volume is incorrect");
+                           }];
+}
+
+/// Tests that @c -getMuteWithSuccess:failure: creates a proper and valid
+/// GetMute XML request.
+- (void)testGetMuteShouldCreateProperGetMuteXML {
+    [self setupSendCommandTestWithName:@"GetMute"
+                             namespace:kRenderingControlNamespace
+                           actionBlock:^{
+                               [self.service getMuteWithSuccess:^(BOOL mute) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Channel.text"],
+                                                     @"Master", @"Channel must be Master");
+                           }];
+}
+
+/// Tests that @c -setMute:success:failure: creates a proper and valid
+/// SetMute XML request.
+- (void)testSetMuteShouldCreateProperSetMuteXML {
+    [self setupSendCommandTestWithName:@"SetMute"
+                             namespace:kRenderingControlNamespace
+                           actionBlock:^{
+                               [self.service setMute:YES
+                                             success:^(id responseObject) {
+                                                 XCTFail(@"success?");
+                                             } failure:^(NSError *error) {
+                                                 XCTFail(@"fail? %@", error);
+                                             }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Channel.text"],
+                                                     @"Master", @"Channel must be Master");
+                               XCTAssertEqualObjects([request valueForKeyPath:@"DesiredMute.text"],
+                                                     @"1", @"DesiredMute is incorrect");
+                           }];
+}
+
 /// Tests that @c -playNextWithSuccess:failure: creates a proper and valid Next
 /// XML request.
 - (void)testPlayNextShouldCreateProperNextXML {
     [self setupSendCommandTestWithName:@"Next"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service playNextWithSuccess:^(id responseObject) {
                                    XCTFail(@"success?");
@@ -153,6 +235,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 /// Previous XML request.
 - (void)testPlayPreviousShouldCreateProperPreviousXML {
     [self setupSendCommandTestWithName:@"Previous"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service playPreviousWithSuccess:^(id responseObject) {
                                    XCTFail(@"success?");
@@ -166,6 +249,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 /// valid Seek XML request.
 - (void)testJumpToTrackShouldCreateProperSeekXML {
     [self setupSendCommandTestWithName:@"Seek"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                [self.service jumpToTrackWithIndex:0
                                                           success:^(id responseObject) {
@@ -508,8 +592,9 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)setupSendCommandTestWithName:(NSString *)commandName
-                               actionBlock:(void (^)())actionBlock
-                      andVerificationBlock:(void (^)(NSDictionary *request))checkBlock {
+                           namespace:(NSString *)namespace
+                         actionBlock:(void (^)())actionBlock
+                andVerificationBlock:(void (^)(NSDictionary *request))checkBlock {
     // Arrange
     XCTestExpectation *commandIsSent = [self expectationWithDescription:
                                         [NSString stringWithFormat:@"%@ command is sent", commandName]];
@@ -529,6 +614,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
         NSDictionary *envelope = [dict objectForKeyEndingWithString:@":Envelope"];
         XCTAssertNotNil(envelope, @"Envelope tag must be present");
+        XCTAssertEqualObjects(envelope[@"xmlns:u"], namespace, @"Namespace is incorrect");
         NSDictionary *body = [envelope objectForKeyEndingWithString:@":Body"];
         XCTAssertNotNil(body, @"Body tag must be present");
         NSDictionary *request = [body objectForKeyEndingWithString:[@":" stringByAppendingString:commandName]];
@@ -562,6 +648,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     NSString *sampleMimeType = @"audio/ogg";
 
     [self setupSendCommandTestWithName:@"SetAVTransportURI"
+                             namespace:kAVTransportNamespace
                            actionBlock:^{
                                MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
                                                                             mimeType:sampleMimeType];

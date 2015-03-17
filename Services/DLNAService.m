@@ -33,6 +33,9 @@ NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
 #define kSubscriptionTimeoutSeconds 300
 
+static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
+static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
+
 static const NSInteger kValueNotFound = -1;
 
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
@@ -220,6 +223,7 @@ static const NSInteger kValueNotFound = -1;
 /// Builds a request XML for the given command name. Prepares the outer, common
 /// XML and the @c writerBlock is called to add any extra information to the XML.
 - (NSString *)commandXMLForCommandName:(NSString *)commandName
+                      commandNamespace:(NSString *)namespace
                         andWriterBlock:(void (^)(XMLWriter *writer))writerBlock {
     NSParameterAssert(commandName);
 
@@ -227,14 +231,13 @@ static const NSInteger kValueNotFound = -1;
     [writer writeStartDocumentWithEncodingAndVersion:@"UTF-8" version:@"1.0"];
 
     static NSString *const kSOAPNamespace = @"http://schemas.xmlsoap.org/soap/envelope/";
-    static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
 
     [writer setPrefix:@"s" namespaceURI:kSOAPNamespace];
-    [writer setPrefix:@"u" namespaceURI:kAVTransportNamespace];
+    [writer setPrefix:@"u" namespaceURI:namespace];
 
     [writer writeElement:@"Envelope" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
         [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
-            [writer writeElement:commandName withNamespace:kAVTransportNamespace andContentsBlock:^(XMLWriter *writer) {
+            [writer writeElement:commandName withNamespace:namespace andContentsBlock:^(XMLWriter *writer) {
                 [writer writeElement:@"InstanceID" withContents:@"0"];
 
                 if (writerBlock) {
@@ -508,6 +511,7 @@ static const NSInteger kValueNotFound = -1;
 - (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *playXML = [self commandXMLForCommandName:@"Play"
+                                      commandNamespace:kAVTransportNamespace
                                         andWriterBlock:^(XMLWriter *writer) {
                                             [writer writeElement:@"Speed" withContents:@"1"];
                                         }];
@@ -526,6 +530,7 @@ static const NSInteger kValueNotFound = -1;
 - (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *pauseXML = [self commandXMLForCommandName:@"Pause"
+                                      commandNamespace:kAVTransportNamespace
                                          andWriterBlock:nil];
     NSDictionary *pausePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Pause\"",
                                    kDataFieldName : pauseXML};
@@ -542,6 +547,7 @@ static const NSInteger kValueNotFound = -1;
 - (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *stopXML = [self commandXMLForCommandName:@"Stop"
+                                      commandNamespace:kAVTransportNamespace
                                         andWriterBlock:nil];
     NSDictionary *stopPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Stop\"",
                                   kDataFieldName : stopXML};
@@ -1019,6 +1025,7 @@ static const NSInteger kValueNotFound = -1;
     });
 
     NSString *setURLXML = [self commandXMLForCommandName:@"SetAVTransportURI"
+                                        commandNamespace:kAVTransportNamespace
                                           andWriterBlock:^(XMLWriter *writer) {
                                               [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
                                               [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
@@ -1091,20 +1098,13 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:GetVolume xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Channel>Master</Channel>"
-            "</u:GetVolume>"
-            "</s:Body>"
-            "</s:Envelope>";
-
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetVolume\"",
-            kDataFieldName : commandXML
-    };
+    NSString *getVolumeXML = [self commandXMLForCommandName:@"GetVolume"
+                                           commandNamespace:kRenderingControlNamespace
+                                             andWriterBlock:^(XMLWriter *writer) {
+                                                 [writer writeElement:@"Channel" withContents:@"Master"];
+                                             }];
+    NSDictionary *getVolumePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetVolume\"",
+                                       kDataFieldName : getVolumeXML};
 
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int volume = -1;
@@ -1123,7 +1123,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:getVolumePayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];
@@ -1131,25 +1131,17 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    int targetVolume = (int) round(volume * 100);
+    NSString *targetVolume = [NSString stringWithFormat:@"%d", (int) round(volume * 100)];
+    NSString *setVolumeXML = [self commandXMLForCommandName:@"SetVolume"
+                                           commandNamespace:kRenderingControlNamespace
+                                             andWriterBlock:^(XMLWriter *writer) {
+                                                 [writer writeElement:@"Channel" withContents:@"Master"];
+                                                 [writer writeElement:@"DesiredVolume" withContents:targetVolume];
+                                             }];
+    NSDictionary *setVolumePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetVolume\"",
+                                       kDataFieldName : setVolumeXML};
 
-    NSString *commandXML = [NSString stringWithFormat: @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:SetVolume xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Channel>Master</Channel>"
-            "<DesiredVolume>%d</DesiredVolume>"
-            "</u:SetVolume>"
-            "</s:Body>"
-            "</s:Envelope>", targetVolume];
-
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetVolume\"",
-            kDataFieldName : commandXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:setVolumePayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -1184,20 +1176,13 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *commandXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:GetMute xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Channel>Master</Channel>"
-            "</u:GetMute>"
-            "</s:Body>"
-            "</s:Envelope>";
-
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetMute\"",
-            kDataFieldName : commandXML
-    };
+    NSString *getMuteXML = [self commandXMLForCommandName:@"GetMute"
+                                         commandNamespace:kRenderingControlNamespace
+                                           andWriterBlock:^(XMLWriter *writer) {
+                                               [writer writeElement:@"Channel" withContents:@"Master"];
+                                           }];
+    NSDictionary *getMutePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetMute\"",
+                                     kDataFieldName : getMuteXML};
 
     SuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int mute = -1;
@@ -1216,7 +1201,7 @@ static const NSInteger kValueNotFound = -1;
         }
     };
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:getMutePayload];
     command.callbackComplete = successBlock;
     command.callbackError = failure;
     [command send];
@@ -1224,23 +1209,17 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *commandXML = [NSString stringWithFormat: @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:SetMute xmlns:u=\"urn:schemas-upnp-org:service:RenderingControl:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Channel>Master</Channel>"
-            "<DesiredMute>%d</DesiredMute>"
-            "</u:SetMute>"
-            "</s:Body>"
-            "</s:Envelope>", mute];
+    NSString *targetMute = [NSString stringWithFormat:@"%d", mute];
+    NSString *setMuteXML = [self commandXMLForCommandName:@"SetMute"
+                                         commandNamespace:kRenderingControlNamespace
+                                           andWriterBlock:^(XMLWriter *writer) {
+                                               [writer writeElement:@"Channel" withContents:@"Master"];
+                                               [writer writeElement:@"DesiredMute" withContents:targetMute];
+                                           }];
+    NSDictionary *setMutePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetMute\"",
+                                     kDataFieldName : setMuteXML};
 
-    NSDictionary *commandPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetMute\"",
-            kDataFieldName : commandXML
-    };
-
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_renderingControlControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:setMutePayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
@@ -1288,6 +1267,7 @@ static const NSInteger kValueNotFound = -1;
 - (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *nextXML = [self commandXMLForCommandName:@"Next"
+                                      commandNamespace:kAVTransportNamespace
                                         andWriterBlock:nil];
     NSDictionary *nextPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
                                   kDataFieldName : nextXML};
@@ -1304,6 +1284,7 @@ static const NSInteger kValueNotFound = -1;
 - (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *previousXML = [self commandXMLForCommandName:@"Previous"
+                                      commandNamespace:kAVTransportNamespace
                                             andWriterBlock:nil];
     NSDictionary *previousPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
                                       kDataFieldName : previousXML};
@@ -1323,6 +1304,7 @@ static const NSInteger kValueNotFound = -1;
     // increase by one
     NSString *trackNumberInString = [NSString stringWithFormat:@"%ld", (long)(index + 1)];
     NSString *seekXML = [self commandXMLForCommandName:@"Seek"
+                                      commandNamespace:kAVTransportNamespace
                                         andWriterBlock:^(XMLWriter *writer) {
                                             [writer writeElement:@"Unit" withContents:@"TRACK_NR"];
                                             [writer writeElement:@"Target" withContents:trackNumberInString];
