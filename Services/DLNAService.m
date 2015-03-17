@@ -507,22 +507,14 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *playXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-            "<s:Body>"
-            "<u:Play xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-            "<InstanceID>0</InstanceID>"
-            "<Speed>1</Speed>"
-            "</u:Play>"
-            "</s:Body>"
-            "</s:Envelope>";
+    NSString *playXML = [self commandXMLForCommandName:@"Play"
+                                        andWriterBlock:^(XMLWriter *writer) {
+                                            [writer writeElement:@"Speed" withContents:@"1"];
+                                        }];
+    NSDictionary *playPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Play\"",
+                                  kDataFieldName : playXML};
 
-    NSDictionary *playPayload = @{
-            kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Play\"",
-            kDataFieldName : playXML
-    };
-
-    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:playPayload];
+    ServiceCommand *playCommand = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:playPayload];
     playCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -533,21 +525,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *xml = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-    "<s:Body>"
-    "<u:Pause xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-    "<InstanceID>0</InstanceID>"
-    "</u:Pause>"
-    "</s:Body>"
-    "</s:Envelope>";
-    
-    NSDictionary *payload = @{
-                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Pause\"",
-                                  kDataFieldName : xml
-                                  };
-    
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:payload];
+    NSString *pauseXML = [self commandXMLForCommandName:@"Pause"
+                                         andWriterBlock:nil];
+    NSDictionary *pausePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Pause\"",
+                                   kDataFieldName : pauseXML};
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:pausePayload];
     command.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -558,21 +541,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *stopXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-    "<s:Body>"
-    "<u:Stop xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-    "<InstanceID>0</InstanceID>"
-    "</u:Stop>"
-    "</s:Body>"
-    "</s:Envelope>";
+    NSString *stopXML = [self commandXMLForCommandName:@"Stop"
+                                        andWriterBlock:nil];
+    NSDictionary *stopPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Stop\"",
+                                  kDataFieldName : stopXML};
     
-    NSDictionary *stopPayload = @{
-                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Stop\"",
-                                  kDataFieldName : stopXML
-                                  };
-    
-    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:stopPayload];
+    ServiceCommand *stopCommand = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:stopPayload];
     stopCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);

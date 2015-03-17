@@ -95,6 +95,47 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                                          andAlbumArtURL:nil];
 }
 
+/// Tests that @c -playWithSuccess:failure: creates a proper and valid Play XML
+/// request.
+- (void)testPlayShouldCreateProperPlayXML {
+    [self setupSendCommandTestWithName:@"Play"
+                           actionBlock:^{
+                               [self.service playWithSuccess:^(id responseObject) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Speed.text"], @"1", @"Speed must equal 1");
+                           }];
+}
+
+/// Tests that @c -pauseWithSuccess:failure: creates a proper and valid Pause
+/// XML request.
+- (void)testPauseShouldCreateProperPlayXML {
+    [self setupSendCommandTestWithName:@"Pause"
+                           actionBlock:^{
+                               [self.service pauseWithSuccess:^(id responseObject) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
+/// Tests that @c -stopWithSuccess:failure: creates a proper and valid Stop XML
+/// request.
+- (void)testStopShouldCreateProperPlayXML {
+    [self setupSendCommandTestWithName:@"Stop"
+                           actionBlock:^{
+                               [self.service stopWithSuccess:^(id responseObject) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
 #pragma mark - Response Parsing Tests
 
 /// Tests that @c -getPositionWithSuccess:failure: parses the position time from
