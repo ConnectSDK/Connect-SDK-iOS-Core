@@ -33,10 +33,16 @@ NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
 #define kSubscriptionTimeoutSeconds 300
 
+
 static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
 static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
 
+static NSString *const kDIDLLiteNamespace = @"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/";
+static NSString *const kUPNPNamespace = @"urn:schemas-upnp-org:metadata-1-0/upnp/";
+static NSString *const kDCNamespace = @"http://purl.org/dc/elements/1.1/";
+
 static const NSInteger kValueNotFound = -1;
+
 
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
@@ -864,34 +870,54 @@ static const NSInteger kValueNotFound = -1;
 }
 
 - (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo
-              success:(MediaPlayerSuccessBlock)success
-              failure:(FailureBlock)failure
+                           success:(MediaPlayerSuccessBlock)success
+                           failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
-    NSString *shareXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                          "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-                          "<s:Body>"
-                          "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-                          "<InstanceID>0</InstanceID>"
-                          "<CurrentURI>%@</CurrentURI>"
-                          "<CurrentURIMetaData>"
-                          "&lt;DIDL-Lite xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;&gt;&lt;item id=&quot;1000&quot; parentID=&quot;0&quot; restricted=&quot;0&quot;&gt;&lt;dc:title&gt;%@&lt;/dc:title&gt;&lt;res protocolInfo=&quot;http-get:*:%@:DLNA.ORG_OP=01&quot;&gt;%@&lt;/res&gt;&lt;upnp:class&gt;object.item.imageItem&lt;/upnp:class&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;"
-                          "</CurrentURIMetaData>"
-                          "</u:SetAVTransportURI>"
-                          "</s:Body>"
-                          "</s:Envelope>",
-                          mediaInfo.url.absoluteString, mediaInfo.title, mediaInfo.mimeType, mediaInfo.url.absoluteString];
-    NSDictionary *sharePayload = @{
-                                   kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-                                   kDataFieldName : shareXML
-                                   };
-    
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:sharePayload];
+    NSString *mimeType = mediaInfo.mimeType ?: @"";
+    NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
+
+    NSString *metadataXML = ({
+        XMLWriter *writer = [XMLWriter new];
+
+        [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
+        [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
+
+        [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
+            [writer writeAttribute:@"xmlns" value:kDIDLLiteNamespace];
+            [writer writeElement:@"item" withContentsBlock:^(XMLWriter *writer) {
+                [writer writeAttributes:@{@"id": @"1000",
+                                          @"parentID": @"0",
+                                          @"restricted": @"0"}];
+
+                if (mediaInfo.title) {
+                    [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
+                }
+
+                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                    NSString *value = [NSString stringWithFormat:
+                                       @"http-get:*:%@:DLNA.ORG_OP=01",
+                                       mimeType];
+                    [writer writeAttribute:@"protocolInfo" value:value];
+                    [writer writeCharacters:mediaInfoURLString];
+                }];
+
+                [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:@"object.item.imageItem"];
+            }];
+        }];
+
+        [writer toString];
+    });
+
+    NSString *setURLXML = [self commandXMLForCommandName:@"SetAVTransportURI"
+                                        commandNamespace:kAVTransportNamespace
+                                          andWriterBlock:^(XMLWriter *writer) {
+                                              [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
+                                              [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
+                                          }];
+    NSDictionary *setURLPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
+                                    kDataFieldName : setURLXML};
+
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:setURLPayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
     {
         [self playWithSuccess:^(id responseObject) {
@@ -960,14 +986,11 @@ static const NSInteger kValueNotFound = -1;
     NSString *metadataXML = ({
         XMLWriter *writer = [XMLWriter new];
 
-        static NSString *const kUPNPNamespace = @"urn:schemas-upnp-org:metadata-1-0/upnp/";
-        static NSString *const kDCNamespace = @"http://purl.org/dc/elements/1.1/";
-
         [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
         [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
 
         [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
-            [writer writeAttribute:@"xmlns" value:@"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"];
+            [writer writeAttribute:@"xmlns" value:kDIDLLiteNamespace];
             [writer writeElement:@"item" withContentsBlock:^(XMLWriter *writer) {
                 [writer writeAttributes:@{@"id": @"0",
                                           @"parentID": @"0",

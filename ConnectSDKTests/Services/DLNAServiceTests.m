@@ -99,6 +99,27 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                                          andAlbumArtURL:nil];
 }
 
+/// Tests that @c -displayImageWithMediaInfo:success:failure: creates a
+/// proper and valid SetAVTransportURI XML request.
+- (void)testDisplayImageShouldCreateProperSetAVTransportURIXML {
+    [self checkDisplayImageShouldCreateProperSetAVTransportURIXMLWithTitle:kDefaultTitle
+                                                                       url:kDefaultAlbumArtURL];
+}
+
+/// Tests that @c -displayImageWithMediaInfo:success:failure: creates a
+/// proper and valid SetAVTransportURI XML request without title.
+- (void)testDisplayImageShouldCreateProperSetAVTransportURIXMLWithoutTitle {
+    [self checkDisplayImageShouldCreateProperSetAVTransportURIXMLWithTitle:nil
+                                                                       url:kDefaultAlbumArtURL];
+}
+
+/// Tests that @c -displayImageWithMediaInfo:success:failure: creates a
+/// proper and valid SetAVTransportURI XML request without URL.
+- (void)testDisplayImageShouldCreateProperSetAVTransportURIXMLWithoutURL {
+    [self checkDisplayImageShouldCreateProperSetAVTransportURIXMLWithTitle:kDefaultTitle
+                                                                       url:nil];
+}
+
 /// Tests that @c -playWithSuccess:failure: creates a proper and valid Play XML
 /// request.
 - (void)testPlayShouldCreateProperPlayXML {
@@ -744,6 +765,52 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
                                NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
                                XCTAssertEqualObjects(itemClass, @"object.item.audioItem", @"class must be audioItem");
+                           }];
+}
+
+- (void)checkDisplayImageShouldCreateProperSetAVTransportURIXMLWithTitle:(NSString *)sampleTitle
+                                                                     url:(NSString *)sampleURL {
+    NSString *sampleMimeType = @"image/png";
+
+    [self setupSendCommandTestWithName:@"SetAVTransportURI"
+                             namespace:kAVTransportNamespace
+                           actionBlock:^{
+                               MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
+                                                                            mimeType:sampleMimeType];
+                               mediaInfo.title = sampleTitle;
+
+                               [self.service displayImageWithMediaInfo:mediaInfo
+                                                               success:^(MediaLaunchObject *mediaLanchObject) {
+                                                                   XCTFail(@"success?");
+                                                               } failure:^(NSError *error) {
+                                                                   XCTFail(@"fail? %@", error);
+                                                               }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"CurrentURI.text"], sampleURL, @"CurrentURI must match");
+
+                               NSString *metadataString = [request valueForKeyPath:@"CurrentURIMetaData.text"];
+                               XCTAssertNotNil(metadataString, @"CurrentURIMetaData must be present");
+
+                               NSError *error = nil;
+                               NSDictionary *metadata = [CTXMLReader dictionaryForXMLString:metadataString
+                                                                                      error:&error];
+                               XCTAssertNil(error, @"Metadata XML parsing error");
+                               XCTAssertNotNil(metadata, @"Couldn't parse metadata XML");
+
+                               NSDictionary *didl = metadata[@"DIDL-Lite"];
+                               XCTAssertNotNil(didl, @"DIDL-Lite tag must be present");
+                               NSDictionary *item = didl[@"item"];
+                               XCTAssertNotNil(item, @"item tag must be present");
+
+                               NSString *title = [item objectForKeyEndingWithString:@":title"][@"text"];
+                               XCTAssertEqualObjects(title, sampleTitle, @"Title must match");
+
+                               NSDictionary *res = item[@"res"];
+                               XCTAssertEqualObjects(res[@"text"], sampleURL, @"res URL must match");
+                               XCTAssertNotEqual([res[@"protocolInfo"] rangeOfString:sampleMimeType].location, NSNotFound, @"mimeType must be in protocolInfo");
+
+                               NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
+                               XCTAssertEqualObjects(itemClass, @"object.item.imageItem", @"class must be imageItem");
                            }];
 }
 
