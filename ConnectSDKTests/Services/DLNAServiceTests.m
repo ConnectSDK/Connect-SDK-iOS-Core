@@ -112,7 +112,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
 /// Tests that @c -pauseWithSuccess:failure: creates a proper and valid Pause
 /// XML request.
-- (void)testPauseShouldCreateProperPlayXML {
+- (void)testPauseShouldCreateProperPauseXML {
     [self setupSendCommandTestWithName:@"Pause"
                            actionBlock:^{
                                [self.service pauseWithSuccess:^(id responseObject) {
@@ -125,7 +125,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
 /// Tests that @c -stopWithSuccess:failure: creates a proper and valid Stop XML
 /// request.
-- (void)testStopShouldCreateProperPlayXML {
+- (void)testStopShouldCreateProperStopXML {
     [self setupSendCommandTestWithName:@"Stop"
                            actionBlock:^{
                                [self.service stopWithSuccess:^(id responseObject) {
@@ -134,6 +134,51 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                    XCTFail(@"fail? %@", error);
                                }];
                            } andVerificationBlock:nil];
+}
+
+/// Tests that @c -playNextWithSuccess:failure: creates a proper and valid Next
+/// XML request.
+- (void)testPlayNextShouldCreateProperNextXML {
+    [self setupSendCommandTestWithName:@"Next"
+                           actionBlock:^{
+                               [self.service playNextWithSuccess:^(id responseObject) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
+/// Tests that @c -playPreviousWithSuccess:failure: creates a proper and valid
+/// Previous XML request.
+- (void)testPlayPreviousShouldCreateProperPreviousXML {
+    [self setupSendCommandTestWithName:@"Previous"
+                           actionBlock:^{
+                               [self.service playPreviousWithSuccess:^(id responseObject) {
+                                   XCTFail(@"success?");
+                               } failure:^(NSError *error) {
+                                   XCTFail(@"fail? %@", error);
+                               }];
+                           } andVerificationBlock:nil];
+}
+
+/// Tests that @c -jumpToTrackWithIndex:success:failure: creates a proper and
+/// valid Seek XML request.
+- (void)testJumpToTrackShouldCreateProperSeekXML {
+    [self setupSendCommandTestWithName:@"Seek"
+                           actionBlock:^{
+                               [self.service jumpToTrackWithIndex:0
+                                                          success:^(id responseObject) {
+                                                              XCTFail(@"success?");
+                                                          } failure:^(NSError *error) {
+                                                              XCTFail(@"fail? %@", error);
+                                                          }];
+                           } andVerificationBlock:^(NSDictionary *request) {
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Target.text"],
+                                                     @"1", @"Track number is incorrect");
+                               XCTAssertEqualObjects([request valueForKeyPath:@"Unit.text"],
+                                                     @"TRACK_NR", @"Unit is incorrect");
+                           }];
 }
 
 #pragma mark - Response Parsing Tests

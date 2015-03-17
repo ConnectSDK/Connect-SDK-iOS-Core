@@ -1273,7 +1273,7 @@ static const NSInteger kValueNotFound = -1;
     return subscription;
 }
 
-#pragma Playlist controls
+#pragma mark - Playlist controls
 
 - (id <PlayListControl>)playListControl
 {
@@ -1287,21 +1287,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *nextXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-    "<s:Body>"
-    "<u:Next xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-    "<InstanceID>0</InstanceID>"
-    "</u:Next>"
-    "</s:Body>"
-    "</s:Envelope>";
+    NSString *nextXML = [self commandXMLForCommandName:@"Next"
+                                        andWriterBlock:nil];
+    NSDictionary *nextPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
+                                  kDataFieldName : nextXML};
     
-    NSDictionary *nextPayload = @{
-                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
-                                  kDataFieldName : nextXML
-                                  };
-    
-    ServiceCommand *nextCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:nextPayload];
+    ServiceCommand *nextCommand = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:nextPayload];
     nextCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -1312,21 +1303,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    NSString *previousXML = @"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-    "<s:Body>"
-    "<u:Previous xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-    "<InstanceID>0</InstanceID>"
-    "</u:Previous>"
-    "</s:Body>"
-    "</s:Envelope>";
+    NSString *previousXML = [self commandXMLForCommandName:@"Previous"
+                                            andWriterBlock:nil];
+    NSDictionary *previousPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
+                                      kDataFieldName : previousXML};
     
-    NSDictionary *previousPayload = @{
-                                  kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
-                                  kDataFieldName : previousXML
-                                  };
-    
-    ServiceCommand *previousCommand = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:previousPayload];
+    ServiceCommand *previousCommand = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:previousPayload];
     previousCommand.callbackComplete = ^(NSDictionary *responseDic){
         if (success)
             success(nil);
@@ -1337,29 +1319,18 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    //Track Number should be trackIndex+1
+    // our index is zero-based, but in DLNA, track numbers start at 1, so
+    // increase by one
+    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld", (long)(index + 1)];
+    NSString *seekXML = [self commandXMLForCommandName:@"Seek"
+                                        andWriterBlock:^(XMLWriter *writer) {
+                                            [writer writeElement:@"Unit" withContents:@"TRACK_NR"];
+                                            [writer writeElement:@"Target" withContents:trackNumberInString];
+                                        }];
+    NSDictionary *seekPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
+                                  kDataFieldName : seekXML};
     
-    NSString *trackNumberInString = [NSString stringWithFormat:@"%ld",(long)index+1];
-    
-    NSString *commandXML = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                            "<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-                            "<s:Body>"
-                            "<u:Seek xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
-                            "<InstanceID>0</InstanceID>"
-                            "<Unit>TRACK_NR</Unit>"
-                            "<Target>%@</Target>"
-                            "</u:Seek>"
-                            "</s:Body>"
-                            "</s:Envelope>",
-                            trackNumberInString
-                            ];
-    
-    NSDictionary *commandPayload = @{
-                                     kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
-                                     kDataFieldName : commandXML
-                                     };
-    
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self target:_avTransportControlURL payload:commandPayload];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:seekPayload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
