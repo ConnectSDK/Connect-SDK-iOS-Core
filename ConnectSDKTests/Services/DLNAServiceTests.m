@@ -684,6 +684,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
         NSDictionary *envelope = [dict objectForKeyEndingWithString:@":Envelope"];
         XCTAssertNotNil(envelope, @"Envelope tag must be present");
         XCTAssertEqualObjects(envelope[@"xmlns:u"], namespace, @"Namespace is incorrect");
+        XCTAssertEqualObjects(envelope[@"s:encodingStyle"], @"http://schemas.xmlsoap.org/soap/encoding/");
         NSDictionary *body = [envelope objectForKeyEndingWithString:@":Body"];
         XCTAssertNotNil(body, @"Body tag must be present");
         NSDictionary *request = [body objectForKeyEndingWithString:[@":" stringByAppendingString:commandName]];

@@ -242,6 +242,7 @@ static const NSInteger kValueNotFound = -1;
     [writer setPrefix:@"u" namespaceURI:namespace];
 
     [writer writeElement:@"Envelope" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
+        [writer writeAttribute:@"s:encodingStyle" value:@"http://schemas.xmlsoap.org/soap/encoding/"];
         [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
             [writer writeElement:commandName withNamespace:namespace andContentsBlock:^(XMLWriter *writer) {
                 [writer writeElement:@"InstanceID" withContents:@"0"];
