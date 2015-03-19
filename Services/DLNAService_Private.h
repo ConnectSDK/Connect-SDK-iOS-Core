@@ -20,6 +20,8 @@
 
 #import "DLNAService.h"
 
+extern NSString *const kDataFieldName;
+
 @interface DLNAService ()
 
 @property (nonatomic, strong) id<ServiceCommandDelegate> serviceCommandDelegate;

@@ -31,21 +31,23 @@ NSString *const kCTXMLReaderAttributePrefix = @"@";
 
 + (NSDictionary *)dictionaryForXMLData:(NSData *)data error:(NSError **)error
 {
-    CTXMLReader *reader = [[CTXMLReader alloc] initWithError:error];
-    NSDictionary *rootDictionary = [reader objectWithData:data options:0];
-    return rootDictionary;
+    return [[self class] dictionaryForXMLData:data options:0 error:error];
 }
 
 + (NSDictionary *)dictionaryForXMLString:(NSString *)string error:(NSError **)error
 {
     NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    return [CTXMLReader dictionaryForXMLData:data error:error];
+    return [CTXMLReader dictionaryForXMLData:data options:0 error:error];
 }
 
 + (NSDictionary *)dictionaryForXMLData:(NSData *)data options:(CTXMLReaderOptions)options error:(NSError **)error
 {
     CTXMLReader *reader = [[CTXMLReader alloc] initWithError:error];
     NSDictionary *rootDictionary = [reader objectWithData:data options:options];
+    if (!rootDictionary && error)
+    {
+        *error = reader.errorPointer;
+    }
     return rootDictionary;
 }
 
@@ -63,7 +65,7 @@ NSString *const kCTXMLReaderAttributePrefix = @"@";
     self = [super init];
     if (self)
     {
-        self.errorPointer = *error;
+        self.errorPointer = (error ? *error : nil);
     }
     return self;
 }
