@@ -26,7 +26,10 @@
 + (NSString *) urlEncode:(NSString *)input;
 + (NSString *) urlDecode:(NSString *)input;
 + (NSString *) escapedUnicodeForString:(NSString *)input;
-+ (NSString *) entityEncode:(NSString *)input;
-+ (NSString *) entityDecode:(NSString *)input;
+
++ (NSString *) entityEncode:(NSString *)input
+__deprecated_msg("use proper XML libraries instead");
++ (NSString *) entityDecode:(NSString *)input
+__deprecated_msg("use proper XML libraries instead");
 
 @end

@@ -787,6 +787,7 @@ static const NSInteger kValueNotFound = -1;
     
     NSError *xmlError;
     NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metaDataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
+    // FIXME: check for XML errors
     
     NSMutableDictionary *mediaMetaData = [NSMutableDictionary dictionary];
     

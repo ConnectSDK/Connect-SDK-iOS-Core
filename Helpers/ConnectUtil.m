@@ -100,6 +100,8 @@
     return retString;
 }
 
+// TODO: remove this method as it's harmful and we should be using proper XML
+// reader&writer instead
 + (NSString *) entityEncode:(NSString *)input
 {
     NSString *output = [[[[input stringByReplacingOccurrencesOfString: @"&" withString: @"&amp;"]
