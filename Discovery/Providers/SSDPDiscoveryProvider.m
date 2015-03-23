@@ -544,7 +544,13 @@ containingRequiredServices:requiredServices];
     else if ([serviceList isKindOfClass:[NSDictionary class]])
         [list addObject:serviceList];
 
-    NSArray *devices = device[@"deviceList"][@"device"];
+    NSArray *devices = nil;
+    id devicesObject = device[@"deviceList"][@"device"];
+    if ([devicesObject isKindOfClass:[NSArray class]]) {
+        devices = devicesObject;
+    } else if ([devicesObject isKindOfClass:[NSDictionary class]]) {
+        devices = [NSArray arrayWithObject:devicesObject];
+    }
 
     if (devices)
     {

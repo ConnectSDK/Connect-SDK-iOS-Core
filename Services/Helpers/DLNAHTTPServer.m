@@ -178,20 +178,14 @@
         return;
     }
 
-    NSString *eventXMLString = [ConnectUtil entityDecode:eventXMLStringEncoded];
-
     NSError *eventXMLParseError;
-    NSDictionary *eventXML = [CTXMLReader dictionaryForXMLString:eventXMLString error:&eventXMLParseError];
+    NSDictionary *eventXML = [CTXMLReader dictionaryForXMLString:eventXMLStringEncoded
+                                                           error:&eventXMLParseError];
 
-    if (eventXMLParseError || !eventXML)
+    if (eventXMLParseError)
     {
-        eventXML = [CTXMLReader dictionaryForXMLString:eventXMLStringEncoded error:&eventXMLParseError];
-
-        if (eventXMLParseError || !eventXML)
-        {
-            DLog(@"Could not parse event into usable format, ignoring...");
-            return;
-        }
+        DLog(@"Could not parse event into usable format, ignoring… (%@)", eventXMLParseError);
+        return;
     }
 
     [self handleEvent:eventXML forSubscriptions:serviceSubscriptions];

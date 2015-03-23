@@ -1,9 +1,9 @@
 //
-//  ConnectUtil.h
-//  Connect SDK
+//  NSInvocation+ObjectGetter.m
+//  ConnectSDK
 //
-//  Created by Jeremy White on 3/6/14.
-//  Copyright (c) 2014 LG Electronics.
+//  Created by Eugene Nikolskyi on 2/23/15.
+//  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,18 +18,16 @@
 //  limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "NSInvocation+ObjectGetter.h"
 
+@implementation NSInvocation (ObjectGetter)
 
-@interface ConnectUtil : NSObject
-
-+ (NSString *) urlEncode:(NSString *)input;
-+ (NSString *) urlDecode:(NSString *)input;
-+ (NSString *) escapedUnicodeForString:(NSString *)input;
-
-+ (NSString *) entityEncode:(NSString *)input
-__deprecated_msg("use proper XML libraries instead");
-+ (NSString *) entityDecode:(NSString *)input
-__deprecated_msg("use proper XML libraries instead");
+- (id)objectArgumentAtIndex:(NSInteger)idx {
+    __unsafe_unretained id tmp;
+    // the first two arguments are `self` and `_cmd`
+    [self getArgument:&tmp atIndex:(idx + 2)];
+    id object = tmp;
+    return object;
+}
 
 @end

@@ -1,8 +1,8 @@
 //
-//  WebOSTVServiceSocketClient_Private.h
+//  XMLWriter+ConvenienceMethods.h
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 2/6/15.
+//  Created by Eugene Nikolskyi on 3/16/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,23 @@
 //  limitations under the License.
 //
 
-#import "WebOSTVServiceSocketClient.h"
+#import "XMLWriter.h"
 
-@class LGSRWebSocket;
+@interface XMLWriter (ConvenienceMethods)
 
-@interface WebOSTVServiceSocketClient ()
+- (void)writeElement:(NSString *)elementName withContents:(NSString *)contents;
 
-/// Creates a new websocket instance with the given request.
-- (LGSRWebSocket *)createSocketWithURLRequest:(NSURLRequest *)request;
+- (void)writeElement:(NSString *)elementName
+       withNamespace:(NSString *)namespace
+andContents:(NSString *)contents;
 
-- (NSDictionary *) manifest;
+- (void)writeElement:(NSString *)elementName
+   withContentsBlock:(void (^)(XMLWriter *writer))writerBlock;
+
+- (void)writeElement:(NSString *)elementName
+       withNamespace:(NSString *)namespace
+andContentsBlock:(void (^)(XMLWriter *writer))writerBlock;
+
+- (void)writeAttributes:(NSDictionary *)attributes;
 
 @end

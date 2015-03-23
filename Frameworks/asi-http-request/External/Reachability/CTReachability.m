@@ -411,8 +411,8 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 //         WiFi turned on:   CTReachability Flag Status: -R ------- Reachable.
 // Local   WiFi turned on:   CTReachability Flag Status: -R xxxxxxd Reachable.
 //         WiFi turned on:   CTReachability Flag Status: -R ct----- Connection down. (Non-intuitive, empirically determined answer.)
-const SCNetworkReachabilityFlags kConnectionDown =  kSCNetworkReachabilityFlagsConnectionRequired | 
-												    kSCNetworkReachabilityFlagsTransientConnection;
+const SCNetworkReachabilityFlags kCTConnectionDown =  kSCNetworkReachabilityFlagsConnectionRequired |
+													  kSCNetworkReachabilityFlagsTransientConnection;
 //         WiFi turned on:   CTReachability Flag Status: -R ct-i--- Reachable but it will require user intervention (e.g. enter a WiFi password).
 //         WiFi turned on:   CTReachability Flag Status: -R -t----- Reachable via VPN.
 //
@@ -447,7 +447,7 @@ const SCNetworkReachabilityFlags kConnectionDown =  kSCNetworkReachabilityFlagsC
 		flags &= ~(uint32_t)kSCNetworkReachabilityFlagsIsLocalAddress; // kCTInternetConnection is local.
 		
 		// CTReachability Flag Status: -R ct---xx Connection down.
-		if (flags == kConnectionDown) { return kCTNotReachable; }
+		if (flags == kCTConnectionDown) { return kCTNotReachable; }
 		
 		// CTReachability Flag Status: -R -t---xx Reachable. WiFi + VPN(is up) (Thank you Ling Wang)
 		if (flags & kSCNetworkReachabilityFlagsTransientConnection)  { return kCTReachableViaWiFi; }

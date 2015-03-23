@@ -1,9 +1,9 @@
 //
-//  ConnectUtil.h
-//  Connect SDK
+//  NSString+Common.h
+//  ConnectSDK
 //
-//  Created by Jeremy White on 3/6/14.
-//  Copyright (c) 2014 LG Electronics.
+//  Created by Eugene Nikolskyi on 3/16/15.
+//  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,16 +20,9 @@
 
 #import <Foundation/Foundation.h>
 
+@interface NSString (Common)
 
-@interface ConnectUtil : NSObject
-
-+ (NSString *) urlEncode:(NSString *)input;
-+ (NSString *) urlDecode:(NSString *)input;
-+ (NSString *) escapedUnicodeForString:(NSString *)input;
-
-+ (NSString *) entityEncode:(NSString *)input
-__deprecated_msg("use proper XML libraries instead");
-+ (NSString *) entityDecode:(NSString *)input
-__deprecated_msg("use proper XML libraries instead");
+/// Returns itself if not `nil`, or an empty string otherwise.
+- (NSString *)orEmpty;
 
 @end
