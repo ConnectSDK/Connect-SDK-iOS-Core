@@ -18,12 +18,9 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 
 #import <arpa/inet.h>
 
-#import <OCMock/OCMock.h>
 
 #import "ZeroConfDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"

@@ -18,8 +18,6 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 #import "NSDictionary+KeyPredicateSearch.h"
 
 /// Tests for the @c NSDictionary+KeyPredicateSearch category.
