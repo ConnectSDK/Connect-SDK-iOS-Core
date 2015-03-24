@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "NetcastTVService.h"
+#import "NetcastTVService_Private.h"
 #import "ConnectError.h"
 #import "CTXMLReader.h"
 #import "GCDWebServer.h"
@@ -27,6 +27,8 @@
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
+
+#import "XMLWriter+ConvenienceMethods.h"
 
 #define kSmartShareName @"SmartShare™"
 
@@ -261,6 +263,13 @@ NSString *lgeUDAPRequestURI[8] = {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 
+}
+
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
 }
 
 #pragma mark - Connection & Pairing
@@ -2188,16 +2197,23 @@ NSString *lgeUDAPRequestURI[8] = {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_EVENT_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
 
-    NSString *payload = [NSString stringWithFormat:@
-                                                           "<envelope>"
-                                                               "<api type=\"event\">"
-                                                                   "<name>TextEdited</name>"
-                                                                   "<state>%@</state>"
-                                                                   "<value>%@</value>"
-                                                               "</api>"
-                                                           "</envelope>", state, [ConnectUtil entityEncode:text]];
+    NSString *payload = ({
+        XMLWriter *writer = [XMLWriter new];
 
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:payload];
+        [writer writeElement:@"envelope" withContentsBlock:^(XMLWriter *writer) {
+            [writer writeElement:@"api" withContentsBlock:^(XMLWriter *writer) {
+                [writer writeAttribute:@"type" value:@"event"];
+
+                [writer writeElement:@"name" withContents:@"TextEdited"];
+                [writer writeElement:@"state" withContents:state];
+                [writer writeElement:@"value" withContents:text];
+            }];
+        }];
+
+        [writer toString];
+    });
+
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:payload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
