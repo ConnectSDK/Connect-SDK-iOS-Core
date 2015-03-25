@@ -23,6 +23,7 @@
 #import "ServiceDescription.h"
 #import "CTXMLReader.h"
 #import "DeviceService.h"
+#import "CommonMacros.h"
 
 #import <sys/utsname.h>
 
@@ -130,10 +131,10 @@ static double searchAttemptsBeforeKill = 6.0;
 - (void)addDeviceFilter:(NSDictionary *)parameters
 {
     NSDictionary *ssdpInfo = [parameters objectForKey:@"ssdp"];
-    NSAssert(ssdpInfo != nil, @"This device filter does not have ssdp discovery info");
+    _assert_state(ssdpInfo != nil, @"This device filter does not have ssdp discovery info");
     
     NSString *searchFilter = [ssdpInfo objectForKey:@"filter"];
-    NSAssert(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
+    _assert_state(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
 
     _serviceFilters = [_serviceFilters arrayByAddingObject:parameters];
 }

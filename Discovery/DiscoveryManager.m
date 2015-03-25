@@ -520,7 +520,8 @@
     {
         [device removeServiceWithId:description.serviceId];
 
-        DLog(@"Removed service from device at address %@. Device has %d services left", description.address, device.services.count);
+        DLog(@"Removed service from device at address %@. Device has %lu services left",
+             description.address, (unsigned long)device.services.count);
 
         if (![device hasServices])
         {
