@@ -135,8 +135,8 @@
     NSURL *url = [[NSURL alloc] initWithString:socketPath];
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:url];
 
-    if (self.service.serviceConfig.SSLCertificates)
-        [urlRequest setLGSR_SSLPinnedCertificates:self.service.serviceConfig.SSLCertificates];
+    if (self.service.webOSTVServiceConfig.SSLCertificates)
+        [urlRequest setLGSR_SSLPinnedCertificates:self.service.webOSTVServiceConfig.SSLCertificates];
 
     _socket = [self createSocketWithURLRequest:[urlRequest copy]];
     _socket.delegate = self;
@@ -224,8 +224,8 @@
             if (![self.service.serviceConfig.UUID isEqualToString:[response objectForKey:@"deviceUUID"]])
             {
                 //Imposter UUID, kill it, kill it with fire
-                self.service.serviceConfig.clientKey = nil;
-                self.service.serviceConfig.SSLCertificates = nil;
+                self.service.webOSTVServiceConfig.clientKey = nil;
+                self.service.webOSTVServiceConfig.SSLCertificates = nil;
                 self.service.serviceConfig.UUID = nil;
                 self.service.serviceDescription.address = nil;
                 self.service.serviceDescription.UUID = nil;
@@ -367,8 +367,8 @@
     {
         intError = [ConnectError generateErrorWithCode:ConnectStatusCodeCertificateError andDetails:nil];
 
-        self.service.serviceConfig.SSLCertificates = nil;
-        self.service.serviceConfig.clientKey = nil;
+        self.service.webOSTVServiceConfig.SSLCertificates = nil;
+        self.service.webOSTVServiceConfig.clientKey = nil;
 
         shouldRetry = YES;
     } else
@@ -403,7 +403,7 @@
 
 - (void)webSocket:(LGSRWebSocket *)webSocket didGetCertificates:(NSArray *)certs
 {
-    self.service.serviceConfig.SSLCertificates = certs;
+    self.service.webOSTVServiceConfig.SSLCertificates = certs;
 }
 
 - (void)webSocket:(LGSRWebSocket *)webSocket didReceiveMessage:(id)message
@@ -439,7 +439,7 @@
         if ([type isEqualToString:@"registered"])
         {
             NSString *client = [payload objectForKey:@"client-key"];
-            self.service.serviceConfig.clientKey = client;
+            self.service.webOSTVServiceConfig.clientKey = client;
 
             if (self.delegate)
                 [self.delegate socketDidConnect:self];
@@ -556,8 +556,8 @@
         [sendData setObject:@"request" forKey:@"type"];
     } else
     {
-        if (self.service.serviceConfig.clientKey)
-            [payloadData setObject:self.service.serviceConfig.clientKey forKey:@"client-key"];
+        if (self.service.webOSTVServiceConfig.clientKey)
+            [payloadData setObject:self.service.webOSTVServiceConfig.clientKey forKey:@"client-key"];
 
         [sendData setObject:@"register" forKey:@"type"];
     }

@@ -66,19 +66,37 @@
     return self;
 }
 
+#pragma mark - Getters & Setters
+
+- (WebOSTVServiceConfig *)webOSTVServiceConfig {
+    return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
+            (WebOSTVServiceConfig *)self.serviceConfig :
+            nil);
+}
+
 #pragma mark - Inherited methods
 
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
+    void (^_assert)(const BOOL condition, NSString *msg) = ^(const BOOL condition, NSString *msg) {
+        if (!condition) {
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:msg
+                                         userInfo:nil];
+        }
+    };
+
+    const BOOL oldServiceConfigHasKey = (self.webOSTVServiceConfig.clientKey != nil);
     if ([serviceConfig isKindOfClass:[WebOSTVServiceConfig class]])
     {
-        if (self.serviceConfig.clientKey && !((WebOSTVServiceConfig *) serviceConfig).clientKey)
-            NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        const BOOL newServiceConfigHasKey = (((WebOSTVServiceConfig *)serviceConfig).clientKey != nil);
+        const BOOL wouldLoseKey = oldServiceConfigHasKey && !newServiceConfigHasKey;
+        _assert(!wouldLoseKey, @"Losing important data!");
 
-        [super setServiceConfig:(WebOSTVServiceConfig *) serviceConfig];
+        [super setServiceConfig:serviceConfig];
     } else
     {
-        NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        _assert(!oldServiceConfigHasKey, @"Losing important data!");
 
         [super setServiceConfig:[[WebOSTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }
@@ -214,7 +232,7 @@
 - (BOOL) connected
 {
     if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
-        return self.socket.connected && self.serviceConfig.clientKey != nil;
+        return self.socket.connected && (self.webOSTVServiceConfig.clientKey != nil);
     else
         return self.socket.connected;
 }
@@ -362,9 +380,9 @@
 {
     _permissions = permissions;
 
-    if (self.serviceConfig.clientKey)
+    if (self.webOSTVServiceConfig.clientKey)
     {
-        self.serviceConfig.clientKey = nil;
+        self.webOSTVServiceConfig.clientKey = nil;
 
         if (self.connected)
         {
