@@ -27,6 +27,7 @@
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
+#import "CommonMacros.h"
 
 #import "XMLWriter+ConvenienceMethods.h"
 
@@ -69,7 +70,6 @@ typedef enum {
 
 @implementation NetcastTVService
 
-@synthesize serviceConfig = _serviceConfig;
 @synthesize dialService = _dialService;
 @synthesize dlnaService = _dlnaService;
 
@@ -103,7 +103,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (instancetype) initWithServiceConfig:(ServiceConfig *)serviceConfig
 {
-    self = [super initWithServiceConfig:serviceConfig];
+    self = [super init];
 
     if (self)
     {
@@ -113,19 +113,27 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
+- (NetcastTVServiceConfig *)netcastTVServiceConfig {
+    return ([self.serviceConfig isKindOfClass:[NetcastTVServiceConfig class]] ?
+            (NetcastTVServiceConfig *)self.serviceConfig :
+            nil);
+}
+
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
+    const BOOL oldServiceConfigHasCode = (self.netcastTVServiceConfig.pairingCode != nil);
     if ([serviceConfig isKindOfClass:[NetcastTVServiceConfig class]])
     {
-        if (self.serviceConfig.pairingCode && !((NetcastTVServiceConfig *)serviceConfig).pairingCode)
-            NSAssert(!self.serviceConfig.pairingCode, @"Replacing important data!");
+        const BOOL newServiceConfigHasCode = (((NetcastTVServiceConfig *)serviceConfig).pairingCode != nil);
+        const BOOL wouldLoseCode = oldServiceConfigHasCode && !newServiceConfigHasCode;
+        _assert_state(!wouldLoseCode, @"Replacing important data!");
 
-        _serviceConfig = (NetcastTVServiceConfig *) serviceConfig;
+        [super setServiceConfig:serviceConfig];
     } else
     {
-        NSAssert(!self.serviceConfig.pairingCode, @"Replacing important data!");
+        _assert_state(!oldServiceConfigHasCode, @"Replacing important data!");
 
-        _serviceConfig = [[NetcastTVServiceConfig alloc] initWithServiceConfig:serviceConfig];
+        [super setServiceConfig:[[NetcastTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }
 }
 
@@ -284,8 +292,8 @@ NSString *lgeUDAPRequestURI[8] = {
     if (self.connected)
         return;
 
-    if (self.serviceConfig.pairingCode)
-        [self pairWithData:self.serviceConfig.pairingCode];
+    if (self.netcastTVServiceConfig.pairingCode)
+        [self pairWithData:self.netcastTVServiceConfig.pairingCode];
     else
     {
         if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
@@ -532,7 +540,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
     ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:payload];
     command.callbackComplete = ^(NSDictionary *responseDic){
-        self.serviceConfig.pairingCode = pairingCode;
+        self.netcastTVServiceConfig.pairingCode = pairingCode;
 
         if ([DeviceService shouldDisconnectOnBackground])
         {

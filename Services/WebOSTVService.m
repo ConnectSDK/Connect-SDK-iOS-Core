@@ -25,6 +25,7 @@
 #import "WebOSWebAppSession.h"
 #import "WebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
+#import "CommonMacros.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
@@ -78,25 +79,17 @@
 
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
-    void (^_assert)(const BOOL condition, NSString *msg) = ^(const BOOL condition, NSString *msg) {
-        if (!condition) {
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:msg
-                                         userInfo:nil];
-        }
-    };
-
     const BOOL oldServiceConfigHasKey = (self.webOSTVServiceConfig.clientKey != nil);
     if ([serviceConfig isKindOfClass:[WebOSTVServiceConfig class]])
     {
         const BOOL newServiceConfigHasKey = (((WebOSTVServiceConfig *)serviceConfig).clientKey != nil);
         const BOOL wouldLoseKey = oldServiceConfigHasKey && !newServiceConfigHasKey;
-        _assert(!wouldLoseKey, @"Losing important data!");
+        _assert_state(!wouldLoseKey, @"Losing important data!");
 
         [super setServiceConfig:serviceConfig];
     } else
     {
-        _assert(!oldServiceConfigHasKey, @"Losing important data!");
+        _assert_state(!oldServiceConfigHasKey, @"Losing important data!");
 
         [super setServiceConfig:[[WebOSTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }

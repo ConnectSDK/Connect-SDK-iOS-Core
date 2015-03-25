@@ -23,6 +23,8 @@
 
 #import "NSInvocation+ObjectGetter.h"
 
+static NSString *const kClientCode = @"nop";
+
 /// Tests for the @c NetcastTVService class.
 @interface NetcastTVServiceTests : XCTestCase
 
@@ -98,6 +100,109 @@
                                      XCTAssertNil(error);
                                      OCMVerifyAll(self.serviceCommandDelegateMock);
                                  }];
+}
+
+/* The setter tests below test different cases of setting various service
+ * config objects and whether those throw an exception when some important data
+ * from @c NetcastTVServiceConfig would be lost.
+ */
+
+#pragma mark - ServiceConfig Setter Tests (Base <=> Netcast)
+
+- (void)testSwitching_Base_To_NetcastWithoutCode_ServiceConfigShouldNotThrowException {
+    ServiceConfig *config = [ServiceConfig new];
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:config];
+
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = netcastConfig,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_Base_To_NetcastWithCode_ServiceConfigShouldNotThrowException {
+    ServiceConfig *config = [ServiceConfig new];
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:config];
+
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    netcastConfig.pairingCode = kClientCode;
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = netcastConfig,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_NetcastWithoutCode_To_Base_ServiceConfigShouldNotThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    ServiceConfig *config = [ServiceConfig new];
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = config,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_NetcastWithCode_To_Base_ServiceConfigShouldThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    netcastConfig.pairingCode = kClientCode;
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    ServiceConfig *config = [ServiceConfig new];
+    XCTAssertThrowsSpecificNamed(service.serviceConfig = config,
+                                 NSException,
+                                 NSInternalInconsistencyException,
+                                 @"Should throw exception because the code will disappear");
+}
+
+#pragma mark - ServiceConfig Setter Tests (Netcast <=> Netcast)
+
+- (void)testSwitching_NetcastWithoutCode_To_NetcastWithoutCode_ServiceConfigShouldNotThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    NetcastTVServiceConfig *netcastConfig2 = [NetcastTVServiceConfig new];
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = netcastConfig2,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_NetcastWithoutCode_To_NetcastWithCode_ServiceConfigShouldNotThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    NetcastTVServiceConfig *netcastConfig2 = [NetcastTVServiceConfig new];
+    netcastConfig2.pairingCode = kClientCode;
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = netcastConfig2,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_NetcastWithCode_To_NetcastWithCode_ServiceConfigShouldNotThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    netcastConfig.pairingCode = kClientCode;
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    NetcastTVServiceConfig *netcastConfig2 = [NetcastTVServiceConfig new];
+    netcastConfig2.pairingCode = @"anotherCode";
+    XCTAssertNoThrowSpecificNamed(service.serviceConfig = netcastConfig2,
+                                  NSException,
+                                  NSInternalInconsistencyException,
+                                  @"Should not throw exception");
+}
+
+- (void)testSwitching_NetcastWithCode_To_NetcastWithoutCode_ServiceConfigShouldThrowException {
+    NetcastTVServiceConfig *netcastConfig = [NetcastTVServiceConfig new];
+    netcastConfig.pairingCode = kClientCode;
+    NetcastTVService *service = [[NetcastTVService alloc] initWithServiceConfig:netcastConfig];
+
+    NetcastTVServiceConfig *netcastConfig2 = [NetcastTVServiceConfig new];
+    XCTAssertThrowsSpecificNamed(service.serviceConfig = netcastConfig2,
+                                 NSException,
+                                 NSInternalInconsistencyException,
+                                 @"Should throw exception because the code will disappear");
 }
 
 @end

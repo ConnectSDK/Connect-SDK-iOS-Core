@@ -38,9 +38,9 @@
 @interface NetcastTVService : DeviceService <Launcher, MediaPlayer, MediaControl, VolumeControl, TVControl, KeyControl, MouseControl, PowerControl, ExternalInputControl, TextInputControl>
 
 // @cond INTERNAL
-@property (nonatomic, strong) NetcastTVServiceConfig *serviceConfig;
-
-- (void) setServiceConfig:(ServiceConfig *)serviceConfig;
+/// The base class' @c serviceConfig property downcast to
+/// @c NetcastTVServiceConfig if possible, or nil.
+@property (nonatomic, strong) NetcastTVServiceConfig *netcastTVServiceConfig;
 
 // these objects are maintained to provide certain functionality without requiring pairing
 @property (nonatomic, strong, readonly) DIALService *dialService;
