@@ -624,9 +624,8 @@ NSString *lgeUDAPRequestURI[8] = {
                 
                 if (dataString)
                 {
-                    NSError *commandError;
-                    [self parseCommandResponse:response data:dataString error:&commandError];
-                    
+                    NSError *commandError = [self parseCommandResponse:response
+                                                                  data:dataString];
                     if (commandError)
                     {
                         if (command.callbackError)
@@ -662,7 +661,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 #pragma mark - Helper methods
 
-- (void)parseCommandResponse:(NSURLResponse *)response data:(NSString *)responseData error:(NSError **)error
+- (NSError *)parseCommandResponse:(NSURLResponse *)response data:(NSString *)responseData
 {
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     NSString *errorMessage;
@@ -685,14 +684,18 @@ NSString *lgeUDAPRequestURI[8] = {
             errorMessage = @"The command execution has failed.";
             break;
 
-        default:break;
+        default:
+            break;
     }
 
+    NSError *error;
     if (errorMessage)
     {
-        *error = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage];
-        return;
+        error = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError
+                                         andDetails:errorMessage];
     }
+
+    return error;
 }
 
 - (NSOperationQueue *)commandQueue
