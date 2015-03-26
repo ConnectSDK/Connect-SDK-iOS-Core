@@ -1257,12 +1257,6 @@ NSString *lgeUDAPRequestURI[8] = {
 
 -(void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     if (self.dlnaService)
     {
         [self.dlnaService.mediaPlayer displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *launchObject)
@@ -1307,12 +1301,6 @@ NSString *lgeUDAPRequestURI[8] = {
 
 -(void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     if (self.dlnaService)
     {
         [self.dlnaService.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *launchObject)

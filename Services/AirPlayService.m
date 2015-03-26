@@ -201,12 +201,6 @@ static AirPlayServiceMode airPlayServiceMode;
 
 - (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     [self.mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
 }
 
@@ -234,11 +228,6 @@ static AirPlayServiceMode airPlayServiceMode;
 
 - (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
     [self.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
 }
 
