@@ -25,6 +25,7 @@
 #import "WebOSWebAppSession.h"
 #import "WebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
+#import "CommonMacros.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
@@ -66,19 +67,29 @@
     return self;
 }
 
+#pragma mark - Getters & Setters
+
+- (WebOSTVServiceConfig *)webOSTVServiceConfig {
+    return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
+            (WebOSTVServiceConfig *)self.serviceConfig :
+            nil);
+}
+
 #pragma mark - Inherited methods
 
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
+    const BOOL oldServiceConfigHasKey = (self.webOSTVServiceConfig.clientKey != nil);
     if ([serviceConfig isKindOfClass:[WebOSTVServiceConfig class]])
     {
-        if (self.serviceConfig.clientKey && !((WebOSTVServiceConfig *) serviceConfig).clientKey)
-            NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        const BOOL newServiceConfigHasKey = (((WebOSTVServiceConfig *)serviceConfig).clientKey != nil);
+        const BOOL wouldLoseKey = oldServiceConfigHasKey && !newServiceConfigHasKey;
+        _assert_state(!wouldLoseKey, @"Losing important data!");
 
-        [super setServiceConfig:(WebOSTVServiceConfig *) serviceConfig];
+        [super setServiceConfig:serviceConfig];
     } else
     {
-        NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        _assert_state(!oldServiceConfigHasKey, @"Losing important data!");
 
         [super setServiceConfig:[[WebOSTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }
@@ -214,7 +225,7 @@
 - (BOOL) connected
 {
     if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
-        return self.socket.connected && self.serviceConfig.clientKey != nil;
+        return self.socket.connected && (self.webOSTVServiceConfig.clientKey != nil);
     else
         return self.socket.connected;
 }
@@ -362,9 +373,9 @@
 {
     _permissions = permissions;
 
-    if (self.serviceConfig.clientKey)
+    if (self.webOSTVServiceConfig.clientKey)
     {
-        self.serviceConfig.clientKey = nil;
+        self.webOSTVServiceConfig.clientKey = nil;
 
         if (self.connected)
         {

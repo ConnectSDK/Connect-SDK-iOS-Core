@@ -275,14 +275,6 @@
 
 - (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
-    NSURL *imageURL = mediaInfo.url;
-    
     _assetId = [[CTGuid randomGuid] stringValue];
     
     NSString *commandPathComponent = @"photo";
@@ -306,6 +298,7 @@
     
     dispatch_async(self.imageProcessingQueue, ^{
         NSError *downloadError;
+        NSURL *imageURL = mediaInfo.url;
         NSData *downloadedImageData = [NSData dataWithContentsOfURL:imageURL options:0 error:&downloadError];
         
         if (!downloadedImageData || downloadError)
@@ -378,11 +371,6 @@
 
 - (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
     _assetId = [[CTGuid randomGuid] stringValue];
     
     NSMutableDictionary *plist = [NSMutableDictionary new];

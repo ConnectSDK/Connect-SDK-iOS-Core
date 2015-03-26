@@ -20,6 +20,7 @@
 
 #import "ZeroConfDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
+#import "CommonMacros.h"
 #include <arpa/inet.h>
 
 
@@ -95,10 +96,10 @@
         _serviceFilters = [NSArray new];
 
     NSDictionary *ssdpInfo = [parameters objectForKey:@"zeroconf"];
-    NSAssert(ssdpInfo != nil, @"This device filter does not have zeroconf discovery info");
+    _assert_state(ssdpInfo != nil, @"This device filter does not have zeroconf discovery info");
 
     NSString *searchFilter = [ssdpInfo objectForKey:@"filter"];
-    NSAssert(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
+    _assert_state(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
 
     _serviceFilters = [_serviceFilters arrayByAddingObject:parameters];
 }

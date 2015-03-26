@@ -18,9 +18,6 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
 #import <OHHTTPStubs/OHHTTPStubs.h>
 #import "NSInvocation+ObjectGetter.h"
 
@@ -34,6 +31,19 @@ static NSString *const kPlatformSonos = @"sonos";
 
 static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
 static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
+
+/// Executes the given block wrapping it in pragmas ignoring the capturing
+/// @c self warning, for a rare case when a compiler thinks a method is a setter,
+/// but it is not (e.g., -[DLNAService setVolume:success:failure:]).
+/// @see http://stackoverflow.com/questions/15535899/blocks-retain-cycle-from-naming-convention
+//
+// http://stackoverflow.com/questions/13826722/how-do-i-define-a-macro-with-multiple-pragmas-for-clang
+#define silence_retain_cycle_warning(block) ({\
+    _Pragma("clang diagnostic push"); \
+    _Pragma("clang diagnostic ignored \"-Warc-retain-cycles\""); \
+    block(); \
+    _Pragma("clang diagnostic pop"); \
+})
 
 
 /// Tests for the @c DLNAService class.
@@ -249,7 +259,9 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            actionBlock:^{
                                [self.service setVolume:0.99
                                                success:^(id responseObject) {
-                                                   XCTFail(@"success?");
+                                                   silence_retain_cycle_warning(^() {
+                                                       XCTFail(@"success?");
+                                                   });
                                                } failure:^(NSError *error) {
                                                    XCTFail(@"fail? %@", error);
                                                }];
@@ -286,7 +298,9 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            actionBlock:^{
                                [self.service setMute:YES
                                              success:^(id responseObject) {
-                                                 XCTFail(@"success?");
+                                                 silence_retain_cycle_warning(^() {
+                                                     XCTFail(@"success?");
+                                                 });
                                              } failure:^(NSError *error) {
                                                  XCTFail(@"fail? %@", error);
                                              }];

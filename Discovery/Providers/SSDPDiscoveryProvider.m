@@ -23,6 +23,7 @@
 #import "ServiceDescription.h"
 #import "CTXMLReader.h"
 #import "DeviceService.h"
+#import "CommonMacros.h"
 
 #import <sys/utsname.h>
 
@@ -130,10 +131,10 @@ static double searchAttemptsBeforeKill = 6.0;
 - (void)addDeviceFilter:(NSDictionary *)parameters
 {
     NSDictionary *ssdpInfo = [parameters objectForKey:@"ssdp"];
-    NSAssert(ssdpInfo != nil, @"This device filter does not have ssdp discovery info");
+    _assert_state(ssdpInfo != nil, @"This device filter does not have ssdp discovery info");
     
     NSString *searchFilter = [ssdpInfo objectForKey:@"filter"];
-    NSAssert(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
+    _assert_state(searchFilter != nil, @"The ssdp info for this device filter has no search filter parameter");
 
     _serviceFilters = [_serviceFilters arrayByAddingObject:parameters];
 }
@@ -272,13 +273,14 @@ static double searchAttemptsBeforeKill = 6.0;
         // 2) NOTIFY - for devices notification: advertisements ot bye-bye
         // 3) * with CODE 200 - answer for M-SEARCH request
         
-		if (theCode == 200 && ![theRequestMethod isEqualToString:@"M-SEARCH"]
-			&& [self isSearchingForFilter:theType])
-		{
-            // Obtain a unique service id ID - USN.
-			NSString *theUSSNKey = theHeaderDictionary[@"USN"];
-            if (theUSSNKey == nil || theUSSNKey.length == 0) return;
-            
+        // Obtain a unique service id ID - USN.
+        NSString *theUSSNKey = theHeaderDictionary[@"USN"];
+
+        if ((theCode == 200) &&
+            ![theRequestMethod isEqualToString:@"M-SEARCH"] &&
+            [self isSearchingForFilter:theType] &&
+            (theUSSNKey.length > 0))
+        {
             //Extract the UUID
             NSRegularExpression *reg = [[NSRegularExpression alloc] initWithPattern:@"(?:uuid:).*(?:::)" options:0 error:nil];
             NSString *theUUID;
