@@ -272,14 +272,25 @@
 
 -(void) registerWithTv
 {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)])
-        [self.delegate socketWillRegister:self];
-
     ServiceCommand *reg = [[ServiceCommand alloc] init];
     reg.delegate = self;
 
     reg.callbackComplete = ^(NSDictionary* response)
     {
+        
+        DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+        if([[response valueForKey:@"pairingType"] isEqualToString:@"PROMPT"])
+        {
+            pairingType = DeviceServicePairingTypeFirstScreen;
+        }else
+        if([[response valueForKey:@"pairingType"] isEqualToString:@"PIN"])
+        {
+            pairingType = DeviceServicePairingTypePinCode;
+        }
+        
+        if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && pairingType != DeviceServicePairingTypeNone)
+            [self.delegate socketWillRegister:self];
+        
         if ([DeviceService shouldDisconnectOnBackground])
         {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -315,7 +326,8 @@
     [_activeConnections setObject:reg forKey:[self connectionKeyForMessageId:@(dataId)]];
 
     NSDictionary *registerInfo = @{
-            @"manifest" : self.manifest
+            @"manifest" : self.manifest,
+            @"pairingType" : [self getPairingTypeText]
     };
 
     NSString *sendString = [self encodeData:registerInfo andAddress:nil withId:dataId];
@@ -326,6 +338,19 @@
 
     if ([_commandQueue containsObject:sendString])
         [_commandQueue removeObject:sendString];
+}
+
+-(NSString *)getPairingTypeText{
+    NSString *pairingTypeString = @"";
+    
+    if(self.service.pairingType == DeviceServicePairingTypeFirstScreen){
+        pairingTypeString = @"PROMPT";
+    }else
+        if(self.service.pairingType == DeviceServicePairingTypePinCode)
+        {
+            pairingTypeString = @"PIN";
+        }
+    return pairingTypeString;
 }
 
 #pragma mark - LGSRWebSocketDelegate

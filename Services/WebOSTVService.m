@@ -30,6 +30,8 @@
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
+static DeviceServicePairingType webOSTVPairingType;
+
 @interface WebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate>
 {
     NSArray *_permissions;
@@ -68,6 +70,14 @@
 }
 
 #pragma mark - Getters & Setters
+
++ (void) setPairingType:(DeviceServicePairingType)pairingType {
+    webOSTVPairingType = pairingType;
+}
+
+- (DeviceServicePairingType)pairingType{
+    return webOSTVPairingType;
+}
 
 - (WebOSTVServiceConfig *)webOSTVServiceConfig {
     return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
@@ -275,14 +285,23 @@
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
+    if(webOSTVPairingType == DeviceServicePairingTypePinCode){
+        _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
+        _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request" value:@"Please enter the pairing code displayed on the device" table:@"ConnectSDK"];
+    }
     dispatch_on_main(^{ [_pairingAlert show]; });
 }
 
 -(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if(alertView == _pairingAlert){
-        if (buttonIndex == 0)
+        if (buttonIndex == 0){
             [self disconnect];
+        }else
+            if(webOSTVPairingType == DeviceServicePairingTypePinCode && buttonIndex == 1){
+                NSString *pairingCode = [alertView textFieldAtIndex:0].text;
+                [self sendPairingKey:pairingCode success:nil failure:nil];
+            }
     }
 }
 
@@ -1928,6 +1947,27 @@
                                              
                                          } failure:failure];    
     return subscription;
+}
+
+- (void)sendPairingKey:(NSString *)pairingKey success:(SuccessBlock)success failure:(FailureBlock)failure {
+   
+    NSURL *URL = [NSURL URLWithString:@"ssap://pairing/setPin"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:pairingKey forKey:@"pin"];
+    
+    ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
+    command.callbackComplete = (^(NSDictionary *responseDic)
+                                {
+                                    NSLog(@"Response %@",responseDic);
+                                    if (success) {
+                                        success(responseDic);
+                                    }
+                                    
+                                });
+    command.callbackError = ^(NSError *error){
+                                 NSLog(@"Error %@",error);
+                            };
+    [command send];
 }
 
 - (WebOSWebAppSession *) webAppSessionForLaunchSession:(LaunchSession *)launchSession
