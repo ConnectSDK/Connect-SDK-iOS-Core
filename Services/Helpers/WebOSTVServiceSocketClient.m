@@ -24,6 +24,7 @@
 
 #define kDeviceServicePairingTypeFirstScreen @"PROMPT"
 #define kDeviceServicePairingTypePinCode @"PIN"
+#define kDeviceServicePairingTypeMixed @"COMBINED"
 
 @implementation WebOSTVServiceSocketClient
 {
@@ -345,7 +346,11 @@
         {
             pairingTypeString = kDeviceServicePairingTypePinCode;
         }
-    
+        else
+            if(pairingType == DeviceServicePairingTypeMixed)
+            {
+                pairingTypeString = kDeviceServicePairingTypeMixed;
+            }
     return pairingTypeString;
 }
 
@@ -359,7 +364,11 @@
         {
             pairingType = DeviceServicePairingTypePinCode;
         }
-        
+        else
+            if([pairingString isEqualToString:kDeviceServicePairingTypeMixed])
+            {
+                pairingType = DeviceServicePairingTypeMixed;
+            }
     return pairingType;
 }
 

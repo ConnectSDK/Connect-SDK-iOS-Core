@@ -283,7 +283,7 @@
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
-    if(self.pairingType == DeviceServicePairingTypePinCode){
+    if(self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed){
         _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
         _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
     }
@@ -296,7 +296,7 @@
         if (buttonIndex == 0){
             [self disconnect];
         }else
-            if(self.pairingType == DeviceServicePairingTypePinCode && buttonIndex == 1){
+            if((self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed) && buttonIndex == 1){
                 NSString *pairingCode = [alertView textFieldAtIndex:0].text;
                 [self sendPairingKey:pairingCode success:nil failure:nil];
             }
