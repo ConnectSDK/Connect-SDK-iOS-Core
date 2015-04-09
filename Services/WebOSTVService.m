@@ -30,8 +30,6 @@
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
-static DeviceServicePairingType webOSTVPairingType;
-
 @interface WebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate>
 {
     NSArray *_permissions;
@@ -53,7 +51,7 @@ static DeviceServicePairingType webOSTVPairingType;
 
 @implementation WebOSTVService
 
-@synthesize serviceDescription = _serviceDescription;
+@synthesize serviceDescription = _serviceDescription, pairingType = _pairingType;
 
 #pragma mark - Setup
 
@@ -71,12 +69,12 @@ static DeviceServicePairingType webOSTVPairingType;
 
 #pragma mark - Getters & Setters
 
-+ (void) setPairingType:(DeviceServicePairingType)pairingType {
-    webOSTVPairingType = pairingType;
+- (void) setPairingType:(DeviceServicePairingType)pairingType {
+    _pairingType = pairingType;
 }
 
 - (DeviceServicePairingType)pairingType{
-    return webOSTVPairingType;
+    return _pairingType;
 }
 
 - (WebOSTVServiceConfig *)webOSTVServiceConfig {
@@ -285,9 +283,9 @@ static DeviceServicePairingType webOSTVPairingType;
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
-    if(webOSTVPairingType == DeviceServicePairingTypePinCode){
+    if(self.pairingType == DeviceServicePairingTypePinCode){
         _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-        _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request" value:@"Please enter the pairing code displayed on the device" table:@"ConnectSDK"];
+        _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
     }
     dispatch_on_main(^{ [_pairingAlert show]; });
 }
@@ -298,7 +296,7 @@ static DeviceServicePairingType webOSTVPairingType;
         if (buttonIndex == 0){
             [self disconnect];
         }else
-            if(webOSTVPairingType == DeviceServicePairingTypePinCode && buttonIndex == 1){
+            if(self.pairingType == DeviceServicePairingTypePinCode && buttonIndex == 1){
                 NSString *pairingCode = [alertView textFieldAtIndex:0].text;
                 [self sendPairingKey:pairingCode success:nil failure:nil];
             }
@@ -1958,14 +1956,15 @@ static DeviceServicePairingType webOSTVPairingType;
     ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
     command.callbackComplete = (^(NSDictionary *responseDic)
                                 {
-                                    NSLog(@"Response %@",responseDic);
                                     if (success) {
                                         success(responseDic);
                                     }
                                     
                                 });
     command.callbackError = ^(NSError *error){
-                                 NSLog(@"Error %@",error);
+                                if(failure){
+                                    failure(error);
+                                }
                             };
     [command send];
 }

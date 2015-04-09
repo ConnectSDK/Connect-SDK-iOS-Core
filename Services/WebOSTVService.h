@@ -87,7 +87,6 @@ typedef enum {
 @property (nonatomic, readonly) NSDictionary *webAppSessions;
 // @endcond
 
-+ (void)setPairingType:(DeviceServicePairingType) pairingType;
 #pragma mark - Web app & app to app
 
 // @cond INTERNAL

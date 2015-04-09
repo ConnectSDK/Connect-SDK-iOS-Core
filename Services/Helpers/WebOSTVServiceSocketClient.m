@@ -22,6 +22,8 @@
 #import "WebOSTVService.h"
 #import "ConnectError.h"
 
+#define kDeviceServicePairingTypeFirstScreen @"PROMPT"
+#define kDeviceServicePairingTypePinCode @"PIN"
 
 @implementation WebOSTVServiceSocketClient
 {
@@ -274,22 +276,15 @@
 {
     ServiceCommand *reg = [[ServiceCommand alloc] init];
     reg.delegate = self;
-
     reg.callbackComplete = ^(NSDictionary* response)
     {
-        
-        DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
-        if([[response valueForKey:@"pairingType"] isEqualToString:@"PROMPT"])
-        {
-            pairingType = DeviceServicePairingTypeFirstScreen;
-        }else
-        if([[response valueForKey:@"pairingType"] isEqualToString:@"PIN"])
-        {
-            pairingType = DeviceServicePairingTypePinCode;
+        NSString *pairingString = [response valueForKey:@"pairingType"];
+        if (pairingString) {
+            self.service.pairingType = [self pairingStringToType:pairingString];
+            if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != DeviceServicePairingTypeNone){
+                [self.delegate socketWillRegister:self];
+            }
         }
-        
-        if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && pairingType != DeviceServicePairingTypeNone)
-            [self.delegate socketWillRegister:self];
         
         if ([DeviceService shouldDisconnectOnBackground])
         {
@@ -327,7 +322,7 @@
 
     NSDictionary *registerInfo = @{
             @"manifest" : self.manifest,
-            @"pairingType" : [self getPairingTypeText]
+            @"pairingType" : [self pairingTypeToString:self.service.pairingType]
     };
 
     NSString *sendString = [self encodeData:registerInfo andAddress:nil withId:dataId];
@@ -340,17 +335,32 @@
         [_commandQueue removeObject:sendString];
 }
 
--(NSString *)getPairingTypeText{
+-(NSString *)pairingTypeToString:(DeviceServicePairingType)pairingType{
     NSString *pairingTypeString = @"";
     
-    if(self.service.pairingType == DeviceServicePairingTypeFirstScreen){
-        pairingTypeString = @"PROMPT";
+    if(pairingType == DeviceServicePairingTypeFirstScreen){
+        pairingTypeString = kDeviceServicePairingTypeFirstScreen;
     }else
-        if(self.service.pairingType == DeviceServicePairingTypePinCode)
+        if(pairingType == DeviceServicePairingTypePinCode)
         {
-            pairingTypeString = @"PIN";
+            pairingTypeString = kDeviceServicePairingTypePinCode;
         }
+    
     return pairingTypeString;
+}
+
+-(DeviceServicePairingType)pairingStringToType:(NSString *)pairingString{
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    
+    if([pairingString isEqualToString:kDeviceServicePairingTypeFirstScreen]){
+        pairingType = DeviceServicePairingTypeFirstScreen;
+    }else
+        if([pairingString isEqualToString:kDeviceServicePairingTypePinCode])
+        {
+            pairingType = DeviceServicePairingTypePinCode;
+        }
+        
+    return pairingType;
 }
 
 #pragma mark - LGSRWebSocketDelegate
