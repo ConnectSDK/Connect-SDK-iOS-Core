@@ -74,7 +74,12 @@
 }
 
 - (DeviceServicePairingType)pairingType{
-    return _pairingType;
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
+    {
+        pairingType = _pairingType!=DeviceServicePairingTypeNone ? _pairingType : DeviceServicePairingTypeFirstScreen;
+    }
+    return pairingType;
 }
 
 - (WebOSTVServiceConfig *)webOSTVServiceConfig {
