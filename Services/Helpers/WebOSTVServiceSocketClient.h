@@ -57,6 +57,7 @@
 - (void) socket:(WebOSTVServiceSocketClient *)socket didFailWithError:(NSError *)error;
 
 @optional
+// TODO : Deprecate this method and rename this to more meaningful one probably socketWillRequirePairingWithPairingType:
 - (void) socketWillRegister:(WebOSTVServiceSocketClient *)socket;
 - (void) socket:(WebOSTVServiceSocketClient *)socket registrationFailed:(NSError *)error;
 - (BOOL) socket:(WebOSTVServiceSocketClient *)socket didReceiveMessage:(NSDictionary *)message;

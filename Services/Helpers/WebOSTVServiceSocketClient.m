@@ -282,6 +282,7 @@
         NSString *pairingString = [response valueForKey:@"pairingType"];
         if (pairingString) {
             self.service.pairingType = [self pairingStringToType:pairingString];
+            // TODO: Need to update the method name socketWillRegister to socketWillRequirePairingWithPairingType.
             if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != DeviceServicePairingTypeNone){
                 [self.delegate socketWillRegister:self];
             }
