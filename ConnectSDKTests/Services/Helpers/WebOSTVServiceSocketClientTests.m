@@ -95,14 +95,14 @@
                                  }];
 }
 
--(void)testPairingShouldCallSocketWillregister{
+-(void)testPairingShouldCallSocketWillRegister{
     id serviceMock = OCMClassMock([WebOSTVService class]);
     id webSocketMock = OCMClassMock([LGSRWebSocket class]);
     //Send Pairing type which is not supported by the TV. Supported pairing type is PROMPT
     OCMStub([serviceMock pairingType]).andReturn(DeviceServicePairingTypeMixed);
     id socketClientDelegateMock = OCMProtocolMock(@protocol(WebOSTVServiceSocketClientDelegate));
     OCMStub([socketClientDelegateMock socket:OCMOCK_ANY didReceiveMessage:OCMOCK_ANY]).andReturn(YES);
-    XCTestExpectation *socketWillRegisterCalled = [self expectationWithDescription:@"socketWillRegisterCalled: is called"];
+    XCTestExpectation *socketWillRegisterCalled = [self expectationWithDescription:@"socketWillRegister: is called"];
     OCMExpect([socketClientDelegateMock socketWillRegister:OCMOCK_NOTNIL]).andDo(^(NSInvocation *_) {
         [socketWillRegisterCalled fulfill];
     });
