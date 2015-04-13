@@ -51,7 +51,7 @@
 
 @implementation WebOSTVService
 
-@synthesize serviceDescription = _serviceDescription;
+@synthesize serviceDescription = _serviceDescription, pairingType = _pairingType;
 
 #pragma mark - Setup
 
@@ -68,6 +68,19 @@
 }
 
 #pragma mark - Getters & Setters
+
+- (void) setPairingType:(DeviceServicePairingType)pairingType {
+    _pairingType = pairingType;
+}
+
+- (DeviceServicePairingType)pairingType{
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
+    {
+        pairingType = _pairingType!=DeviceServicePairingTypeNone ? _pairingType : DeviceServicePairingTypeFirstScreen;
+    }
+    return pairingType;
+}
 
 - (WebOSTVServiceConfig *)webOSTVServiceConfig {
     return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
@@ -275,14 +288,23 @@
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
+    if(self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed){
+        _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
+        _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
+    }
     dispatch_on_main(^{ [_pairingAlert show]; });
 }
 
 -(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if(alertView == _pairingAlert){
-        if (buttonIndex == 0)
+        if (buttonIndex == 0){
             [self disconnect];
+        }else
+            if((self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed) && buttonIndex == 1){
+                NSString *pairingCode = [alertView textFieldAtIndex:0].text;
+                [self sendPairingKey:pairingCode success:nil failure:nil];
+            }
     }
 }
 
@@ -1928,6 +1950,28 @@
                                              
                                          } failure:failure];    
     return subscription;
+}
+
+- (void)sendPairingKey:(NSString *)pairingKey success:(SuccessBlock)success failure:(FailureBlock)failure {
+   
+    NSURL *URL = [NSURL URLWithString:@"ssap://pairing/setPin"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:pairingKey forKey:@"pin"];
+    
+    ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
+    command.callbackComplete = (^(NSDictionary *responseDic)
+                                {
+                                    if (success) {
+                                        success(responseDic);
+                                    }
+                                    
+                                });
+    command.callbackError = ^(NSError *error){
+                                if(failure){
+                                    failure(error);
+                                }
+                            };
+    [command send];
 }
 
 - (WebOSWebAppSession *) webAppSessionForLaunchSession:(LaunchSession *)launchSession

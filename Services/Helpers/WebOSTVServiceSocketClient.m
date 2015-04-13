@@ -22,6 +22,9 @@
 #import "WebOSTVService.h"
 #import "ConnectError.h"
 
+#define kDeviceServicePairingTypeFirstScreen @"PROMPT"
+#define kDeviceServicePairingTypePinCode @"PIN"
+#define kDeviceServicePairingTypeMixed @"COMBINED"
 
 @implementation WebOSTVServiceSocketClient
 {
@@ -272,14 +275,19 @@
 
 -(void) registerWithTv
 {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)])
-        [self.delegate socketWillRegister:self];
-
     ServiceCommand *reg = [[ServiceCommand alloc] init];
     reg.delegate = self;
-
     reg.callbackComplete = ^(NSDictionary* response)
     {
+        NSString *pairingString = [response valueForKey:@"pairingType"];
+        if (pairingString) {
+            self.service.pairingType = [self pairingStringToType:pairingString];
+            // TODO: Need to update the method name socketWillRegister to socketWillRequirePairingWithPairingType.
+            if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != DeviceServicePairingTypeNone){
+                [self.delegate socketWillRegister:self];
+            }
+        }
+        
         if ([DeviceService shouldDisconnectOnBackground])
         {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -315,7 +323,8 @@
     [_activeConnections setObject:reg forKey:[self connectionKeyForMessageId:@(dataId)]];
 
     NSDictionary *registerInfo = @{
-            @"manifest" : self.manifest
+            @"manifest" : self.manifest,
+            @"pairingType" : [self pairingTypeToString:self.service.pairingType]
     };
 
     NSString *sendString = [self encodeData:registerInfo andAddress:nil withId:dataId];
@@ -326,6 +335,42 @@
 
     if ([_commandQueue containsObject:sendString])
         [_commandQueue removeObject:sendString];
+}
+
+-(NSString *)pairingTypeToString:(DeviceServicePairingType)pairingType{
+    NSString *pairingTypeString = @"";
+    
+    if(pairingType == DeviceServicePairingTypeFirstScreen){
+        pairingTypeString = kDeviceServicePairingTypeFirstScreen;
+    }else
+        if(pairingType == DeviceServicePairingTypePinCode)
+        {
+            pairingTypeString = kDeviceServicePairingTypePinCode;
+        }
+        else
+            if(pairingType == DeviceServicePairingTypeMixed)
+            {
+                pairingTypeString = kDeviceServicePairingTypeMixed;
+            }
+    return pairingTypeString;
+}
+
+-(DeviceServicePairingType)pairingStringToType:(NSString *)pairingString{
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    
+    if([pairingString isEqualToString:kDeviceServicePairingTypeFirstScreen]){
+        pairingType = DeviceServicePairingTypeFirstScreen;
+    }else
+        if([pairingString isEqualToString:kDeviceServicePairingTypePinCode])
+        {
+            pairingType = DeviceServicePairingTypePinCode;
+        }
+        else
+            if([pairingString isEqualToString:kDeviceServicePairingTypeMixed])
+            {
+                pairingType = DeviceServicePairingTypeMixed;
+            }
+    return pairingType;
 }
 
 #pragma mark - LGSRWebSocketDelegate

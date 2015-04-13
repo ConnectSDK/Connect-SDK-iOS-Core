@@ -260,6 +260,10 @@ static BOOL _shouldDisconnectOnBackground = YES;
     return DeviceServicePairingTypeNone;
 }
 
+- (void) setPairingType:(DeviceServicePairingType)pairingType {
+    //Subclasses should implement this method to set pairing type.
+}
+
 - (id) pairingData
 {
     return nil;

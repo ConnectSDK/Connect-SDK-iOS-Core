@@ -439,6 +439,13 @@
 
 #pragma mark Pairing
 
+- (void)setPairingType:(DeviceServicePairingType)pairingType {
+    [self.services enumerateObjectsUsingBlock:^(DeviceService *service, NSUInteger serviceIdx, BOOL *serviceStop)
+     {
+         service.pairingType = pairingType;
+     }];
+}
+
 - (void)deviceService:(DeviceService *)service pairingRequiredOfType:(DeviceServicePairingType)pairingType withData:(id)pairingData
 {
     if (self.delegate)

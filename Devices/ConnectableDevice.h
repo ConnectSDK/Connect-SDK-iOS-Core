@@ -178,6 +178,17 @@
  */
 - (BOOL) hasAnyCapability:(NSArray *)capabilities;
 
+/*!
+ * Set the type of pairing for the ConnectableDevice services. By default the value will be DeviceServicePairingTypeNone
+ *
+ *  For WebOSTV's If pairingType is set to DeviceServicePairingTypeFirstScreen(default), the device will prompt the user to pair when connecting to the ConnectableDevice.
+ *
+ * If pairingType is set to DeviceServicePairingTypePinCode, the device will prompt the user to enter a pin to pair when connecting to the ConnectableDevice.
+ *
+ * @param pairingType value to be set for the device service from DeviceServicePairingType
+ */
+- (void)setPairingType:(DeviceServicePairingType)pairingType;
+
 #pragma mark Accessors
 
 - (id<Launcher>) launcher; /*! Accessor for highest priority Launcher object */
