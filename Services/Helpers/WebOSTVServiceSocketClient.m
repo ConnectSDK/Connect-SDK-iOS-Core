@@ -26,6 +26,14 @@
 #define kDeviceServicePairingTypePinCode @"PIN"
 #define kDeviceServicePairingTypeMixed @"COMBINED"
 
+@interface WebOSTVServiceSocketClient ()
+
+/// Stores subscriptions that need to be automagically resubscribed after
+/// reconnect. The structure is that of the @c _subscribed property.
+@property (nonatomic, strong) NSDictionary *savedSubscriptions;
+
+@end
+
 @implementation WebOSTVServiceSocketClient
 {
     int _UID;
@@ -177,6 +185,7 @@
     if (_connected)
     {
         _reconnectOnWake = YES;
+        self.savedSubscriptions = [_subscribed copy];
         [self disconnect];
     }
 }
@@ -310,6 +319,11 @@
                     }];
 
             _commandQueue = [[NSMutableArray alloc] init];
+        }
+
+        if (self.savedSubscriptions.count > 0) {
+            [self resubscribeSubscriptions:self.savedSubscriptions];
+            self.savedSubscriptions = nil;
         }
     };
     // TODO: this is getting cleaned up before a potential pairing cancelled message is received
@@ -552,6 +566,13 @@
         [_subscribed removeObjectForKey:subscriptionReferenceId];
 
     return subscription;
+}
+
+/// Stores the given @c subscriptions dictionary as @c _subscribed and
+/// subscribes to all of them.
+- (void)resubscribeSubscriptions:(NSDictionary *)subscriptions {
+    _subscribed = [subscriptions mutableCopy];
+    [[_subscribed allValues] makeObjectsPerformSelector:@selector(subscribe)];
 }
 
 - (NSString *)subscriptionReferenceForURL:(NSURL *)URL payload:(NSDictionary *)payload

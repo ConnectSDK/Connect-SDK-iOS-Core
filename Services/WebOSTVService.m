@@ -325,7 +325,7 @@
     }
 }
 
-#pragma - WebOSTVServiceSocketClientDelegate
+#pragma mark - WebOSTVServiceSocketClientDelegate
 
 - (void) socketWillRegister:(WebOSTVServiceSocketClient *)socket
 {
