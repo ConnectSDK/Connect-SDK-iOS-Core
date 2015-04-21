@@ -114,4 +114,14 @@
     return clone;
 }
 
+#pragma mark - Debugging
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@: callId=%ld; target=%@; "
+            @"payload=%@; #successCallbacks=%ld; #failureCallbacks=%ld>",
+            NSStringFromClass([self class]), (unsigned long)self.callId,
+            self.target, self.payload, (unsigned long)self.successCalls.count,
+            (unsigned long)self.failureCalls.count];
+}
+
 @end
