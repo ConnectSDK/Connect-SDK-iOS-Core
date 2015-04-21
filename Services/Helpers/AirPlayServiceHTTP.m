@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "AirPlayServiceHTTP.h"
+#import "AirPlayServiceHTTP_Private.h"
 #import "AirPlayServiceHTTPKeepAlive.h"
 #import "DeviceService.h"
 #import "AirPlayService.h"
@@ -101,6 +101,13 @@
         [self disconnect];
     } else
         [_serviceReachability stop];
+}
+
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
 }
 
 #pragma mark - Command management
@@ -527,21 +534,22 @@
     NSString *commandPathComponent = [NSString stringWithFormat:@"playback-info"];
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
 
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:commandURL payload:nil];
     command.HTTPMethod = @"GET";
     command.callbackComplete = ^(NSDictionary *responseObject) {
         MediaControlPlayState playState = MediaControlPlayStateUnknown;
 
-        if (responseObject.count == 0)
-            playState = MediaControlPlayStateFinished;
-        else
-        {
-            int rate = [responseObject[@"rate"] intValue];
-
-            if (rate == 0)
-                playState = MediaControlPlayStatePaused;
-            else if (rate == 1)
-                playState = MediaControlPlayStatePlaying;
+        NSNumber *rateValue = responseObject[@"rate"];
+        if (rateValue) {
+            NSInteger rate = [rateValue integerValue];
+            playState = ((rate == 0) ?
+                         MediaControlPlayStatePaused :
+                         MediaControlPlayStatePlaying);
+        } else {
+            NSNumber *readyToPlayValue = responseObject[@"readyToPlay"];
+            if (readyToPlayValue && ([readyToPlayValue integerValue] == 0)) {
+                playState = MediaControlPlayStateFinished;
+            }
         }
 
         if (success)
