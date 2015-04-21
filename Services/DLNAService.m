@@ -164,6 +164,10 @@ static const NSInteger kValueNotFound = -1;
         NSString *serviceName = service[@"serviceId"][@"text"];
         NSString *controlPath = service[@"controlURL"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
+        if(![controlPath hasPrefix:@"/"]){
+            controlPath = [NSString stringWithFormat:@"/%@",controlPath];
+        }
+        
         NSString *controlURL = [NSString stringWithFormat:@"http://%@:%@%@",
                                                           self.serviceDescription.commandURL.host,
                                                           self.serviceDescription.commandURL.port,
