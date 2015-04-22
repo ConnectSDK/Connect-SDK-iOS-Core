@@ -26,4 +26,9 @@ extern NSString *const kDataFieldName;
 
 @property (nonatomic, strong) id<ServiceCommandDelegate> serviceCommandDelegate;
 
+@property (nonatomic, strong) NSURL *avTransportControlURL;
+@property (nonatomic, strong) NSURL *avTransportEventURL;
+@property (nonatomic, strong) NSURL *renderingControlControlURL;
+@property (nonatomic, strong) NSURL *renderingControlEventURL;
+
 @end

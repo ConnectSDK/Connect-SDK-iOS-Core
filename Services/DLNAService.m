@@ -47,11 +47,6 @@ static const NSInteger kValueNotFound = -1;
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
-    NSURL *_avTransportControlURL;
-    NSURL *_avTransportEventURL;
-    NSURL *_renderingControlControlURL;
-    NSURL *_renderingControlEventURL;
-
     DLNAHTTPServer *_httpServer;
     NSMutableDictionary *_httpServerSessionIds;
 

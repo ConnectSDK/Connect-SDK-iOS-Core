@@ -841,4 +841,69 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            }];
 }
 
+- (void)testUpdateControlURLsWithMissingBackSlash{
+    [self checkUpdateControlURLForDevice:@"lg_speaker"];
+}
+
+- (void)testUpdateControlURLsWithBackSlash{
+    [self checkUpdateControlURLForDevice:@"sonos"];
+}
+
+- (void)checkUpdateControlURLForDevice:(NSString *)device{
+    NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
+    NSData *xmlData = [NSData dataWithContentsOfFile:
+                       OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
+    ServiceDescription *serviceDescription = [ServiceDescription new];
+    serviceDescription.locationXML = @"<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
+    serviceDescription.commandURL = [NSURL URLWithString:@"http://127.0.0.0:0"];
+    NSError *error;
+    NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
+    serviceDescription.serviceList = [self serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
+    [self.service setServiceDescription:serviceDescription];
+    XCTAssertTrue([self isValidUrl:self.service.avTransportControlURL]);
+    XCTAssertTrue([self isValidUrl:self.service.avTransportEventURL]);
+    XCTAssertTrue([self isValidUrl:self.service.renderingControlControlURL]);
+    XCTAssertTrue([self isValidUrl:self.service.renderingControlEventURL]);
+}
+
+- (NSArray *) serviceListForDevice:(id)device
+{
+    NSMutableArray *list = [NSMutableArray new];
+    
+    id serviceList = device[@"serviceList"][@"service"];
+    
+    if ([serviceList isKindOfClass:[NSArray class]])
+        [list addObjectsFromArray:serviceList];
+    else if ([serviceList isKindOfClass:[NSDictionary class]])
+        [list addObject:serviceList];
+    
+    NSArray *devices = nil;
+    id devicesObject = device[@"deviceList"][@"device"];
+    if ([devicesObject isKindOfClass:[NSArray class]]) {
+        devices = devicesObject;
+    } else if ([devicesObject isKindOfClass:[NSDictionary class]]) {
+        devices = [NSArray arrayWithObject:devicesObject];
+    }
+    
+    if (devices)
+    {
+        [devices enumerateObjectsUsingBlock:^(id deviceInfo, NSUInteger idx, BOOL *stop) {
+            id services = deviceInfo[@"serviceList"][@"service"];
+            
+            if ([services isKindOfClass:[NSArray class]])
+                [list addObjectsFromArray:services];
+            else if ([services isKindOfClass:[NSDictionary class]])
+                [list addObject:services];
+        }];
+    }
+    
+    return [NSArray arrayWithArray:list];
+}
+
+- (BOOL)isValidUrl:(NSURL *)url
+{
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    return [NSURLConnection canHandleRequest:request];
+}
+
 @end
