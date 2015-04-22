@@ -166,10 +166,61 @@
 
 #pragma mark - NSNetServiceDelegate
 
+/**
+ * Parses the given address @c data (containing a @c sockaddr structure),
+ * returning the IP address and transport port.
+ * @see <tt>-[NSNetService addresses]</tt>
+ * @param address a pointer to a <tt>NSString *</tt> value where the parsed IP
+ *                address will be placed
+ * @param port    a pointer to a @c uint16_t value where the parsed port will be
+ *                placed
+ * @return @c YES if the parsing is successful and the output values are filled.
+ */
+- (void)parseAddressData:(NSData *)data
+           intoIPAddress:(out NSString **)outAddress
+                 andPort:(out in_port_t *)outPort {
+    NSParameterAssert(outAddress);
+    NSParameterAssert(outPort);
+
+    //// credit: http://stackoverflow.com/a/18428117/2715 ////
+    NSString *address;
+    in_port_t port = 0;
+    struct sockaddr *addressGeneric;
+
+    addressGeneric = (struct sockaddr *) [data bytes];
+
+    switch( addressGeneric->sa_family ) {
+        case AF_INET: {
+            struct sockaddr_in *ip4;
+            char dest[INET_ADDRSTRLEN];
+            ip4 = (struct sockaddr_in *) [data bytes];
+            port = ntohs(ip4->sin_port);
+            address = [NSString stringWithFormat: @"%s", inet_ntop(AF_INET, &ip4->sin_addr, dest, sizeof dest)];
+        }
+            break;
+
+        case AF_INET6: {
+            struct sockaddr_in6 *ip6;
+            char dest[INET6_ADDRSTRLEN];
+            ip6 = (struct sockaddr_in6 *) [data bytes];
+            port = ntohs(ip6->sin6_port);
+            address = [NSString stringWithFormat: @"%s",  inet_ntop(AF_INET6, &ip6->sin6_addr, dest, sizeof dest)];
+        }
+            break;
+
+        default:
+            address = @"0.0.0.0";
+            port = 7000;
+            break;
+    }
+    //// end credit ////
+
+    *outAddress = address;
+    *outPort = port;
+}
+
 - (void) netServiceDidResolveAddress:(NSNetService *)sender
 {
-    DLog(@"%@", sender.name);
-
     sender.delegate = nil;
     [_resolvingDevices removeObjectForKey:sender.name];
 
@@ -180,40 +231,14 @@
         return;
     }
 
-    //// credit: http://stackoverflow.com/a/18428117/2715 ////
-    NSData *myData = nil;
-    myData = [sender.addresses objectAtIndex:0];
-
-    NSString *address;
-    int port=0;
-    struct sockaddr *addressGeneric;
-
-    addressGeneric = (struct sockaddr *) [myData bytes];
-
-    switch( addressGeneric->sa_family ) {
-        case AF_INET: {
-            struct sockaddr_in *ip4;
-            char dest[INET_ADDRSTRLEN];
-            ip4 = (struct sockaddr_in *) [myData bytes];
-            port = ntohs(ip4->sin_port);
-            address = [NSString stringWithFormat: @"%s", inet_ntop(AF_INET, &ip4->sin_addr, dest, sizeof dest)];
-        }
-            break;
-
-        case AF_INET6: {
-            struct sockaddr_in6 *ip6;
-            char dest[INET6_ADDRSTRLEN];
-            ip6 = (struct sockaddr_in6 *) [myData bytes];
-            port = ntohs(ip6->sin6_port);
-            address = [NSString stringWithFormat: @"%s",  inet_ntop(AF_INET6, &ip6->sin6_addr, dest, sizeof dest)];
-        }
-            break;
-        default:
-            address = @"0.0.0.0";
-            port = 7000;
-            break;
-    }
-    //// end credit ////
+    __block NSString *address;
+    __block in_port_t port;
+    [sender.addresses enumerateObjectsUsingBlock:^(NSData *addressData, NSUInteger idx, BOOL *stop) {
+        [self parseAddressData:addressData
+                 intoIPAddress:&address
+                       andPort:&port];
+        DLog(@"%@: resolved %@:%d", sender.name, address, port);
+    }];
 
     NSData *TXTRecordData = sender.TXTRecordData;
     NSString *TXTRecord = [[NSString alloc] initWithData:TXTRecordData encoding:NSUTF8StringEncoding];
