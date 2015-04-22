@@ -47,11 +47,6 @@ static const NSInteger kValueNotFound = -1;
 @interface DLNAService() <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
 //    NSOperationQueue *_commandQueue;
-    NSURL *_avTransportControlURL;
-    NSURL *_avTransportEventURL;
-    NSURL *_renderingControlControlURL;
-    NSURL *_renderingControlEventURL;
-
     DLNAHTTPServer *_httpServer;
     NSMutableDictionary *_httpServerSessionIds;
 
@@ -164,6 +159,12 @@ static const NSInteger kValueNotFound = -1;
         NSString *serviceName = service[@"serviceId"][@"text"];
         NSString *controlPath = service[@"controlURL"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
+        if(![controlPath hasPrefix:@"/"]){
+            controlPath = [NSString stringWithFormat:@"/%@",controlPath];
+        }
+        if(![eventPath hasPrefix:@"/"]){
+            eventPath = [NSString stringWithFormat:@"/%@",eventPath];
+        }
         NSString *controlURL = [NSString stringWithFormat:@"http://%@:%@%@",
                                                           self.serviceDescription.commandURL.host,
                                                           self.serviceDescription.commandURL.port,
@@ -245,6 +246,7 @@ static const NSInteger kValueNotFound = -1;
         [writer writeAttribute:@"s:encodingStyle" value:@"http://schemas.xmlsoap.org/soap/encoding/"];
         [writer writeElement:@"Body" withNamespace:kSOAPNamespace andContentsBlock:^(XMLWriter *writer) {
             [writer writeElement:commandName withNamespace:namespace andContentsBlock:^(XMLWriter *writer) {
+                [writer writeAttribute:@"xmlns:u" value:namespace];
                 [writer writeElement:@"InstanceID" withContents:@"0"];
 
                 if (writerBlock) {

@@ -25,6 +25,7 @@
 #import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "SSDPDiscoveryProvider_Private.h"
 
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
@@ -839,6 +840,34 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
                                XCTAssertEqualObjects(itemClass, @"object.item.imageItem", @"class must be imageItem");
                            }];
+}
+
+- (void)testUpdateControlURLsWithMissingBackSlash{
+    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/control/AVTransport",@"avTransportControlURL",@"http://127.0.0.0:0/event/AVTransport",@"avTransportEventURL",@"http://127.0.0.0:0/control/RenderingControl",@"renderingControlControlURL",@"http://127.0.0.0:0/event/RenderingControl",@"renderingControlEventURL", nil];
+    [self checkUpdateControlURLForDevice:@"lg_speaker" withURLs:urls];
+}
+
+- (void)testUpdateControlURLsWithBackSlash{
+    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/MediaRenderer/AVTransport/Control",@"avTransportControlURL",@"http://127.0.0.0:0/MediaRenderer/AVTransport/Event",@"avTransportEventURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Control",@"renderingControlControlURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Event",@"renderingControlEventURL", nil];
+    [self checkUpdateControlURLForDevice:@"sonos" withURLs:urls];
+}
+
+- (void)checkUpdateControlURLForDevice:(NSString *)device withURLs:(NSDictionary *)urls{
+    NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
+    NSData *xmlData = [NSData dataWithContentsOfFile:
+                       OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
+    ServiceDescription *serviceDescription = [ServiceDescription new];
+    serviceDescription.locationXML = @"<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
+    serviceDescription.commandURL = [NSURL URLWithString:@"http://127.0.0.0:0"];
+    NSError *error;
+    NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
+    SSDPDiscoveryProvider *ssdp = [SSDPDiscoveryProvider new];
+    serviceDescription.serviceList = [ssdp serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
+    [self.service setServiceDescription:serviceDescription];
+    XCTAssertEqualObjects([urls objectForKey:@"avTransportControlURL"], self.service.avTransportControlURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"avTransportEventURL"], self.service.avTransportEventURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"renderingControlControlURL"], self.service.renderingControlControlURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"renderingControlEventURL"], self.service.renderingControlEventURL.absoluteString);
 }
 
 @end
