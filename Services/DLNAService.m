@@ -162,7 +162,9 @@ static const NSInteger kValueNotFound = -1;
         if(![controlPath hasPrefix:@"/"]){
             controlPath = [NSString stringWithFormat:@"/%@",controlPath];
         }
-        
+        if(![eventPath hasPrefix:@"/"]){
+            eventPath = [NSString stringWithFormat:@"/%@",eventPath];
+        }
         NSString *controlURL = [NSString stringWithFormat:@"http://%@:%@%@",
                                                           self.serviceDescription.commandURL.host,
                                                           self.serviceDescription.commandURL.port,

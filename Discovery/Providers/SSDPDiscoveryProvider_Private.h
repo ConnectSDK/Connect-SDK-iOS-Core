@@ -29,4 +29,6 @@
 @property (nonatomic, strong) SSDPSocketListener *multicastSocket;
 @property (nonatomic, strong) SSDPSocketListener *searchSocket;
 
+- (NSArray *) serviceListForDevice:(id)device;
+
 @end

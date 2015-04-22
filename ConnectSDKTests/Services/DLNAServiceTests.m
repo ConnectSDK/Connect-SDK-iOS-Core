@@ -25,6 +25,7 @@
 #import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "SSDPDiscoveryProvider_Private.h"
 
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
@@ -842,14 +843,16 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)testUpdateControlURLsWithMissingBackSlash{
-    [self checkUpdateControlURLForDevice:@"lg_speaker"];
+    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/control/AVTransport",@"avTransportControlURL",@"http://127.0.0.0:0/event/AVTransport",@"avTransportEventURL",@"http://127.0.0.0:0/control/RenderingControl",@"renderingControlControlURL",@"http://127.0.0.0:0/event/RenderingControl",@"renderingControlEventURL", nil];
+    [self checkUpdateControlURLForDevice:@"lg_speaker" withURLs:urls];
 }
 
 - (void)testUpdateControlURLsWithBackSlash{
-    [self checkUpdateControlURLForDevice:@"sonos"];
+    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/MediaRenderer/AVTransport/Control",@"avTransportControlURL",@"http://127.0.0.0:0/MediaRenderer/AVTransport/Event",@"avTransportEventURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Control",@"renderingControlControlURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Event",@"renderingControlEventURL", nil];
+    [self checkUpdateControlURLForDevice:@"sonos" withURLs:urls];
 }
 
-- (void)checkUpdateControlURLForDevice:(NSString *)device{
+- (void)checkUpdateControlURLForDevice:(NSString *)device withURLs:(NSDictionary *)urls{
     NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
     NSData *xmlData = [NSData dataWithContentsOfFile:
                        OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
@@ -858,52 +861,13 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     serviceDescription.commandURL = [NSURL URLWithString:@"http://127.0.0.0:0"];
     NSError *error;
     NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
-    serviceDescription.serviceList = [self serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
+    SSDPDiscoveryProvider *ssdp = [SSDPDiscoveryProvider new];
+    serviceDescription.serviceList = [ssdp serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
     [self.service setServiceDescription:serviceDescription];
-    XCTAssertTrue([self isValidUrl:self.service.avTransportControlURL]);
-    XCTAssertTrue([self isValidUrl:self.service.avTransportEventURL]);
-    XCTAssertTrue([self isValidUrl:self.service.renderingControlControlURL]);
-    XCTAssertTrue([self isValidUrl:self.service.renderingControlEventURL]);
-}
-
-- (NSArray *) serviceListForDevice:(id)device
-{
-    NSMutableArray *list = [NSMutableArray new];
-    
-    id serviceList = device[@"serviceList"][@"service"];
-    
-    if ([serviceList isKindOfClass:[NSArray class]])
-        [list addObjectsFromArray:serviceList];
-    else if ([serviceList isKindOfClass:[NSDictionary class]])
-        [list addObject:serviceList];
-    
-    NSArray *devices = nil;
-    id devicesObject = device[@"deviceList"][@"device"];
-    if ([devicesObject isKindOfClass:[NSArray class]]) {
-        devices = devicesObject;
-    } else if ([devicesObject isKindOfClass:[NSDictionary class]]) {
-        devices = [NSArray arrayWithObject:devicesObject];
-    }
-    
-    if (devices)
-    {
-        [devices enumerateObjectsUsingBlock:^(id deviceInfo, NSUInteger idx, BOOL *stop) {
-            id services = deviceInfo[@"serviceList"][@"service"];
-            
-            if ([services isKindOfClass:[NSArray class]])
-                [list addObjectsFromArray:services];
-            else if ([services isKindOfClass:[NSDictionary class]])
-                [list addObject:services];
-        }];
-    }
-    
-    return [NSArray arrayWithArray:list];
-}
-
-- (BOOL)isValidUrl:(NSURL *)url
-{
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    return [NSURLConnection canHandleRequest:request];
+    XCTAssertEqualObjects([urls objectForKey:@"avTransportControlURL"], self.service.avTransportControlURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"avTransportEventURL"], self.service.avTransportEventURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"renderingControlControlURL"], self.service.renderingControlControlURL.absoluteString);
+    XCTAssertEqualObjects([urls objectForKey:@"renderingControlEventURL"], self.service.renderingControlEventURL.absoluteString);
 }
 
 @end
