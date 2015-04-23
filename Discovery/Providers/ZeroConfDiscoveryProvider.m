@@ -169,54 +169,50 @@
 /**
  * Parses the given address @c data (containing a @c sockaddr structure),
  * returning the IP address and transport port.
+ * @note Only IPv4 addresses are supported.
  * @see <tt>-[NSNetService addresses]</tt>
+ * @see Based on http://stackoverflow.com/a/18428117/2715
+ * @param data    data containing a @c sockaddr structure; must not be @c nil.
  * @param address a pointer to a <tt>NSString *</tt> value where the parsed IP
- *                address will be placed
+ *                address will be placed; must not be @c nil.
  * @param port    a pointer to a @c uint16_t value where the parsed port will be
- *                placed
+ *                placed; must not be @c nil.
  * @return @c YES if the parsing is successful and the output values are filled.
  */
-- (void)parseAddressData:(NSData *)data
-           intoIPAddress:(out NSString **)outAddress
-                 andPort:(out in_port_t *)outPort {
+- (BOOL)parseAddressData:(nonnull NSData *)data
+           intoIPAddress:(out NSString ** __nonnull)outAddress
+                 andPort:(out nonnull in_port_t *)outPort {
+    NSParameterAssert(data);
     NSParameterAssert(outAddress);
     NSParameterAssert(outPort);
 
-    //// credit: http://stackoverflow.com/a/18428117/2715 ////
+    BOOL success = NO;
     NSString *address;
     in_port_t port = 0;
-    struct sockaddr *addressGeneric;
 
-    addressGeneric = (struct sockaddr *) [data bytes];
-
-    switch( addressGeneric->sa_family ) {
+    struct sockaddr *addressGeneric = (struct sockaddr *) [data bytes];
+    switch (addressGeneric->sa_family) {
         case AF_INET: {
             struct sockaddr_in *ip4;
             char dest[INET_ADDRSTRLEN];
             ip4 = (struct sockaddr_in *) [data bytes];
             port = ntohs(ip4->sin_port);
-            address = [NSString stringWithFormat: @"%s", inet_ntop(AF_INET, &ip4->sin_addr, dest, sizeof dest)];
-        }
+            address = [NSString stringWithFormat: @"%s",
+                       inet_ntop(AF_INET, &ip4->sin_addr, dest, sizeof dest)];
+            success = YES;
             break;
-
-        case AF_INET6: {
-            struct sockaddr_in6 *ip6;
-            char dest[INET6_ADDRSTRLEN];
-            ip6 = (struct sockaddr_in6 *) [data bytes];
-            port = ntohs(ip6->sin6_port);
-            address = [NSString stringWithFormat: @"%s",  inet_ntop(AF_INET6, &ip6->sin6_addr, dest, sizeof dest)];
         }
-            break;
 
         default:
-            address = @"0.0.0.0";
-            port = 7000;
             break;
     }
-    //// end credit ////
 
-    *outAddress = address;
-    *outPort = port;
+    if (success) {
+        *outAddress = address;
+        *outPort = port;
+    }
+
+    return success;
 }
 
 - (void) netServiceDidResolveAddress:(NSNetService *)sender
@@ -231,14 +227,23 @@
         return;
     }
 
+    __block BOOL foundIPv4Address = NO;
     __block NSString *address;
-    __block in_port_t port;
+    __block in_port_t port = 0;
     [sender.addresses enumerateObjectsUsingBlock:^(NSData *addressData, NSUInteger idx, BOOL *stop) {
-        [self parseAddressData:addressData
-                 intoIPAddress:&address
-                       andPort:&port];
-        DLog(@"%@: resolved %@:%d", sender.name, address, port);
+        if ((foundIPv4Address = [self parseAddressData:addressData
+                                         intoIPAddress:&address
+                                               andPort:&port])) {
+            DLog(@"%@: resolved %@:%d", sender.name, address, port);
+            *stop = YES;
+        }
     }];
+
+    if (!foundIPv4Address) {
+        DLog(@"%@: couldn't find resolved IPv4 addresses (%ld total)",
+             sender.name, (unsigned long)sender.addresses.count);
+        return;
+    }
 
     NSData *TXTRecordData = sender.TXTRecordData;
     NSString *TXTRecord = [[NSString alloc] initWithData:TXTRecordData encoding:NSUTF8StringEncoding];
