@@ -38,6 +38,8 @@
     ServiceSubscription *_webAppStatusSubscription;
 }
 
+@dynamic service;
+
 - (instancetype) initWithLaunchSession:(LaunchSession *)launchSession service:(DeviceService *)service
 {
     self = [super initWithLaunchSession:launchSession service:service];
