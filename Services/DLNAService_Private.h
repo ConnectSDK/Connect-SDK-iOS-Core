@@ -22,6 +22,9 @@
 
 extern NSString *const kDataFieldName;
 
+@class DeviceServiceReachability;
+@class DLNAHTTPServer;
+
 @interface DLNAService ()
 
 @property (nonatomic, strong) id<ServiceCommandDelegate> serviceCommandDelegate;
@@ -30,5 +33,10 @@ extern NSString *const kDataFieldName;
 @property (nonatomic, strong) NSURL *avTransportEventURL;
 @property (nonatomic, strong) NSURL *renderingControlControlURL;
 @property (nonatomic, strong) NSURL *renderingControlEventURL;
+
+/// Creates a new @c DLNAHTTPServer instance.
+- (DLNAHTTPServer *)createDLNAHTTPServer;
+/// Creates a new @c DeviceServiceReachability instance with the given target URL.
+- (DeviceServiceReachability *)createDeviceServiceReachabilityWithTargetURL:(NSURL *)url;
 
 @end

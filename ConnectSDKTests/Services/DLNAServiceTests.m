@@ -20,12 +20,15 @@
 
 #import <OHHTTPStubs/OHHTTPStubs.h>
 #import "NSInvocation+ObjectGetter.h"
+#import "OCMStubRecorder+XCTestExpectation.h"
 
 #import "CTXMLReader.h"
 #import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "NSDictionary+KeyPredicateSearch.h"
 #import "SSDPDiscoveryProvider_Private.h"
+#import "DLNAHTTPServer.h"
+#import "DeviceServiceReachability.h"
 
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
@@ -67,6 +70,7 @@ static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:servi
 - (void)tearDown {
     self.service = nil;
     self.serviceCommandDelegateMock = nil;
+    [OHHTTPStubs removeAllStubs];
     [super tearDown];
 }
 
@@ -456,6 +460,107 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                              andErrorDescription:nil];
 }
 
+#pragma mark - Disconnect Tests
+
+/// Tests that @c -disconnect shuts down the http server.
+- (void)testDisconnectShouldStopHTTPServer {
+    // Arrange
+    id httpServerMock = OCMClassMock([DLNAHTTPServer class]);
+    XCTestExpectation *serverIsStoppedExpectation = [self expectationWithDescription:@"httpServer should be stopped"];
+    [OCMExpect([httpServerMock stop]) andFulfillExpectation:serverIsStoppedExpectation];
+
+    // have to install a partial mock to be able to inject the httpServerMock
+    DLNAService *service = OCMPartialMock([DLNAService new]);
+    [OCMStub([service createDLNAHTTPServer]) andReturn:httpServerMock];
+
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock locationXML]) andReturn:@"http://127.1/"];
+
+    // Act
+    service.serviceDescription = serviceDescriptionMock;
+    [service disconnect];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(httpServerMock);
+                                 }];
+}
+
+/// Tests that @c -disconnect unsubscribes from all subscriptions.
+- (void)testDisconnectShouldUnsubscribeAllSubscriptions {
+    // Arrange
+    id httpServerMock = OCMClassMock([DLNAHTTPServer class]);
+    id reachabilityMock = OCMClassMock([DeviceServiceReachability class]);
+
+    // have to install a partial mock to be able to inject the httpServerMock
+    // and reachabilityMock
+    DLNAService *service = OCMPartialMock([DLNAService new]);
+    [OCMStub([service createDLNAHTTPServer]) andReturn:httpServerMock];
+    [OCMStub([service createDeviceServiceReachabilityWithTargetURL:OCMOCK_ANY]) andReturn:reachabilityMock];
+
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock locationXML]) andReturn:@"http://127.0.0.1/"];
+    NSDictionary *serviceDict = @{@"serviceId": @{@"text": @"id"},
+                                  @"eventSubURL": @{@"text": @"/sub"}};
+    NSArray *serviceList = @[serviceDict];
+    [OCMStub([serviceDescriptionMock serviceList]) andReturn:serviceList];
+    NSURL *commandURL = [NSURL URLWithString:@"http://127.0.0.1:8080/"];
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:commandURL];
+
+    static NSString *const kHOST = @"127.0.0.1";
+    XCTestExpectation *subscribeRequestSent = [self expectationWithDescription:@"service is subscribed"];
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        XCTAssertEqualObjects(request.URL.host, kHOST);
+        return ([request.URL.host isEqualToString:kHOST] &&
+                [request.HTTPMethod isEqualToString:@"SUBSCRIBE"]);
+    }
+                        withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+                            // NB: the expectation should be fulfilled after the
+                            // response is handled in DLNAService, for it to
+                            // save the SID!
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.001 * NSEC_PER_SEC)),
+                                           dispatch_get_main_queue(), ^{
+                                               [subscribeRequestSent fulfill];
+                                           });
+                            return [OHHTTPStubsResponse responseWithData:nil
+                                                              statusCode:200
+                                                                 headers:@{@"SID": @"42"}];
+                        }];
+
+    service.serviceDescription = serviceDescriptionMock;
+    [service connect];
+
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                 }];
+
+    XCTestExpectation *unsubscribeRequestSent = [self expectationWithDescription:@"service is unsubscribed"];
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        XCTAssertEqualObjects(request.URL.host, kHOST);
+        return ([request.URL.host isEqualToString:kHOST] &&
+                [request.HTTPMethod isEqualToString:@"UNSUBSCRIBE"] &&
+                [request.allHTTPHeaderFields[@"SID"] isEqualToString:@"42"]);
+    }
+                        withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+                            [unsubscribeRequestSent fulfill];
+                            return [OHHTTPStubsResponse responseWithData:nil
+                                                              statusCode:200
+                                                                 headers:nil];
+                        }];
+
+    // Act
+    [service disconnect];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                 }];
+}
+
 #pragma mark - Helpers
 
 - (void)checkGetPositionShouldParseTimeProperlyWithSamplePlatform:(NSString *)platform {
@@ -663,7 +768,6 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                  handler:^(NSError *error) {
                                      XCTAssertNil(error);
                                  }];
-    [OHHTTPStubs removeAllStubs];
 }
 
 - (void)callCommandCallbackFromInvocation:(NSInvocation *)invocation
