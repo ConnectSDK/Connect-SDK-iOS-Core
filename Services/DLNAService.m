@@ -159,29 +159,17 @@ static const NSInteger kValueNotFound = -1;
         NSString *serviceName = service[@"serviceId"][@"text"];
         NSString *controlPath = service[@"controlURL"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
-        if(![controlPath hasPrefix:@"/"]){
-            controlPath = [NSString stringWithFormat:@"/%@",controlPath];
-        }
-        if(![eventPath hasPrefix:@"/"]){
-            eventPath = [NSString stringWithFormat:@"/%@",eventPath];
-        }
-        NSString *controlURL = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                          self.serviceDescription.commandURL.host,
-                                                          self.serviceDescription.commandURL.port,
-                                                          controlPath];
-        NSString *eventURL = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                          self.serviceDescription.commandURL.host,
-                                                          self.serviceDescription.commandURL.port,
-                                                          eventPath];
-
+        NSURL *controlURL = [self serviceURLForPath:controlPath];
+        NSURL *eventURL = [self serviceURLForPath:eventPath];
+       
         if ([serviceName rangeOfString:@":AVTransport"].location != NSNotFound)
         {
-            _avTransportControlURL = [NSURL URLWithString:controlURL];
-            _avTransportEventURL = [NSURL URLWithString:eventURL];
+            _avTransportControlURL = controlURL;
+            _avTransportEventURL = eventURL;
         } else if ([serviceName rangeOfString:@":RenderingControl"].location != NSNotFound)
         {
-            _renderingControlControlURL = [NSURL URLWithString:controlURL];
-            _renderingControlEventURL = [NSURL URLWithString:eventURL];
+            _renderingControlControlURL = controlURL;
+            _renderingControlEventURL = eventURL;
         }
     }];
 }
@@ -388,12 +376,7 @@ static const NSInteger kValueNotFound = -1;
     [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
         NSString *serviceId = service[@"serviceId"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
-        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                           self.serviceDescription.commandURL.host,
-                                                           self.serviceDescription.commandURL.port,
-                                                           eventPath];
-        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
-
+        NSURL *eventSubURL = [self serviceURLForPath:eventPath];
         if ([eventPath hasPrefix:@"/"])
             eventPath = [eventPath substringFromIndex:1];
 
@@ -437,11 +420,7 @@ static const NSInteger kValueNotFound = -1;
     [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
         NSString *serviceId = service[@"serviceId"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
-        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                           self.serviceDescription.commandURL.host,
-                                                           self.serviceDescription.commandURL.port,
-                                                           eventPath];
-        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
+        NSURL *eventSubURL = [self serviceURLForPath:eventPath];
 
         NSString *timeoutValue = [NSString stringWithFormat:@"Second-%d", kSubscriptionTimeoutSeconds];
 
@@ -476,11 +455,7 @@ static const NSInteger kValueNotFound = -1;
     [_serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
         NSString *serviceId = service[@"serviceId"][@"text"];
         NSString *eventPath = service[@"eventSubURL"][@"text"];
-        NSString *commandPath = [NSString stringWithFormat:@"http://%@:%@%@",
-                                                           self.serviceDescription.commandURL.host,
-                                                           self.serviceDescription.commandURL.port,
-                                                           eventPath];
-        NSURL *eventSubURL = [NSURL URLWithString:commandPath];
+        NSURL *eventSubURL = [self serviceURLForPath:eventPath];
 
         NSString *sessionId = _httpServerSessionIds[serviceId];
 
@@ -503,6 +478,17 @@ static const NSInteger kValueNotFound = -1;
             }
         }];
     }];
+}
+
+- (NSURL*)serviceURLForPath:(NSString *)path{
+    if(![path hasPrefix:@"/"]){
+        path = [NSString stringWithFormat:@"/%@",path];
+    }
+    NSString *serviceURL = [NSString stringWithFormat:@"http://%@:%@%@",
+                      self.serviceDescription.commandURL.host,
+                      self.serviceDescription.commandURL.port,
+                      path];
+    return [NSURL URLWithString:serviceURL];
 }
 
 #pragma mark - Media Player
@@ -726,7 +712,7 @@ static const NSInteger kValueNotFound = -1;
          NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
-                 success([self getMetaDataDictionary:metaDataString]);
+                 success([self parseMetadataDictionaryFromXMLString:metaDataString]);
             }
      } failure:failure];
 }
@@ -742,7 +728,7 @@ static const NSInteger kValueNotFound = -1;
         
         if(currentTrackMetaData){
             if (success)
-                success([self getMetaDataDictionary:currentTrackMetaData]);
+                success([self parseMetadataDictionaryFromXMLString:currentTrackMetaData]);
         }
     };
     
@@ -785,10 +771,9 @@ static const NSInteger kValueNotFound = -1;
     return timeString;
 }
 
--(NSDictionary*)getMetaDataDictionary:(NSString *)metaDataXML{
-    
+- (NSDictionary *)parseMetadataDictionaryFromXMLString:(NSString *)metadataXML {
     NSError *xmlError;
-    NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metaDataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
+    NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metadataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
     // FIXME: check for XML errors
     
     NSMutableDictionary *mediaMetaData = [NSMutableDictionary dictionary];
@@ -805,15 +790,11 @@ static const NSInteger kValueNotFound = -1;
     if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"]){
         NSString *imageURL = [[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"];
         if(![self isValidUrl:imageURL]){
-            imageURL = [NSString stringWithFormat:@"http://%@:%@%@",
-                                     self.serviceDescription.commandURL.host,
-                                     self.serviceDescription.commandURL.port,
-                                     imageURL];
+            imageURL = [self serviceURLForPath:imageURL].absoluteString;
         }
         [mediaMetaData setObject:imageURL forKey:@"iconURL"];
     }
-    
-    
+
     return mediaMetaData;
 }
 
