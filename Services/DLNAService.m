@@ -712,7 +712,7 @@ static const NSInteger kValueNotFound = -1;
          NSString *metaDataString = [[response objectForKey:@"TrackMetaData"] objectForKey:@"text"];
          if(metaDataString){
              if (success)
-                 success([self getMetaDataDictionary:metaDataString]);
+                 success([self parseMetadataDictionaryFromXMLString:metaDataString]);
             }
      } failure:failure];
 }
@@ -728,7 +728,7 @@ static const NSInteger kValueNotFound = -1;
         
         if(currentTrackMetaData){
             if (success)
-                success([self getMetaDataDictionary:currentTrackMetaData]);
+                success([self parseMetadataDictionaryFromXMLString:currentTrackMetaData]);
         }
     };
     
@@ -771,10 +771,9 @@ static const NSInteger kValueNotFound = -1;
     return timeString;
 }
 
--(NSDictionary*)getMetaDataDictionary:(NSString *)metaDataXML{
-    
+- (NSDictionary *)parseMetadataDictionaryFromXMLString:(NSString *)metadataXML {
     NSError *xmlError;
-    NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metaDataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
+    NSDictionary *mediaMetadataResponse = [[[CTXMLReader dictionaryForXMLString:metadataXML error:&xmlError] objectForKey:@"DIDL-Lite"] objectForKey:@"item"];
     // FIXME: check for XML errors
     
     NSMutableDictionary *mediaMetaData = [NSMutableDictionary dictionary];
@@ -791,15 +790,11 @@ static const NSInteger kValueNotFound = -1;
     if([mediaMetadataResponse objectForKey:@"upnp:albumArtURI"]){
         NSString *imageURL = [[mediaMetadataResponse objectForKey:@"upnp:albumArtURI"] objectForKey:@"text"];
         if(![self isValidUrl:imageURL]){
-            imageURL = [NSString stringWithFormat:@"http://%@:%@%@",
-                                     self.serviceDescription.commandURL.host,
-                                     self.serviceDescription.commandURL.port,
-                                     imageURL];
+            imageURL = [self serviceURLForPath:imageURL].absoluteString;
         }
         [mediaMetaData setObject:imageURL forKey:@"iconURL"];
     }
-    
-    
+
     return mediaMetaData;
 }
 

@@ -51,6 +51,8 @@ static NSString *const kAVTransportEventURLKey = @"avTrEventURL";
 static NSString *const kRenderingControlControlURLKey = @"rndCtrCtrlURL";
 static NSString *const kRenderingControlEventURLKey = @"rndCtrEventURL";
 
+static NSString *const kIconURLMetadataKey = @"iconURL";
+
 
 /// Tests for the @c DLNAService class.
 @interface DLNAServiceTests : XCTestCase
@@ -489,6 +491,43 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
 -(void)testServiceSubscriptionURLsWithSlash {
     [self checkServiceSubscriptionURLForDevice:@"sonos"];
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: returns the passed
+/// album art URL if it's absolute and includes a host.
+- (void)testAbsoluteAlbumArtURLShouldBeParsedAsIs {
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>http://example.com/image.jpg</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"], @"http://example.com/image.jpg",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to an absolute album art URL if it doesn't include a host.
+- (void)testAbsoluteAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to a relative album art URL.
+- (void)testRelativeAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
 }
 
 #pragma mark - Helpers
