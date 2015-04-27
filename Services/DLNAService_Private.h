@@ -31,4 +31,6 @@ extern NSString *const kDataFieldName;
 @property (nonatomic, strong) NSURL *renderingControlControlURL;
 @property (nonatomic, strong) NSURL *renderingControlEventURL;
 
+- (NSURL*)serviceURLForPath:(NSString *)path;
+
 @end

@@ -870,4 +870,39 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     XCTAssertEqualObjects([urls objectForKey:@"renderingControlEventURL"], self.service.renderingControlEventURL.absoluteString);
 }
 
+-(void)testServiceSubscriptionURLsWithMissingBackSlash{
+    [self checkServiceSubscriptionURLForDevice:@"lg_speaker"];
+}
+
+-(void)testServiceSubscriptionURLsWithBackSlash{
+    [self checkServiceSubscriptionURLForDevice:@"sonos"];
+}
+
+- (void)checkServiceSubscriptionURLForDevice:(NSString *)device{
+    NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
+    NSData *xmlData = [NSData dataWithContentsOfFile:
+                       OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
+    ServiceDescription *serviceDescription = [ServiceDescription new];
+    serviceDescription.locationXML = @"<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
+    serviceDescription.commandURL = [NSURL URLWithString:@"http://127.0.0.0:0"];
+    NSError *error;
+    NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
+    SSDPDiscoveryProvider *ssdp = [SSDPDiscoveryProvider new];
+    serviceDescription.serviceList = [ssdp serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
+    [self.service setServiceDescription:serviceDescription];
+    [serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSURL *eventSubURL = [self.service serviceURLForPath:eventPath];
+        XCTAssertTrue([self isValidURL:eventSubURL.absoluteString]);
+    }];
+}
+
+- (BOOL)isValidURL:(NSString *) urlString{
+    BOOL isValidURL = NO;
+    NSURL *candidateURL = [NSURL URLWithString:urlString];
+    if (candidateURL && candidateURL.scheme && candidateURL.host && candidateURL.port)
+        isValidURL = YES;
+    return isValidURL;
+}
+
 @end
