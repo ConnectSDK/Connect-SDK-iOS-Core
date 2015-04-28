@@ -143,7 +143,7 @@ static const NSInteger kValueNotFound = -1;
         [self updateControlURLs];
 
         if (!_httpServer)
-            _httpServer = [DLNAHTTPServer new];
+            _httpServer = [self createDLNAHTTPServer];
     } else
     {
         _avTransportControlURL = nil;
@@ -184,7 +184,7 @@ static const NSInteger kValueNotFound = -1;
 //    NSString *targetPath = [NSString stringWithFormat:@"http://%@:%@/", self.serviceDescription.address, @(self.serviceDescription.port)];
 //    NSURL *targetURL = [NSURL URLWithString:targetPath];
 
-    _serviceReachability = [DeviceServiceReachability reachabilityWithTargetURL:_avTransportControlURL];
+    _serviceReachability = [self createDeviceServiceReachabilityWithTargetURL:_avTransportControlURL];
     _serviceReachability.delegate = self;
     [_serviceReachability start];
 
@@ -201,6 +201,8 @@ static const NSInteger kValueNotFound = -1;
 {
     self.connected = NO;
 
+    [self unsubscribeServices];
+    [_httpServer stop];
     [_serviceReachability stop];
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(deviceService:disconnectedWithError:)])
@@ -1298,6 +1300,16 @@ static const NSInteger kValueNotFound = -1;
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];
+}
+
+#pragma mark - Private
+
+- (DLNAHTTPServer *)createDLNAHTTPServer {
+    return [DLNAHTTPServer new];
+}
+
+- (DeviceServiceReachability *)createDeviceServiceReachabilityWithTargetURL:(NSURL *)url {
+    return [DeviceServiceReachability reachabilityWithTargetURL:url];
 }
 
 @end
