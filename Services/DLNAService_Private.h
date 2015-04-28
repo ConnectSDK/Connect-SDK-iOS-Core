@@ -34,6 +34,10 @@ extern NSString *const kDataFieldName;
 @property (nonatomic, strong) NSURL *renderingControlControlURL;
 @property (nonatomic, strong) NSURL *renderingControlEventURL;
 
+- (NSURL*)serviceURLForPath:(NSString *)path;
+/// Parses and returns a metadata dictionary from the @c metaDataXML string.
+- (NSDictionary *)parseMetadataDictionaryFromXMLString:(NSString *)metadataXML;
+
 /// Creates a new @c DLNAHTTPServer instance.
 - (DLNAHTTPServer *)createDLNAHTTPServer;
 /// Creates a new @c DeviceServiceReachability instance with the given target URL.

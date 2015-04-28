@@ -49,6 +49,13 @@ static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:servi
     _Pragma("clang diagnostic pop"); \
 })
 
+static NSString *const kAVTransportControlURLKey = @"avTrCtrlURL";
+static NSString *const kAVTransportEventURLKey = @"avTrEventURL";
+static NSString *const kRenderingControlControlURLKey = @"rndCtrCtrlURL";
+static NSString *const kRenderingControlEventURLKey = @"rndCtrEventURL";
+
+static NSString *const kIconURLMetadataKey = @"iconURL";
+
 
 /// Tests for the @c DLNAService class.
 @interface DLNAServiceTests : XCTestCase
@@ -458,6 +465,73 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (void)testUPnPErrorShouldBeParsedProperly_Sonos {
     [self checkUPnPErrorShouldBeParsedProperlyWithSamplePlatform:kPlatformSonos
                                              andErrorDescription:nil];
+}
+
+#pragma mark - Service URL Construction Tests
+
+- (void)testUpdateControlURLsWithoutSlash {
+    NSDictionary *urls = @{
+        kAVTransportControlURLKey: @"http://127.0.0.0:0/control/AVTransport",
+        kAVTransportEventURLKey: @"http://127.0.0.0:0/event/AVTransport",
+        kRenderingControlControlURLKey: @"http://127.0.0.0:0/control/RenderingControl",
+        kRenderingControlEventURLKey: @"http://127.0.0.0:0/event/RenderingControl"
+    };
+    [self checkUpdateControlURLForDevice:@"lg_speaker" withURLs:urls];
+}
+
+- (void)testUpdateControlURLsWithSlash {
+    NSDictionary *urls = @{
+        kAVTransportControlURLKey: @"http://127.0.0.0:0/MediaRenderer/AVTransport/Control",
+        kAVTransportEventURLKey: @"http://127.0.0.0:0/MediaRenderer/AVTransport/Event",
+        kRenderingControlControlURLKey: @"http://127.0.0.0:0/MediaRenderer/RenderingControl/Control",
+        kRenderingControlEventURLKey: @"http://127.0.0.0:0/MediaRenderer/RenderingControl/Event"
+    };
+    [self checkUpdateControlURLForDevice:@"sonos" withURLs:urls];
+}
+
+-(void)testServiceSubscriptionURLsWithoutSlash {
+    [self checkServiceSubscriptionURLForDevice:@"lg_speaker"];
+}
+
+-(void)testServiceSubscriptionURLsWithSlash {
+    [self checkServiceSubscriptionURLForDevice:@"sonos"];
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: returns the passed
+/// album art URL if it's absolute and includes a host.
+- (void)testAbsoluteAlbumArtURLShouldBeParsedAsIs {
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>http://example.com/image.jpg</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"], @"http://example.com/image.jpg",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to an absolute album art URL if it doesn't include a host.
+- (void)testAbsoluteAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to a relative album art URL.
+- (void)testRelativeAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
 }
 
 #pragma mark - Disconnect Tests
@@ -946,17 +1020,30 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            }];
 }
 
-- (void)testUpdateControlURLsWithMissingBackSlash{
-    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/control/AVTransport",@"avTransportControlURL",@"http://127.0.0.0:0/event/AVTransport",@"avTransportEventURL",@"http://127.0.0.0:0/control/RenderingControl",@"renderingControlControlURL",@"http://127.0.0.0:0/event/RenderingControl",@"renderingControlEventURL", nil];
-    [self checkUpdateControlURLForDevice:@"lg_speaker" withURLs:urls];
+- (void)checkUpdateControlURLForDevice:(NSString *)device
+                              withURLs:(NSDictionary *)urls{
+    ServiceDescription *serviceDescription = [self serviceDescriptionForDevice:device];
+    [self.service setServiceDescription:serviceDescription];
+
+    XCTAssertEqualObjects(urls[kAVTransportControlURLKey], self.service.avTransportControlURL.absoluteString);
+    XCTAssertEqualObjects(urls[kAVTransportEventURLKey], self.service.avTransportEventURL.absoluteString);
+    XCTAssertEqualObjects(urls[kRenderingControlControlURLKey], self.service.renderingControlControlURL
+                          .absoluteString);
+    XCTAssertEqualObjects(urls[kRenderingControlEventURLKey], self.service.renderingControlEventURL.absoluteString);
 }
 
-- (void)testUpdateControlURLsWithBackSlash{
-    NSDictionary *urls = [NSDictionary dictionaryWithObjectsAndKeys:@"http://127.0.0.0:0/MediaRenderer/AVTransport/Control",@"avTransportControlURL",@"http://127.0.0.0:0/MediaRenderer/AVTransport/Event",@"avTransportEventURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Control",@"renderingControlControlURL",@"http://127.0.0.0:0/MediaRenderer/RenderingControl/Event",@"renderingControlEventURL", nil];
-    [self checkUpdateControlURLForDevice:@"sonos" withURLs:urls];
+- (void)checkServiceSubscriptionURLForDevice:(NSString *)device{
+    ServiceDescription *serviceDescription = [self serviceDescriptionForDevice:device];
+    [self.service setServiceDescription:serviceDescription];
+
+    [serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSURL *eventSubURL = [self.service serviceURLForPath:eventPath];
+        [self assertURLIsValid:eventSubURL];
+    }];
 }
 
-- (void)checkUpdateControlURLForDevice:(NSString *)device withURLs:(NSDictionary *)urls{
+- (ServiceDescription *)serviceDescriptionForDevice:(NSString *)device {
     NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
     NSData *xmlData = [NSData dataWithContentsOfFile:
                        OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
@@ -967,11 +1054,16 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
     SSDPDiscoveryProvider *ssdp = [SSDPDiscoveryProvider new];
     serviceDescription.serviceList = [ssdp serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
-    [self.service setServiceDescription:serviceDescription];
-    XCTAssertEqualObjects([urls objectForKey:@"avTransportControlURL"], self.service.avTransportControlURL.absoluteString);
-    XCTAssertEqualObjects([urls objectForKey:@"avTransportEventURL"], self.service.avTransportEventURL.absoluteString);
-    XCTAssertEqualObjects([urls objectForKey:@"renderingControlControlURL"], self.service.renderingControlControlURL.absoluteString);
-    XCTAssertEqualObjects([urls objectForKey:@"renderingControlEventURL"], self.service.renderingControlEventURL.absoluteString);
+
+    return serviceDescription;
+}
+
+- (void)assertURLIsValid:(NSURL *)url {
+    XCTAssertNotNil(url);
+    XCTAssertNotNil(url.scheme);
+    XCTAssertNotNil(url.host);
+    XCTAssertNotNil(url.port);
+    XCTAssertNotNil(url.path);
 }
 
 @end
