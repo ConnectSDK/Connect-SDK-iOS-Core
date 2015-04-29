@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "NetcastTVService.h"
+#import "NetcastTVService_Private.h"
 #import "ConnectError.h"
 #import "CTXMLReader.h"
 #import "GCDWebServer.h"
@@ -27,6 +27,9 @@
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
+#import "CommonMacros.h"
+
+#import "XMLWriter+ConvenienceMethods.h"
 
 #define kSmartShareName @"SmartShare™"
 
@@ -67,7 +70,6 @@ typedef enum {
 
 @implementation NetcastTVService
 
-@synthesize serviceConfig = _serviceConfig;
 @synthesize dialService = _dialService;
 @synthesize dlnaService = _dlnaService;
 
@@ -101,7 +103,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (instancetype) initWithServiceConfig:(ServiceConfig *)serviceConfig
 {
-    self = [super initWithServiceConfig:serviceConfig];
+    self = [super init];
 
     if (self)
     {
@@ -111,19 +113,27 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
+- (NetcastTVServiceConfig *)netcastTVServiceConfig {
+    return ([self.serviceConfig isKindOfClass:[NetcastTVServiceConfig class]] ?
+            (NetcastTVServiceConfig *)self.serviceConfig :
+            nil);
+}
+
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
+    const BOOL oldServiceConfigHasCode = (self.netcastTVServiceConfig.pairingCode != nil);
     if ([serviceConfig isKindOfClass:[NetcastTVServiceConfig class]])
     {
-        if (self.serviceConfig.pairingCode && !((NetcastTVServiceConfig *)serviceConfig).pairingCode)
-            NSAssert(!self.serviceConfig.pairingCode, @"Replacing important data!");
+        const BOOL newServiceConfigHasCode = (((NetcastTVServiceConfig *)serviceConfig).pairingCode != nil);
+        const BOOL wouldLoseCode = oldServiceConfigHasCode && !newServiceConfigHasCode;
+        _assert_state(!wouldLoseCode, @"Replacing important data!");
 
-        _serviceConfig = (NetcastTVServiceConfig *) serviceConfig;
+        [super setServiceConfig:serviceConfig];
     } else
     {
-        NSAssert(!self.serviceConfig.pairingCode, @"Replacing important data!");
+        _assert_state(!oldServiceConfigHasCode, @"Replacing important data!");
 
-        _serviceConfig = [[NetcastTVServiceConfig alloc] initWithServiceConfig:serviceConfig];
+        [super setServiceConfig:[[NetcastTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }
 }
 
@@ -263,6 +273,13 @@ NSString *lgeUDAPRequestURI[8] = {
 
 }
 
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
+}
+
 #pragma mark - Connection & Pairing
 
 - (BOOL)isConnectable
@@ -275,8 +292,8 @@ NSString *lgeUDAPRequestURI[8] = {
     if (self.connected)
         return;
 
-    if (self.serviceConfig.pairingCode)
-        [self pairWithData:self.serviceConfig.pairingCode];
+    if (self.netcastTVServiceConfig.pairingCode)
+        [self pairWithData:self.netcastTVServiceConfig.pairingCode];
     else
     {
         if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
@@ -523,7 +540,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
     ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:payload];
     command.callbackComplete = ^(NSDictionary *responseDic){
-        self.serviceConfig.pairingCode = pairingCode;
+        self.netcastTVServiceConfig.pairingCode = pairingCode;
 
         if ([DeviceService shouldDisconnectOnBackground])
         {
@@ -607,9 +624,8 @@ NSString *lgeUDAPRequestURI[8] = {
                 
                 if (dataString)
                 {
-                    NSError *commandError;
-                    [self parseCommandResponse:response data:dataString error:&commandError];
-                    
+                    NSError *commandError = [self parseCommandResponse:response
+                                                                  data:dataString];
                     if (commandError)
                     {
                         if (command.callbackError)
@@ -645,7 +661,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 #pragma mark - Helper methods
 
-- (void)parseCommandResponse:(NSURLResponse *)response data:(NSString *)responseData error:(NSError **)error
+- (NSError *)parseCommandResponse:(NSURLResponse *)response data:(NSString *)responseData
 {
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     NSString *errorMessage;
@@ -668,14 +684,18 @@ NSString *lgeUDAPRequestURI[8] = {
             errorMessage = @"The command execution has failed.";
             break;
 
-        default:break;
+        default:
+            break;
     }
 
+    NSError *error;
     if (errorMessage)
     {
-        *error = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage];
-        return;
+        error = [ConnectError generateErrorWithCode:ConnectStatusCodeTvError
+                                         andDetails:errorMessage];
     }
+
+    return error;
 }
 
 - (NSOperationQueue *)commandQueue
@@ -1240,12 +1260,6 @@ NSString *lgeUDAPRequestURI[8] = {
 
 -(void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     if (self.dlnaService)
     {
         [self.dlnaService.mediaPlayer displayImageWithMediaInfo:mediaInfo success:^(MediaLaunchObject *launchObject)
@@ -1290,12 +1304,6 @@ NSString *lgeUDAPRequestURI[8] = {
 
 -(void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     if (self.dlnaService)
     {
         [self.dlnaService.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *launchObject)
@@ -2188,16 +2196,23 @@ NSString *lgeUDAPRequestURI[8] = {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_EVENT_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
 
-    NSString *payload = [NSString stringWithFormat:@
-                                                           "<envelope>"
-                                                               "<api type=\"event\">"
-                                                                   "<name>TextEdited</name>"
-                                                                   "<state>%@</state>"
-                                                                   "<value>%@</value>"
-                                                               "</api>"
-                                                           "</envelope>", state, [ConnectUtil entityEncode:text]];
+    NSString *payload = ({
+        XMLWriter *writer = [XMLWriter new];
 
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:payload];
+        [writer writeElement:@"envelope" withContentsBlock:^(XMLWriter *writer) {
+            [writer writeElement:@"api" withContentsBlock:^(XMLWriter *writer) {
+                [writer writeAttribute:@"type" value:@"event"];
+
+                [writer writeElement:@"name" withContents:@"TextEdited"];
+                [writer writeElement:@"state" withContents:state];
+                [writer writeElement:@"value" withContents:text];
+            }];
+        }];
+
+        [writer toString];
+    });
+
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:payload];
     command.callbackComplete = success;
     command.callbackError = failure;
     [command send];

@@ -18,22 +18,43 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
 #import <OHHTTPStubs/OHHTTPStubs.h>
 #import "NSInvocation+ObjectGetter.h"
+#import "OCMStubRecorder+XCTestExpectation.h"
 
 #import "CTXMLReader.h"
 #import "DLNAService_Private.h"
 #import "ConnectError.h"
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "SSDPDiscoveryProvider_Private.h"
+#import "DLNAHTTPServer.h"
+#import "DeviceServiceReachability.h"
 
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
 
 static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
 static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
+
+/// Executes the given block wrapping it in pragmas ignoring the capturing
+/// @c self warning, for a rare case when a compiler thinks a method is a setter,
+/// but it is not (e.g., -[DLNAService setVolume:success:failure:]).
+/// @see http://stackoverflow.com/questions/15535899/blocks-retain-cycle-from-naming-convention
+//
+// http://stackoverflow.com/questions/13826722/how-do-i-define-a-macro-with-multiple-pragmas-for-clang
+#define silence_retain_cycle_warning(block) ({\
+    _Pragma("clang diagnostic push"); \
+    _Pragma("clang diagnostic ignored \"-Warc-retain-cycles\""); \
+    block(); \
+    _Pragma("clang diagnostic pop"); \
+})
+
+static NSString *const kAVTransportControlURLKey = @"avTrCtrlURL";
+static NSString *const kAVTransportEventURLKey = @"avTrEventURL";
+static NSString *const kRenderingControlControlURLKey = @"rndCtrCtrlURL";
+static NSString *const kRenderingControlEventURLKey = @"rndCtrEventURL";
+
+static NSString *const kIconURLMetadataKey = @"iconURL";
 
 
 /// Tests for the @c DLNAService class.
@@ -56,6 +77,7 @@ static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:servi
 - (void)tearDown {
     self.service = nil;
     self.serviceCommandDelegateMock = nil;
+    [OHHTTPStubs removeAllStubs];
     [super tearDown];
 }
 
@@ -249,7 +271,9 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            actionBlock:^{
                                [self.service setVolume:0.99
                                                success:^(id responseObject) {
-                                                   XCTFail(@"success?");
+                                                   silence_retain_cycle_warning(^() {
+                                                       XCTFail(@"success?");
+                                                   });
                                                } failure:^(NSError *error) {
                                                    XCTFail(@"fail? %@", error);
                                                }];
@@ -286,7 +310,9 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                            actionBlock:^{
                                [self.service setMute:YES
                                              success:^(id responseObject) {
-                                                 XCTFail(@"success?");
+                                                 silence_retain_cycle_warning(^() {
+                                                     XCTFail(@"success?");
+                                                 });
                                              } failure:^(NSError *error) {
                                                  XCTFail(@"fail? %@", error);
                                              }];
@@ -439,6 +465,174 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (void)testUPnPErrorShouldBeParsedProperly_Sonos {
     [self checkUPnPErrorShouldBeParsedProperlyWithSamplePlatform:kPlatformSonos
                                              andErrorDescription:nil];
+}
+
+#pragma mark - Service URL Construction Tests
+
+- (void)testUpdateControlURLsWithoutSlash {
+    NSDictionary *urls = @{
+        kAVTransportControlURLKey: @"http://127.0.0.0:0/control/AVTransport",
+        kAVTransportEventURLKey: @"http://127.0.0.0:0/event/AVTransport",
+        kRenderingControlControlURLKey: @"http://127.0.0.0:0/control/RenderingControl",
+        kRenderingControlEventURLKey: @"http://127.0.0.0:0/event/RenderingControl"
+    };
+    [self checkUpdateControlURLForDevice:@"lg_speaker" withURLs:urls];
+}
+
+- (void)testUpdateControlURLsWithSlash {
+    NSDictionary *urls = @{
+        kAVTransportControlURLKey: @"http://127.0.0.0:0/MediaRenderer/AVTransport/Control",
+        kAVTransportEventURLKey: @"http://127.0.0.0:0/MediaRenderer/AVTransport/Event",
+        kRenderingControlControlURLKey: @"http://127.0.0.0:0/MediaRenderer/RenderingControl/Control",
+        kRenderingControlEventURLKey: @"http://127.0.0.0:0/MediaRenderer/RenderingControl/Event"
+    };
+    [self checkUpdateControlURLForDevice:@"sonos" withURLs:urls];
+}
+
+-(void)testServiceSubscriptionURLsWithoutSlash {
+    [self checkServiceSubscriptionURLForDevice:@"lg_speaker"];
+}
+
+-(void)testServiceSubscriptionURLsWithSlash {
+    [self checkServiceSubscriptionURLForDevice:@"sonos"];
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: returns the passed
+/// album art URL if it's absolute and includes a host.
+- (void)testAbsoluteAlbumArtURLShouldBeParsedAsIs {
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>http://example.com/image.jpg</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"], @"http://example.com/image.jpg",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to an absolute album art URL if it doesn't include a host.
+- (void)testAbsoluteAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
+}
+
+/// Tests that @c -parseMetadataDictionaryFromXMLString: prepends the service's
+/// @c commandURL to a relative album art URL.
+- (void)testRelativeAlbumArtURLWithoutHostShouldBeRelativeToServicesCommandURL {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://10.0.0.1:9099/yes"]];
+    self.service.serviceDescription = serviceDescriptionMock;
+
+    NSString *xml = @"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><item id=\"0\" parentID=\"0\" restricted=\"0\"><upnp:albumArtURI>aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&amp;v=0</upnp:albumArtURI></item></DIDL-Lite>";
+    NSDictionary *metadata = [self.service parseMetadataDictionaryFromXMLString:xml];
+    XCTAssertEqualObjects(metadata[@"iconURL"],
+                          @"http://10.0.0.1:9099/aa?u=http%3A%2F%2Fexample.com%2Fimage.jpg&v=0",
+                          @"The album art URL is incorrect");
+}
+
+#pragma mark - Disconnect Tests
+
+/// Tests that @c -disconnect shuts down the http server.
+- (void)testDisconnectShouldStopHTTPServer {
+    // Arrange
+    id httpServerMock = OCMClassMock([DLNAHTTPServer class]);
+    XCTestExpectation *serverIsStoppedExpectation = [self expectationWithDescription:@"httpServer should be stopped"];
+    [OCMExpect([httpServerMock stop]) andFulfillExpectation:serverIsStoppedExpectation];
+
+    // have to install a partial mock to be able to inject the httpServerMock
+    DLNAService *service = OCMPartialMock([DLNAService new]);
+    [OCMStub([service createDLNAHTTPServer]) andReturn:httpServerMock];
+
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock locationXML]) andReturn:@"http://127.1/"];
+
+    // Act
+    service.serviceDescription = serviceDescriptionMock;
+    [service disconnect];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(httpServerMock);
+                                 }];
+}
+
+/// Tests that @c -disconnect unsubscribes from all subscriptions.
+- (void)testDisconnectShouldUnsubscribeAllSubscriptions {
+    // Arrange
+    id httpServerMock = OCMClassMock([DLNAHTTPServer class]);
+    id reachabilityMock = OCMClassMock([DeviceServiceReachability class]);
+
+    // have to install a partial mock to be able to inject the httpServerMock
+    // and reachabilityMock
+    DLNAService *service = OCMPartialMock([DLNAService new]);
+    [OCMStub([service createDLNAHTTPServer]) andReturn:httpServerMock];
+    [OCMStub([service createDeviceServiceReachabilityWithTargetURL:OCMOCK_ANY]) andReturn:reachabilityMock];
+
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock locationXML]) andReturn:@"http://127.0.0.1/"];
+    NSDictionary *serviceDict = @{@"serviceId": @{@"text": @"id"},
+                                  @"eventSubURL": @{@"text": @"/sub"}};
+    NSArray *serviceList = @[serviceDict];
+    [OCMStub([serviceDescriptionMock serviceList]) andReturn:serviceList];
+    NSURL *commandURL = [NSURL URLWithString:@"http://127.0.0.1:8080/"];
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:commandURL];
+
+    static NSString *const kHOST = @"127.0.0.1";
+    XCTestExpectation *subscribeRequestSent = [self expectationWithDescription:@"service is subscribed"];
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        XCTAssertEqualObjects(request.URL.host, kHOST);
+        return ([request.URL.host isEqualToString:kHOST] &&
+                [request.HTTPMethod isEqualToString:@"SUBSCRIBE"]);
+    }
+                        withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+                            // NB: the expectation should be fulfilled after the
+                            // response is handled in DLNAService, for it to
+                            // save the SID!
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDefaultAsyncTestTimeout / 10 * NSEC_PER_SEC)),
+                                           dispatch_get_main_queue(), ^{
+                                               [subscribeRequestSent fulfill];
+                                           });
+                            return [OHHTTPStubsResponse responseWithData:nil
+                                                              statusCode:200
+                                                                 headers:@{@"SID": @"42"}];
+                        }];
+
+    service.serviceDescription = serviceDescriptionMock;
+    [service connect];
+
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                 }];
+
+    XCTestExpectation *unsubscribeRequestSent = [self expectationWithDescription:@"service is unsubscribed"];
+    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        XCTAssertEqualObjects(request.URL.host, kHOST);
+        return ([request.URL.host isEqualToString:kHOST] &&
+                [request.HTTPMethod isEqualToString:@"UNSUBSCRIBE"] &&
+                [request.allHTTPHeaderFields[@"SID"] isEqualToString:@"42"]);
+    }
+                        withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+                            [unsubscribeRequestSent fulfill];
+                            return [OHHTTPStubsResponse responseWithData:nil
+                                                              statusCode:200
+                                                                 headers:nil];
+                        }];
+
+    // Act
+    [service disconnect];
+
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                 }];
 }
 
 #pragma mark - Helpers
@@ -648,7 +842,6 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                  handler:^(NSError *error) {
                                      XCTAssertNil(error);
                                  }];
-    [OHHTTPStubs removeAllStubs];
 }
 
 - (void)callCommandCallbackFromInvocation:(NSInvocation *)invocation
@@ -825,6 +1018,52 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                NSString *itemClass = [item objectForKeyEndingWithString:@":class"][@"text"];
                                XCTAssertEqualObjects(itemClass, @"object.item.imageItem", @"class must be imageItem");
                            }];
+}
+
+- (void)checkUpdateControlURLForDevice:(NSString *)device
+                              withURLs:(NSDictionary *)urls{
+    ServiceDescription *serviceDescription = [self serviceDescriptionForDevice:device];
+    [self.service setServiceDescription:serviceDescription];
+
+    XCTAssertEqualObjects(urls[kAVTransportControlURLKey], self.service.avTransportControlURL.absoluteString);
+    XCTAssertEqualObjects(urls[kAVTransportEventURLKey], self.service.avTransportEventURL.absoluteString);
+    XCTAssertEqualObjects(urls[kRenderingControlControlURLKey], self.service.renderingControlControlURL
+                          .absoluteString);
+    XCTAssertEqualObjects(urls[kRenderingControlEventURLKey], self.service.renderingControlEventURL.absoluteString);
+}
+
+- (void)checkServiceSubscriptionURLForDevice:(NSString *)device{
+    ServiceDescription *serviceDescription = [self serviceDescriptionForDevice:device];
+    [self.service setServiceDescription:serviceDescription];
+
+    [serviceDescription.serviceList enumerateObjectsUsingBlock:^(id service, NSUInteger idx, BOOL *stop) {
+        NSString *eventPath = service[@"eventSubURL"][@"text"];
+        NSURL *eventSubURL = [self.service serviceURLForPath:eventPath];
+        [self assertURLIsValid:eventSubURL];
+    }];
+}
+
+- (ServiceDescription *)serviceDescriptionForDevice:(NSString *)device {
+    NSString *filename = [NSString stringWithFormat:@"ssdp_device_description_%@", device];
+    NSData *xmlData = [NSData dataWithContentsOfFile:
+                       OHPathForFileInBundle([filename stringByAppendingPathExtension:@"xml"], nil)];
+    ServiceDescription *serviceDescription = [ServiceDescription new];
+    serviceDescription.locationXML = @"<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
+    serviceDescription.commandURL = [NSURL URLWithString:@"http://127.0.0.0:0"];
+    NSError *error;
+    NSDictionary *dict = [CTXMLReader dictionaryForXMLData:xmlData error:&error];
+    SSDPDiscoveryProvider *ssdp = [SSDPDiscoveryProvider new];
+    serviceDescription.serviceList = [ssdp serviceListForDevice:[dict valueForKeyPath:@"root.device"]];
+
+    return serviceDescription;
+}
+
+- (void)assertURLIsValid:(NSURL *)url {
+    XCTAssertNotNil(url);
+    XCTAssertNotNil(url.scheme);
+    XCTAssertNotNil(url.host);
+    XCTAssertNotNil(url.port);
+    XCTAssertNotNil(url.path);
 }
 
 @end

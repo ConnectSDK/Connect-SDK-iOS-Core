@@ -176,7 +176,7 @@ typedef enum {
 @property (nonatomic, readonly) BOOL requiresPairing;
 
 /*! Type of pairing that this DeviceService requires. May be unknown until you try to connect. */
-@property (nonatomic, readonly) DeviceServicePairingType pairingType;
+@property (nonatomic, readwrite) DeviceServicePairingType pairingType;
 
 /*! May contain useful information regarding pairing (pairing key length, etc) */
 @property (nonatomic, readonly) id pairingData;

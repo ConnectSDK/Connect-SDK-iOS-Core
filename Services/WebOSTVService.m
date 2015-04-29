@@ -25,6 +25,7 @@
 #import "WebOSWebAppSession.h"
 #import "WebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
+#import "CommonMacros.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
@@ -50,7 +51,7 @@
 
 @implementation WebOSTVService
 
-@synthesize serviceDescription = _serviceDescription;
+@synthesize serviceDescription = _serviceDescription, pairingType = _pairingType;
 
 #pragma mark - Setup
 
@@ -66,19 +67,42 @@
     return self;
 }
 
+#pragma mark - Getters & Setters
+
+- (void) setPairingType:(DeviceServicePairingType)pairingType {
+    _pairingType = pairingType;
+}
+
+- (DeviceServicePairingType)pairingType{
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
+    {
+        pairingType = _pairingType!=DeviceServicePairingTypeNone ? _pairingType : DeviceServicePairingTypeFirstScreen;
+    }
+    return pairingType;
+}
+
+- (WebOSTVServiceConfig *)webOSTVServiceConfig {
+    return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
+            (WebOSTVServiceConfig *)self.serviceConfig :
+            nil);
+}
+
 #pragma mark - Inherited methods
 
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
 {
+    const BOOL oldServiceConfigHasKey = (self.webOSTVServiceConfig.clientKey != nil);
     if ([serviceConfig isKindOfClass:[WebOSTVServiceConfig class]])
     {
-        if (self.serviceConfig.clientKey && !((WebOSTVServiceConfig *) serviceConfig).clientKey)
-            NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        const BOOL newServiceConfigHasKey = (((WebOSTVServiceConfig *)serviceConfig).clientKey != nil);
+        const BOOL wouldLoseKey = oldServiceConfigHasKey && !newServiceConfigHasKey;
+        _assert_state(!wouldLoseKey, @"Losing important data!");
 
-        [super setServiceConfig:(WebOSTVServiceConfig *) serviceConfig];
+        [super setServiceConfig:serviceConfig];
     } else
     {
-        NSAssert(!self.serviceConfig.clientKey, @"Losing important data!");
+        _assert_state(!oldServiceConfigHasKey, @"Losing important data!");
 
         [super setServiceConfig:[[WebOSTVServiceConfig alloc] initWithServiceConfig:serviceConfig]];
     }
@@ -214,7 +238,7 @@
 - (BOOL) connected
 {
     if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
-        return self.socket.connected && self.serviceConfig.clientKey != nil;
+        return self.socket.connected && (self.webOSTVServiceConfig.clientKey != nil);
     else
         return self.socket.connected;
 }
@@ -264,14 +288,23 @@
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
+    if(self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed){
+        _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
+        _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
+    }
     dispatch_on_main(^{ [_pairingAlert show]; });
 }
 
 -(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if(alertView == _pairingAlert){
-        if (buttonIndex == 0)
+        if (buttonIndex == 0){
             [self disconnect];
+        }else
+            if((self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed) && buttonIndex == 1){
+                NSString *pairingCode = [alertView textFieldAtIndex:0].text;
+                [self sendPairingKey:pairingCode success:nil failure:nil];
+            }
     }
 }
 
@@ -292,7 +325,7 @@
     }
 }
 
-#pragma - WebOSTVServiceSocketClientDelegate
+#pragma mark - WebOSTVServiceSocketClientDelegate
 
 - (void) socketWillRegister:(WebOSTVServiceSocketClient *)socket
 {
@@ -362,9 +395,9 @@
 {
     _permissions = permissions;
 
-    if (self.serviceConfig.clientKey)
+    if (self.webOSTVServiceConfig.clientKey)
     {
-        self.serviceConfig.clientKey = nil;
+        self.webOSTVServiceConfig.clientKey = nil;
 
         if (self.connected)
         {
@@ -1917,6 +1950,28 @@
                                              
                                          } failure:failure];    
     return subscription;
+}
+
+- (void)sendPairingKey:(NSString *)pairingKey success:(SuccessBlock)success failure:(FailureBlock)failure {
+   
+    NSURL *URL = [NSURL URLWithString:@"ssap://pairing/setPin"];
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    [payload setObject:pairingKey forKey:@"pin"];
+    
+    ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
+    command.callbackComplete = (^(NSDictionary *responseDic)
+                                {
+                                    if (success) {
+                                        success(responseDic);
+                                    }
+                                    
+                                });
+    command.callbackError = ^(NSError *error){
+                                if(failure){
+                                    failure(error);
+                                }
+                            };
+    [command send];
 }
 
 - (WebOSWebAppSession *) webAppSessionForLaunchSession:(LaunchSession *)launchSession

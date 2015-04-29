@@ -18,9 +18,6 @@
 //  limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
 #import <OHHTTPStubs/OHHTTPStubs.h>
 
 #import "SSDPDiscoveryProvider_Private.h"

@@ -18,10 +18,7 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import <OHHTTPStubs/OHHTTPStubs.h>
 
 #import "SSDPDiscoveryProvider_Private.h"
@@ -128,7 +125,9 @@ static inline NSString *httpHeaderValue(CFHTTPMessageRef msg, NSString *header) 
         XCTAssertEqualObjects(statusLine, @"M-SEARCH * HTTP/1.1", @"The status line is incorrect");
 
         NSString *host = httpHeaderValue(msg, @"HOST");
-        NSString *correctHost = [NSString stringWithFormat:@"%@:%ld", kSSDPMulticastIPAddress, kSSDPMulticastTCPPort];
+        NSString *correctHost = [NSString stringWithFormat:@"%@:%lu",
+                                 kSSDPMulticastIPAddress,
+                                 (unsigned long) kSSDPMulticastTCPPort];
         XCTAssertEqualObjects(host, correctHost, @"The HOST header value is incorrect");
 
         NSString *man = httpHeaderValue(msg, @"MAN");

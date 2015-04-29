@@ -488,14 +488,7 @@ static NSMutableArray *registeredApps = nil;
 
 - (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
     NSURL *imageURL = mediaInfo.url;
-    
     if (!imageURL)
     {
         if (failure)

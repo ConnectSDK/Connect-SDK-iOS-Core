@@ -22,6 +22,17 @@
 #import "WebOSTVService.h"
 #import "ConnectError.h"
 
+#define kDeviceServicePairingTypeFirstScreen @"PROMPT"
+#define kDeviceServicePairingTypePinCode @"PIN"
+#define kDeviceServicePairingTypeMixed @"COMBINED"
+
+@interface WebOSTVServiceSocketClient ()
+
+/// Stores subscriptions that need to be automagically resubscribed after
+/// reconnect. The structure is that of the @c _subscribed property.
+@property (nonatomic, strong) NSDictionary *savedSubscriptions;
+
+@end
 
 @implementation WebOSTVServiceSocketClient
 {
@@ -135,8 +146,8 @@
     NSURL *url = [[NSURL alloc] initWithString:socketPath];
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:url];
 
-    if (self.service.serviceConfig.SSLCertificates)
-        [urlRequest setLGSR_SSLPinnedCertificates:self.service.serviceConfig.SSLCertificates];
+    if (self.service.webOSTVServiceConfig.SSLCertificates)
+        [urlRequest setLGSR_SSLPinnedCertificates:self.service.webOSTVServiceConfig.SSLCertificates];
 
     _socket = [self createSocketWithURLRequest:[urlRequest copy]];
     _socket.delegate = self;
@@ -174,6 +185,7 @@
     if (_connected)
     {
         _reconnectOnWake = YES;
+        self.savedSubscriptions = [_subscribed copy];
         [self disconnect];
     }
 }
@@ -224,8 +236,8 @@
             if (![self.service.serviceConfig.UUID isEqualToString:[response objectForKey:@"deviceUUID"]])
             {
                 //Imposter UUID, kill it, kill it with fire
-                self.service.serviceConfig.clientKey = nil;
-                self.service.serviceConfig.SSLCertificates = nil;
+                self.service.webOSTVServiceConfig.clientKey = nil;
+                self.service.webOSTVServiceConfig.SSLCertificates = nil;
                 self.service.serviceConfig.UUID = nil;
                 self.service.serviceDescription.address = nil;
                 self.service.serviceDescription.UUID = nil;
@@ -272,14 +284,19 @@
 
 -(void) registerWithTv
 {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)])
-        [self.delegate socketWillRegister:self];
-
     ServiceCommand *reg = [[ServiceCommand alloc] init];
     reg.delegate = self;
-
     reg.callbackComplete = ^(NSDictionary* response)
     {
+        NSString *pairingString = [response valueForKey:@"pairingType"];
+        if (pairingString) {
+            self.service.pairingType = [self pairingStringToType:pairingString];
+            // TODO: Need to update the method name socketWillRegister to socketWillRequirePairingWithPairingType.
+            if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != DeviceServicePairingTypeNone){
+                [self.delegate socketWillRegister:self];
+            }
+        }
+        
         if ([DeviceService shouldDisconnectOnBackground])
         {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -303,6 +320,11 @@
 
             _commandQueue = [[NSMutableArray alloc] init];
         }
+
+        if (self.savedSubscriptions.count > 0) {
+            [self resubscribeSubscriptions:self.savedSubscriptions];
+            self.savedSubscriptions = nil;
+        }
     };
     // TODO: this is getting cleaned up before a potential pairing cancelled message is received
     reg.callbackError = ^(NSError *error) {
@@ -315,7 +337,8 @@
     [_activeConnections setObject:reg forKey:[self connectionKeyForMessageId:@(dataId)]];
 
     NSDictionary *registerInfo = @{
-            @"manifest" : self.manifest
+            @"manifest" : self.manifest,
+            @"pairingType" : [self pairingTypeToString:self.service.pairingType]
     };
 
     NSString *sendString = [self encodeData:registerInfo andAddress:nil withId:dataId];
@@ -326,6 +349,42 @@
 
     if ([_commandQueue containsObject:sendString])
         [_commandQueue removeObject:sendString];
+}
+
+-(NSString *)pairingTypeToString:(DeviceServicePairingType)pairingType{
+    NSString *pairingTypeString = @"";
+    
+    if(pairingType == DeviceServicePairingTypeFirstScreen){
+        pairingTypeString = kDeviceServicePairingTypeFirstScreen;
+    }else
+        if(pairingType == DeviceServicePairingTypePinCode)
+        {
+            pairingTypeString = kDeviceServicePairingTypePinCode;
+        }
+        else
+            if(pairingType == DeviceServicePairingTypeMixed)
+            {
+                pairingTypeString = kDeviceServicePairingTypeMixed;
+            }
+    return pairingTypeString;
+}
+
+-(DeviceServicePairingType)pairingStringToType:(NSString *)pairingString{
+    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+    
+    if([pairingString isEqualToString:kDeviceServicePairingTypeFirstScreen]){
+        pairingType = DeviceServicePairingTypeFirstScreen;
+    }else
+        if([pairingString isEqualToString:kDeviceServicePairingTypePinCode])
+        {
+            pairingType = DeviceServicePairingTypePinCode;
+        }
+        else
+            if([pairingString isEqualToString:kDeviceServicePairingTypeMixed])
+            {
+                pairingType = DeviceServicePairingTypeMixed;
+            }
+    return pairingType;
 }
 
 #pragma mark - LGSRWebSocketDelegate
@@ -367,8 +426,8 @@
     {
         intError = [ConnectError generateErrorWithCode:ConnectStatusCodeCertificateError andDetails:nil];
 
-        self.service.serviceConfig.SSLCertificates = nil;
-        self.service.serviceConfig.clientKey = nil;
+        self.service.webOSTVServiceConfig.SSLCertificates = nil;
+        self.service.webOSTVServiceConfig.clientKey = nil;
 
         shouldRetry = YES;
     } else
@@ -403,7 +462,7 @@
 
 - (void)webSocket:(LGSRWebSocket *)webSocket didGetCertificates:(NSArray *)certs
 {
-    self.service.serviceConfig.SSLCertificates = certs;
+    self.service.webOSTVServiceConfig.SSLCertificates = certs;
 }
 
 - (void)webSocket:(LGSRWebSocket *)webSocket didReceiveMessage:(id)message
@@ -439,7 +498,7 @@
         if ([type isEqualToString:@"registered"])
         {
             NSString *client = [payload objectForKey:@"client-key"];
-            self.service.serviceConfig.clientKey = client;
+            self.service.webOSTVServiceConfig.clientKey = client;
 
             if (self.delegate)
                 [self.delegate socketDidConnect:self];
@@ -509,6 +568,13 @@
     return subscription;
 }
 
+/// Stores the given @c subscriptions dictionary as @c _subscribed and
+/// subscribes to all of them.
+- (void)resubscribeSubscriptions:(NSDictionary *)subscriptions {
+    _subscribed = [subscriptions mutableCopy];
+    [[_subscribed allValues] makeObjectsPerformSelector:@selector(subscribe)];
+}
+
 - (NSString *)subscriptionReferenceForURL:(NSURL *)URL payload:(NSDictionary *)payload
 {
     NSString *subscriptionReferenceId;
@@ -556,8 +622,8 @@
         [sendData setObject:@"request" forKey:@"type"];
     } else
     {
-        if (self.service.serviceConfig.clientKey)
-            [payloadData setObject:self.service.serviceConfig.clientKey forKey:@"client-key"];
+        if (self.service.webOSTVServiceConfig.clientKey)
+            [payloadData setObject:self.service.webOSTVServiceConfig.clientKey forKey:@"client-key"];
 
         [sendData setObject:@"register" forKey:@"type"];
     }

@@ -79,12 +79,12 @@ typedef enum {
 
 @property (nonatomic, strong, readonly) WebOSTVServiceSocketClient *socket;
 @property (nonatomic, strong, readonly) WebOSTVServiceMouse *mouseSocket;
-@property (nonatomic, strong) WebOSTVServiceConfig *serviceConfig;
+/// The base class' @c serviceConfig property downcast to
+/// @c WebOSTVServiceConfig class if possible, or nil.
+@property (nonatomic, strong, readonly) WebOSTVServiceConfig *webOSTVServiceConfig;
 @property (nonatomic, strong) NSArray *permissions;
 @property (nonatomic, readonly) NSDictionary *appToAppIdMappings;
 @property (nonatomic, readonly) NSDictionary *webAppSessions;
-
-- (void) setServiceConfig:(ServiceConfig *)serviceConfig;
 // @endcond
 
 #pragma mark - Web app & app to app

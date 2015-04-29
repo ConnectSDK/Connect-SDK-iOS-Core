@@ -105,6 +105,19 @@ static inline void LGSRFastLog(NSString *format, ...);
 @end
 
 
+static inline NSString *base64EncodedData(NSData *data) {
+    // based on https://github.com/square/SocketRocket/pull/168
+    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
+        return [data base64EncodedStringWithOptions:0];
+    }
+
+    _Pragma("clang diagnostic push");
+    _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"");
+    // legacy, before iOS 7
+    return [data base64Encoding];
+    _Pragma("clang diagnostic pop");
+}
+
 static NSString *newSHA1String(const char *bytes, size_t length) {
     uint8_t md[CC_SHA1_DIGEST_LENGTH];
     
@@ -112,7 +125,7 @@ static NSString *newSHA1String(const char *bytes, size_t length) {
     assert(length <= UINT32_MAX);
     CC_SHA1(bytes, (CC_LONG)length, md);
     
-    return [[NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH] base64Encoding];
+    return base64EncodedData([NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH]);
 }
 
 @implementation NSData (LGSRWebSocket)
@@ -501,7 +514,7 @@ static __strong NSData *CRLFCRLF;
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
-    _secKey = keyBytes.base64Encoding;
+    _secKey = base64EncodedData(keyBytes);
     
     assert([_secKey length] == 24);
     
@@ -1368,6 +1381,8 @@ static const size_t LGSRFrameHeaderOverhead = 32;
         if (secTrust) {
             certs = [NSMutableArray array];
             NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
+            _Pragma("clang diagnostic push");
+            _Pragma("clang diagnostic ignored \"-Wunreachable-code-loop-increment\"");
             for (NSInteger i = 0; i < numCerts; i++) {
                 SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
                 //NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(cert));
@@ -1376,6 +1391,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
                 [certs addObject:certString];
                 break;
             }
+            _Pragma("clang diagnostic pop");
         }
         _sslData = certs;
         

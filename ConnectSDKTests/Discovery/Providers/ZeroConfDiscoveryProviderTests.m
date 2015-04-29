@@ -18,12 +18,9 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 
 #import <arpa/inet.h>
 
-#import <OCMock/OCMock.h>
 
 #import "ZeroConfDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
@@ -403,6 +400,72 @@ static NSString *const kKeyServiceID = @"serviceId";
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
                                  beforeDate:timeoutDate];
     }
+}
+
+#pragma mark - IPv6 (lack of) support tests
+
+/// Tests that resolved services with IPv6 addresses only should be ignored.
+- (void)testShouldIgnoreResolvedIPv6Address {
+    // Arrange
+    uint8_t ip6Bytes[] = {0x1c, 0x1e, 0x1b, 0x58, 0x00, 0x00, 0x00, 0x00, 0xfe,
+        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x48, 0xe3, 0xce, 0xd1,
+        0x70, 0x68, 0x61, 0x04, 0x00, 0x00, 0x00};
+    NSData *ip6Data = [NSData dataWithBytes:ip6Bytes length:sizeof(ip6Bytes)];
+
+    NSArray *addresses = @[ip6Data];
+
+    id netServiceMock = OCMClassMock([NSNetService class]);
+    [OCMStub([netServiceMock name]) andReturn:@"zeroservice"];
+    [OCMStub([netServiceMock addresses]) andReturn:addresses];
+
+    id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
+    [OCMStub([delegateMock discoveryProvider:self.provider
+                              didFindService:OCMOCK_ANY]) andDo:^(NSInvocation *_) {
+        XCTFail(@"Should not be called for IPv6 address only");
+    }];
+    self.provider.delegate = delegateMock;
+
+    // Act
+    [self.provider netServiceDidResolveAddress:netServiceMock];
+
+    // Assert
+    OCMVerifyAll(delegateMock);
+}
+
+/// Tests that the IPv4 address is picked between resolved IPv6 and IPv4
+/// addresses, and provided in the @c ServiceDescription.
+- (void)testShouldCallDelegateWithIPv4AndNotIPv6Address {
+    // Arrange
+    uint8_t ip4Bytes[] = {0x10, 0x02, 0x1b, 0x58, 0xc0, 0xa8, 0x01, 0x84, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    NSData *ip4Data = [NSData dataWithBytes:ip4Bytes length:sizeof(ip4Bytes)];
+
+    uint8_t ip6Bytes[] = {0x1c, 0x1e, 0x1b, 0x58, 0x00, 0x00, 0x00, 0x00, 0xfe,
+        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x48, 0xe3, 0xce, 0xd1,
+        0x70, 0x68, 0x61, 0x04, 0x00, 0x00, 0x00};
+    NSData *ip6Data = [NSData dataWithBytes:ip6Bytes length:sizeof(ip6Bytes)];
+
+    NSArray *addresses = @[ip4Data, ip6Data];
+
+    id netServiceMock = OCMClassMock([NSNetService class]);
+    [OCMStub([netServiceMock name]) andReturn:@"zeroservice"];
+    [OCMStub([netServiceMock addresses]) andReturn:addresses];
+
+    id delegateMock = OCMProtocolMock(@protocol(DiscoveryProviderDelegate));
+    OCMExpect([delegateMock discoveryProvider:self.provider
+                               didFindService:[OCMArg checkWithBlock:^BOOL(ServiceDescription *description) {
+        XCTAssertEqualObjects(description.commandURL.absoluteString,
+                              @"http://192.168.1.132:7000/",
+                              @"CommandURL should use IPv4 address");
+        return YES;
+    }]]);
+    self.provider.delegate = delegateMock;
+
+    // Act
+    [self.provider netServiceDidResolveAddress:netServiceMock];
+
+    // Assert
+    OCMVerifyAll(delegateMock);
 }
 
 @end

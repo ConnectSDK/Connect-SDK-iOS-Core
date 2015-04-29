@@ -18,9 +18,6 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
 
 #import "WebOSTVService.h"
 #import "WebOSTVServiceSocketClient_Private.h"
@@ -90,6 +87,60 @@
     });
     [socketClient webSocketDidOpen:webSocketMock];
 
+    // Assert
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
+                                 handler:^(NSError *error) {
+                                     XCTAssertNil(error);
+                                     OCMVerifyAll(socketClientDelegateMock);
+                                 }];
+}
+
+-(void)testPairingShouldCallSocketWillRegister{
+    id serviceMock = OCMClassMock([WebOSTVService class]);
+    id webSocketMock = OCMClassMock([LGSRWebSocket class]);
+    //Send Pairing type which is not supported by the TV. Supported pairing type is PROMPT
+    OCMStub([serviceMock pairingType]).andReturn(DeviceServicePairingTypeMixed);
+    id socketClientDelegateMock = OCMProtocolMock(@protocol(WebOSTVServiceSocketClientDelegate));
+    OCMStub([socketClientDelegateMock socket:OCMOCK_ANY didReceiveMessage:OCMOCK_ANY]).andReturn(YES);
+    XCTestExpectation *socketWillRegisterCalled = [self expectationWithDescription:@"socketWillRegister: is called"];
+    OCMExpect([socketClientDelegateMock socketWillRegister:OCMOCK_NOTNIL]).andDo(^(NSInvocation *_) {
+        [socketWillRegisterCalled fulfill];
+    });
+    
+    // have to install a partial mock on the SUT (class under test) to stub
+    // the web socket object (LGSRWebSocket) and some manifest.
+    WebOSTVServiceSocketClient *socketClient = OCMPartialMock([[WebOSTVServiceSocketClient alloc] initWithService:serviceMock]);
+    socketClient.delegate = socketClientDelegateMock;
+    OCMStub([socketClient createSocketWithURLRequest:OCMOCK_ANY]).andReturn(webSocketMock);
+    OCMStub([socketClient manifest]).andReturn(@{});
+    
+    // Act
+    [socketClient connect];
+    
+    OCMStub([webSocketMock send:OCMOCK_ANY]).andDo(^(NSInvocation *inv) {
+        __unsafe_unretained NSString *tmp;
+        [inv getArgument:&tmp atIndex:2];
+        NSString *msg = tmp;
+        NSLog(@"Message %@",msg);
+        if (NSNotFound != [msg rangeOfString:@"\"hello\""].location) {
+            NSString *response = @"{\"type\":\"hello\",\"payload\":{\"protocolVersion\":1,\"deviceType\":\"tv\",\"deviceOS\":\"webOS\",\"deviceOSVersion\":\"4.0.3\",\"deviceOSReleaseVersion\":\"1.3.2\",\"deviceUUID\":\"3C763B8E-8AED-4330-8838-3B1CFABBC16A\",\"pairingTypes\":[\"PIN\",\"PROMPT\"]}}";
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [socketClient webSocket:webSocketMock didReceiveMessage:response];
+            });
+        } else if (NSNotFound != [msg rangeOfString:@"\"register\""].location) {
+            // here a pairing alert is displayed on TV
+            NSLog(@"Register called");
+             NSString *response = @"{\"type\":\"response\",\"id\":\"2\",\"payload\":{\"pairingType\":\"PROMPT\",\"returnValue\":true}}";
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [socketClient webSocket:webSocketMock didReceiveMessage:response];
+            });
+            
+        } else {
+            XCTFail(@"Unexpected request %@", msg);
+        }
+    });
+    [socketClient webSocketDidOpen:webSocketMock];
+    
     // Assert
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
                                  handler:^(NSError *error) {

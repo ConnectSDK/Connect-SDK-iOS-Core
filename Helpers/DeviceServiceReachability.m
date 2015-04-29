@@ -70,12 +70,19 @@
     [request setTimeoutInterval:10];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
 
-    [NSURLConnection sendAsynchronousRequest:request queue:_reachabilityQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:_reachabilityQueue
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
     {
         if (!_running)
             return;
 
-        if (data == nil && connectionError && response == nil)
+        if (connectionError) {
+            DLog(@"Connection error to %@: %@", self.targetURL, connectionError);
+        }
+
+        const BOOL noDataIsAvailable = !data && connectionError && !response;
+        if (noDataIsAvailable)
         {
             [self stop];
 
