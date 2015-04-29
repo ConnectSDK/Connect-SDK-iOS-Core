@@ -295,7 +295,7 @@
 +(BOOL) guidBytesFromString:(NSString*)guidString bytes:(UInt8*)bytes
 {
 	int offset = 0;
-	int length = guidString.length;
+	int length = (int)guidString.length;
 	
 	if (guidString == nil || length == 0)
 	{

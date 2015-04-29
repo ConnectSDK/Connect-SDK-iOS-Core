@@ -1381,6 +1381,8 @@ static const size_t LGSRFrameHeaderOverhead = 32;
         if (secTrust) {
             certs = [NSMutableArray array];
             NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
+            _Pragma("clang diagnostic push");
+            _Pragma("clang diagnostic ignored \"-Wunreachable-code-loop-increment\"");
             for (NSInteger i = 0; i < numCerts; i++) {
                 SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
                 //NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(cert));
@@ -1389,6 +1391,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
                 [certs addObject:certString];
                 break;
             }
+            _Pragma("clang diagnostic pop");
         }
         _sslData = certs;
         
