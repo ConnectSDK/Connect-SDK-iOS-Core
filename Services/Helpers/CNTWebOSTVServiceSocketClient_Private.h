@@ -1,8 +1,8 @@
 //
-//  CommonMacros.h
+//  WebOSTVServiceSocketClient_Private.h
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 3/25/15.
+//  Created by Eugene Nikolskyi on 2/6/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,15 @@
 //  limitations under the License.
 //
 
-/// Asserts a condition about a state, and throws an
-/// @c NSInternalInconsistencyException and given message as the reason if it
-/// evaluates to @c NO. Similar to @c NSAssert().
-static inline void _CNT_assert_state(const BOOL condition, NSString *msg) {
-    if (!condition) {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:msg
-                                     userInfo:nil];
-    }
-};
+#import "CNTWebOSTVServiceSocketClient.h"
+
+@class LGSRWebSocket;
+
+@interface CNTWebOSTVServiceSocketClient ()
+
+/// Creates a new websocket instance with the given request.
+- (LGSRWebSocket *)createSocketWithURLRequest:(NSURLRequest *)request;
+
+- (NSDictionary *) manifest;
+
+@end
