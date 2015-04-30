@@ -31,24 +31,24 @@
  */
 enum {
     /*! Unknown to the SDK, may not be used unless you extend Connect SDK to add additional functionality */
-    ImageTypeUnknown,
+    CNTImageTypeUnknown,
 
     /*! Icon or thumbnail image; mostly used by the CNTMediaPlayer capability to provide an icon for media playback. */
-    ImageTypeThumb,
+    CNTImageTypeThumb,
 
     /*! Large-sized poster image for use by CNTMediaPlayer capability when displaying video. It is recommended that your poster image is the same size as the target video player (full HD, in most cases). */
-    ImageTypeVideoPoster,
+    CNTImageTypeVideoPoster,
 
     /*! Album art image for use when playing audio through the CNTMediaPlayer capability. */
-    ImageTypeAlbumArt
+    CNTImageTypeAlbumArt
 };
-typedef NSUInteger ImageType;
+typedef NSUInteger CNTImageType;
 
 /*! URL source of the image */
 @property (nonatomic, strong) NSURL *url;
 
-/*! Type of image (see ImageType enum) */
-@property (nonatomic) ImageType type;
+/*! Type of image (see CNTImageType enum) */
+@property (nonatomic) CNTImageType type;
 
 /*! Width of the image (optional) */
 @property (nonatomic) NSInteger width;
@@ -60,8 +60,8 @@ typedef NSUInteger ImageType;
  * Creates an instance of CNTImageInfo with given property values.
  *
  * @param url URL source of the image
- * @param type Type of image (see ImageType enum)
+ * @param type Type of image (see CNTImageType enum)
  */
-- (instancetype) initWithURL:(NSURL *)url type:(ImageType)type;
+- (instancetype) initWithURL:(NSURL *)url type:(CNTImageType)type;
 
 @end

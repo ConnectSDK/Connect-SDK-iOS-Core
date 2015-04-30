@@ -27,14 +27,14 @@
 @protocol CNTServiceCommandDelegate <NSObject>
 
 typedef enum {
-    ServiceSubscriptionTypeUnsubscribe = NO,
-    ServiceSubscriptionTypeSubscribe = YES
-} ServiceSubscriptionType;
+    CNTServiceSubscriptionTypeUnsubscribe = NO,
+    CNTServiceSubscriptionTypeSubscribe = YES
+} CNTServiceSubscriptionType;
 
 @optional
 
 - (int) sendCommand:(CNTServiceCommand *)comm withPayload:(id)payload toURL:(NSURL*)URL;
-- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId;
+- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId;
 - (int) sendAsync:(CNTServiceAsyncCommand *)async withPayload:(id)payload toURL:(NSURL*)URL;
 
 @end

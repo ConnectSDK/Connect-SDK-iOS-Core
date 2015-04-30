@@ -1,5 +1,5 @@
 //
-//  WebOSService.m
+//  CNTWebOSTVService.m
 //  Connect SDK
 //
 //  Created by Jeremy White on 12/2/13.
@@ -25,12 +25,12 @@
 #import "CNTWebOSWebAppSession.h"
 #import "CNTWebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
-#import "CommonMacros.h"
+#import "CNTCommonMacros.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
-@interface CNTWebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate>
+@interface CNTWebOSTVService () <UIAlertViewDelegate, CNTWebOSTVServiceSocketClientDelegate>
 {
     NSArray *_permissions;
 
@@ -69,15 +69,15 @@
 
 #pragma mark - Getters & Setters
 
-- (void) setPairingType:(DeviceServicePairingType)pairingType {
+- (void) setPairingType:(CNTDeviceServicePairingType)pairingType {
     _pairingType = pairingType;
 }
 
-- (DeviceServicePairingType)pairingType{
-    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+- (CNTDeviceServicePairingType)pairingType{
+    CNTDeviceServicePairingType pairingType = CNTDeviceServicePairingTypeNone;
     if ([CNTDiscoveryManager sharedManager].pairingLevel == CNTDeviceServicePairingLevelOn)
     {
-        pairingType = _pairingType!=DeviceServicePairingTypeNone ? _pairingType : DeviceServicePairingTypeFirstScreen;
+        pairingType = _pairingType!=CNTDeviceServicePairingTypeNone ? _pairingType : CNTDeviceServicePairingTypeFirstScreen;
     }
     return pairingType;
 }
@@ -149,46 +149,46 @@
     if ([CNTDiscoveryManager sharedManager].pairingLevel == CNTDeviceServicePairingLevelOn)
     {
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                kKeyControlSendKeyCode,
-                kKeyControlUp,
-                kKeyControlDown,
-                kKeyControlLeft,
-                kKeyControlRight,
-                kKeyControlHome,
-                kKeyControlBack,
-                kKeyControlOK
+                kCNTKeyControlSendKeyCode,
+                kCNTKeyControlUp,
+                kCNTKeyControlDown,
+                kCNTKeyControlLeft,
+                kCNTKeyControlRight,
+                kCNTKeyControlHome,
+                kCNTKeyControlBack,
+                kCNTKeyControlOK
         ]];
 
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMouseControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kTextInputControlCapabilities];
-        capabilities = [capabilities arrayByAddingObject:kPowerControlOff];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaPlayerCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kLauncherCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kTVControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kExternalInputControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kToastControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMouseControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTTextInputControlCapabilities];
+        capabilities = [capabilities arrayByAddingObject:kCNTPowerControlOff];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaPlayerCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTLauncherCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTTVControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTExternalInputControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTVolumeControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTToastControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaControlCapabilities];
     } else
     {
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaPlayerCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaPlayerCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTVolumeControlCapabilities];
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                kLauncherApp,
-                kLauncherAppParams,
-                kLauncherAppStore,
-                kLauncherAppStoreParams
-                kLauncherAppClose,
-                kLauncherBrowser,
-                kLauncherBrowserParams,
-                kLauncherHulu,
-                kLauncherNetflix,
-                kLauncherNetflixParams,
-                kLauncherYouTube,
-                kLauncherYouTubeParams,
-                kLauncherAppState,
-                kLauncherAppStateSubscribe
+                kCNTLauncherApp,
+                kCNTLauncherAppParams,
+                kCNTLauncherAppStore,
+                kCNTLauncherAppStoreParams
+                kCNTLauncherAppClose,
+                kCNTLauncherBrowser,
+                kCNTLauncherBrowserParams,
+                kCNTLauncherHulu,
+                kCNTLauncherNetflix,
+                kCNTLauncherNetflixParams,
+                kCNTLauncherYouTube,
+                kCNTLauncherYouTubeParams,
+                kCNTLauncherAppState,
+                kCNTLauncherAppStateSubscribe
         ]];
     }
 
@@ -196,23 +196,23 @@
     {
         if ([_serviceDescription.version rangeOfString:@"4.0.0"].location == NSNotFound && [_serviceDescription.version rangeOfString:@"4.0.1"].location == NSNotFound)
         {
-            capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
-            capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
+            capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTWebAppLauncherCapabilities];
+            capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaControlCapabilities];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                    kWebAppLauncherLaunch,
-                    kWebAppLauncherLaunchParams,
+                    kCNTWebAppLauncherLaunch,
+                    kCNTWebAppLauncherLaunchParams,
 
-                    kMediaControlPlay,
-                    kMediaControlPause,
-                    kMediaControlStop,
-                    kMediaControlSeek,
-                    kMediaControlPosition,
-                    kMediaControlDuration,
-                    kMediaControlPlayState,
+                    kCNTMediaControlPlay,
+                    kCNTMediaControlPause,
+                    kCNTMediaControlStop,
+                    kCNTMediaControlSeek,
+                    kCNTMediaControlPosition,
+                    kCNTMediaControlDuration,
+                    kCNTMediaControlPlayState,
 
-                    kWebAppLauncherClose
+                    kCNTWebAppLauncherClose
             ]];
         }
     }
@@ -223,7 +223,7 @@
 + (NSDictionary *) discoveryParameters
 {
     return @{
-             @"serviceId": kConnectSDKWebOSTVServiceId,
+             @"serviceId": kCNTConnectSDKWebOSTVServiceId,
              @"ssdp":@{
                      @"filter":@"urn:lge-com:service:webos-second-screen:1"
                   }
@@ -288,7 +288,7 @@
     NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Cancel" value:@"Cancel" table:@"ConnectSDK"];
     
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
-    if(self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed){
+    if(self.pairingType == CNTDeviceServicePairingTypePinCode || self.pairingType == CNTDeviceServicePairingTypeMixed){
         _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
         _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
     }
@@ -301,7 +301,7 @@
         if (buttonIndex == 0){
             [self disconnect];
         }else
-            if((self.pairingType == DeviceServicePairingTypePinCode || self.pairingType == DeviceServicePairingTypeMixed) && buttonIndex == 1){
+            if((self.pairingType == CNTDeviceServicePairingTypePinCode || self.pairingType == CNTDeviceServicePairingTypeMixed) && buttonIndex == 1){
                 NSString *pairingCode = [alertView textFieldAtIndex:0].text;
                 [self sendPairingKey:pairingCode success:nil failure:nil];
             }
@@ -380,12 +380,12 @@
         return _permissions;
 
     NSMutableArray *defaultPermissions = [[NSMutableArray alloc] init];
-    [defaultPermissions addObjectsFromArray:kWebOSTVServiceOpenPermissions];
+    [defaultPermissions addObjectsFromArray:kCNTWebOSTVServiceOpenPermissions];
 
     if ([CNTDiscoveryManager sharedManager].pairingLevel == CNTDeviceServicePairingLevelOn)
     {
-        [defaultPermissions addObjectsFromArray:kWebOSTVServiceProtectedPermissions];
-        [defaultPermissions addObjectsFromArray:kWebOSTVServicePersonalActivityPermissions];
+        [defaultPermissions addObjectsFromArray:kCNTWebOSTVServiceProtectedPermissions];
+        [defaultPermissions addObjectsFromArray:kCNTWebOSTVServicePersonalActivityPermissions];
     }
 
     return [NSArray arrayWithArray:defaultPermissions];
@@ -401,7 +401,7 @@
 
         if (self.connected)
         {
-            NSError *error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Permissions changed -- you will need to re-pair to the TV."];
+            NSError *error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Permissions changed -- you will need to re-pair to the TV."];
             [self disconnectWithError:error];
         }
     }
@@ -449,12 +449,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) launcherPriority
+- (CNTCapabilityPriorityLevel) launcherPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getAppListWithSuccess:(AppListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppListWithSuccess:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://com.webos.applicationManager/listApps"];
 
@@ -476,12 +476,12 @@
     [command send];
 }
 
-- (void)launchApp:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApp:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApplication:appId withParams:nil success:success failure:failure];
 }
 
-- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system.launcher/launch"];
     
@@ -503,7 +503,7 @@
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appId];
         launchSession.sessionId = [responseObject objectForKey:@"sessionId"];
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
@@ -514,17 +514,17 @@
     [command send];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApp:appInfo.id success:success failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApplication:appInfo.id withParams:params success:success failure:failure];
 }
 
-- (void) launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchAppStore:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTAppInfo *appInfo = [CNTAppInfo appInfoForId:@"com.webos.app.discovery"];
     appInfo.name = @"LG Store";
@@ -540,7 +540,7 @@
     [self launchAppWithInfo:appInfo params:params success:success failure:failure];
 }
 
-- (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchBrowser:(NSURL *)target success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system.launcher/open"];
     NSDictionary *params = @{ @"target" : target.absoluteString };
@@ -550,7 +550,7 @@
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:[responseObject objectForKey:@"id"]];
         launchSession.sessionId = [responseObject objectForKey:@"sessionId"];
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
@@ -561,14 +561,14 @@
     [command send];
 }
 
-- (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchHulu:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSDictionary *params = @{ @"hulu" : contentId };
     
     [self launchApplication:@"hulu" withParams:params success:success failure:failure];
 }
 
-- (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchNetflix:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *netflixContentId = [NSString stringWithFormat:@"m=http%%3A%%2F%%2Fapi.netflix.com%%2Fcatalog%%2Ftitles%%2Fmovies%%2F%@&source_type=4", contentId];
 
@@ -578,12 +578,12 @@
     [self launchApplication:@"netflix" withParams:params success:success failure:failure];
 }
 
-- (void)launchYouTube:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchYouTube:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.launcher launchYouTube:contentId startTime:0.0 success:success failure:failure];
 }
 
-- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSDictionary *params;
 
@@ -592,7 +592,7 @@
         if (startTime < 0.0)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Start time may not be negative"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Start time may not be negative"]);
 
             return;
         }
@@ -605,11 +605,11 @@
     [self launchApplication:@"youtube.leanback.v4" withParams:params success:success failure:failure];
 }
 
-- (void) connectToApp:(NSString *)appId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) connectToApp:(NSString *)appId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appId];
     launchSession.service = self;
-    launchSession.sessionType = LaunchSessionTypeApp;
+    launchSession.sessionType = CNTLaunchSessionTypeApp;
 
     CNTWebOSWebAppSession *webAppSession = [self webAppSessionForLaunchSession:launchSession];
 
@@ -620,11 +620,11 @@
     } failure:failure];
 }
 
-- (void) joinApp:(NSString *)appId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) joinApp:(NSString *)appId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appId];
     launchSession.service = self;
-    launchSession.sessionType = LaunchSessionTypeApp;
+    launchSession.sessionType = CNTLaunchSessionTypeApp;
 
     CNTWebOSWebAppSession *webAppSession = [self webAppSessionForLaunchSession:launchSession];
 
@@ -635,12 +635,12 @@
     } failure:failure];
 }
 
-- (void) connectToApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connectToApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self connectToWebApp:webAppSession joinOnly:joinOnly success:success failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://com.webos.applicationManager/getForegroundAppInfo"];
 
@@ -657,7 +657,7 @@
     return subscription;
 }
 
-- (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://com.webos.applicationManager/getForegroundAppInfo"];
 
@@ -676,7 +676,7 @@
     [command send];
 }
 
-- (void)getAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system.launcher/getAppState"];
 
@@ -697,7 +697,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system.launcher/getAppState"];
 
@@ -717,7 +717,7 @@
     return subscription;
 }
 
-- (void)closeApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system.launcher/close"];
 
@@ -738,22 +738,22 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)externalInputControlPriority
+- (CNTCapabilityPriorityLevel)externalInputControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)launchInputPickerWithSuccess:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchInputPickerWithSuccess:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApp:@"com.webos.app.inputpicker" success:success failure:failure];
 }
 
-- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.launcher closeApp:launchSession success:success failure:failure];
 }
 
-- (void)getExternalInputListWithSuccess:(ExternalInputListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getExternalInputListWithSuccess:(CNTExternalInputListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/getExternalInputList"];
 
@@ -775,7 +775,7 @@
     [command send];
 }
 
-- (void)setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/switchInput"];
 
@@ -795,17 +795,17 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaPlayerPriority
+- (CNTCapabilityPriorityLevel)mediaPlayerPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -814,8 +814,8 @@
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -826,7 +826,7 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -862,7 +862,7 @@
     {
         NSString *webAppId = @"CNTMediaPlayer";
         
-        WebAppLaunchSuccessBlock connectSuccess = ^(CNTWebAppSession *webAppSession)
+        CNTWebAppLaunchSuccessBlock connectSuccess = ^(CNTWebAppSession *webAppSession)
         {
             CNTWebOSWebAppSession *session = (CNTWebOSWebAppSession *)webAppSession;
             [session.mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
@@ -875,12 +875,12 @@
     }
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -888,7 +888,7 @@
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -898,7 +898,7 @@
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -936,7 +936,7 @@
     {
         NSString *webAppId = @"CNTMediaPlayer";
         
-        WebAppLaunchSuccessBlock connectSuccess = ^(CNTWebAppSession *webAppSession)
+        CNTWebAppLaunchSuccessBlock connectSuccess = ^(CNTWebAppSession *webAppSession)
         {
             CNTWebOSWebAppSession *session = (CNTWebOSWebAppSession *)webAppSession;
             [session.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
@@ -949,7 +949,7 @@
     }
 }
 
-- (void)displayMediaWithParams:(NSDictionary *)params success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void)displayMediaWithParams:(NSDictionary *)params success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
@@ -958,7 +958,7 @@
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:[responseObject objectForKey:@"id"]];
         launchSession.sessionId = [responseObject objectForKey:@"sessionId"];
-        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.sessionType = CNTLaunchSessionTypeMedia;
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
@@ -971,7 +971,7 @@
     [command send];
 }
 
-- (void)closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self closeApp:launchSession success:success failure:failure];
 }
@@ -983,12 +983,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaControlPriority
+- (CNTCapabilityPriorityLevel)mediaControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.controls/play"];
 
@@ -998,7 +998,7 @@
     [command send];
 }
 
-- (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.controls/pause"];
 
@@ -1008,7 +1008,7 @@
     [command send];
 }
 
-- (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.controls/stop"];
 
@@ -1018,7 +1018,7 @@
     [command send];
 }
 
-- (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.controls/rewind"];
 
@@ -1028,7 +1028,7 @@
     [command send];
 }
 
-- (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.controls/fastForward"];
 
@@ -1038,36 +1038,36 @@
     [command send];
 }
 
-- (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
 }
@@ -1079,12 +1079,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)volumeControlPriority
+- (CNTCapabilityPriorityLevel)volumeControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (void)getMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/getMute"];
 
@@ -1102,7 +1102,7 @@
     [command send];
 }
 
-- (void)setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setMute:(BOOL)mute success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/setMute"];
     NSDictionary *payload = @{ @"mute" : @(mute) };
@@ -1114,7 +1114,7 @@
     [command send];
 }
 
-- (void)getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (void)getVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/getVolume"];
 
@@ -1133,7 +1133,7 @@
     [command send];
 }
 
-- (void)setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setVolume:(float)volume success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/setVolume"];
     NSDictionary *payload = @{ @"volume" : @(roundf(volume * 100.0f)) };
@@ -1145,7 +1145,7 @@
     [command send];
 }
 
-- (void)volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)volumeUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/volumeUp"];
 
@@ -1155,7 +1155,7 @@
     [command send];
 }
 
-- (void)volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)volumeDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/volumeDown"];
 
@@ -1165,7 +1165,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/getMute"];
 
@@ -1180,7 +1180,7 @@
     return subscription;
 }
 
-- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://audio/getVolume"];
 
@@ -1202,12 +1202,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)tvControlPriority
+- (CNTCapabilityPriorityLevel)tvControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock)failure
+- (void)getCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/getCurrentChannel"];
 
@@ -1221,7 +1221,7 @@
     [command send];
 }
 
-- (void)getChannelListWithSuccess:(ChannelListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getChannelListWithSuccess:(CNTChannelListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/getChannelList"];
 
@@ -1245,7 +1245,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/getCurrentChannel"];
 
@@ -1260,7 +1260,7 @@
     return subscription;
 }
 
-- (void)channelUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)channelUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/channelUp"];
 
@@ -1270,7 +1270,7 @@
     [command send];
 }
 
-- (void)channelDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)channelDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/channelDown"];
 
@@ -1280,7 +1280,7 @@
     [command send];
 }
 
-- (void)setChannel:(CNTChannelInfo *)channelInfo success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setChannel:(CNTChannelInfo *)channelInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/openChannel"];
     NSDictionary *payload = @{ @"channelId" : channelInfo.id};
@@ -1291,35 +1291,35 @@
     [command send];
 }
 
-- (void)getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
+- (void)get3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://com.webos.service.tv.display/get3DStatus"];
 
@@ -1336,7 +1336,7 @@
     [command send];
 }
 
-- (void)set3DEnabled:(BOOL)enabled success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)set3DEnabled:(BOOL)enabled success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL;
 
@@ -1351,7 +1351,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribe3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribe3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://com.webos.service.tv.display/get3DStatus"];
 
@@ -1374,12 +1374,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) keyControlPriority
+- (CNTCapabilityPriorityLevel) keyControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) sendMouseButton:(WebOSTVMouseButton)button success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendMouseButton:(CNTWebOSTVMouseButton)button success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.mouseSocket)
     {
@@ -1399,27 +1399,27 @@
     }
 }
 
-- (void)upWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)upWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonUp success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonUp success:success failure:failure];
 }
 
-- (void)downWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)downWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonDown success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonDown success:success failure:failure];
 }
 
-- (void)leftWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)leftWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonLeft success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonLeft success:success failure:failure];
 }
 
-- (void)rightWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rightWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonRight success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonRight success:success failure:failure];
 }
 
-- (void)okWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)okWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.mouseSocket)
     {
@@ -1439,20 +1439,20 @@
     }
 }
 
-- (void)backWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)backWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonBack success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonBack success:success failure:failure];
 }
 
-- (void)homeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)homeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendMouseButton:WebOSTVMouseButtonHome success:success failure:failure];
+    [self sendMouseButton:CNTWebOSTVMouseButtonHome success:success failure:failure];
 }
 
-- (void)sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendKeyCode:(NSUInteger)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Mouse
@@ -1462,12 +1462,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)mouseControlPriority
+- (CNTCapabilityPriorityLevel)mouseControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)connectMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)connectMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_mouseSocket || _mouseInit)
         return;
@@ -1501,7 +1501,7 @@
     _mouseInit = NO;
 }
 
-- (void) move:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) move:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.mouseSocket)
     {
@@ -1512,11 +1512,11 @@
     } else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"CNTMouseControl socket is not yet initialized."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"CNTMouseControl socket is not yet initialized."]);
     }
 }
 
-- (void) scroll:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) scroll:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.mouseSocket)
     {
@@ -1527,11 +1527,11 @@
     } else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"CNTMouseControl socket is not yet initialized."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"CNTMouseControl socket is not yet initialized."]);
     }
 }
 
-- (void)clickWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)clickWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self okWithSuccess:success failure:failure];
 }
@@ -1543,12 +1543,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)powerControlPriority
+- (CNTCapabilityPriorityLevel)powerControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)powerOffWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)powerOffWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system/turnOff"];
 
@@ -1561,17 +1561,17 @@
         if (didTurnOff && success)
             success(nil);
         else if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:nil]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:nil]);
     });
 
     command.callbackError = failure;
     [command send];
 }
 
-- (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) powerOnWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Web App Launcher
@@ -1581,27 +1581,27 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)webAppLauncherPriority
+- (CNTCapabilityPriorityLevel)webAppLauncherPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)launchWebApp:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchWebApp:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId params:nil relaunchIfRunning:YES success:success failure:failure];
 }
 
-- (void)launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId params:nil relaunchIfRunning:relaunchIfRunning success:success failure:failure];
 }
 
-- (void)launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
 
         return;
     }
@@ -1628,7 +1628,7 @@
             _webAppSessions[webAppId] = webAppSession;
         }
 
-        launchSession.sessionType = LaunchSessionTypeWebApp;
+        launchSession.sessionType = CNTLaunchSessionTypeWebApp;
         launchSession.service = self;
         launchSession.sessionId = [responseObject objectForKey:@"sessionId"];
         launchSession.rawData = [responseObject copy];
@@ -1640,12 +1640,12 @@
     [command send];
 }
 
-- (void)launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a valid webAppId."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You need to provide a valid webAppId."]);
 
         return;
     }
@@ -1660,7 +1660,7 @@
             if ([appInfo.id hasSuffix:webAppId])
             {
                 CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:webAppId];
-                launchSession.sessionType = LaunchSessionTypeWebApp;
+                launchSession.sessionType = CNTLaunchSessionTypeWebApp;
                 launchSession.service = self;
                 launchSession.rawData = appInfo.rawData;
 
@@ -1676,12 +1676,12 @@
     }
 }
 
-- (void)closeWebApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeWebApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!launchSession || !launchSession.appId || launchSession.appId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Must provide a valid launch session object"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Must provide a valid launch session object"]);
 
         return;
     }
@@ -1729,7 +1729,7 @@
     }
 }
 
-- (void)joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTWebOSWebAppSession *webAppSession = [self webAppSessionForLaunchSession:webAppLaunchSession];
 
@@ -1740,16 +1740,16 @@
     } failure:failure];
 }
 
-- (void)joinWebAppWithId:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)joinWebAppWithId:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:webAppId];
-    launchSession.sessionType = LaunchSessionTypeWebApp;
+    launchSession.sessionType = CNTLaunchSessionTypeWebApp;
     launchSession.service = self;
 
     [self joinWebApp:launchSession success:success failure:failure];
 }
 
-- (void) connectToWebApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connectToWebApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!_webAppSessions)
         _webAppSessions = [NSMutableDictionary new];
@@ -1760,14 +1760,14 @@
     if (!webAppSession || !webAppSession.launchSession)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid CNTLaunchSession object."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid CNTLaunchSession object."]);
         return;
     }
 
     NSString *appId = webAppSession.launchSession.appId;
     NSString *idKey;
 
-    if (webAppSession.launchSession.sessionType == LaunchSessionTypeWebApp)
+    if (webAppSession.launchSession.sessionType == CNTLaunchSessionTypeWebApp)
         idKey = @"webAppId";
     else
         idKey = @"appId";
@@ -1775,7 +1775,7 @@
     if (!appId || appId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app session"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app session"]);
 
         return;
     }
@@ -1785,7 +1785,7 @@
     NSMutableDictionary *payload = [NSMutableDictionary new];
     [payload setValue:appId forKey:idKey];
 
-    FailureBlock connectFailure = ^(NSError *error)
+    CNTFailureBlock connectFailure = ^(NSError *error)
     {
         [webAppSession disconnectFromWebApp];
 
@@ -1802,7 +1802,7 @@
         }
     };
 
-    SuccessBlock connectSuccess = ^(id responseObject) {
+    CNTSuccessBlock connectSuccess = ^(id responseObject) {
         NSString *state = [responseObject objectForKey:@"state"];
 
         if (![state isEqualToString:@"CONNECTED"])
@@ -1810,7 +1810,7 @@
             if (joinOnly && [state isEqualToString:@"WAITING_FOR_APP"])
             {
                 if (connectFailure)
-                    connectFailure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Web app is not currently running"]);
+                    connectFailure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Web app is not currently running"]);
             }
 
             return;
@@ -1820,7 +1820,7 @@
 
         if (fullAppId)
         {
-            if (webAppSession.launchSession.sessionType == LaunchSessionTypeWebApp)
+            if (webAppSession.launchSession.sessionType == CNTLaunchSessionTypeWebApp)
                 _appToAppIdMappings[fullAppId] = appId;
 
             webAppSession.fullAppId = fullAppId;
@@ -1839,12 +1839,12 @@
 }
 
 
-- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
         
         return;
     }
@@ -1873,12 +1873,12 @@
                                          }];
 }
 
-- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
         
         return;
     }
@@ -1909,12 +1909,12 @@
                                          }];
 }
 
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app id"]);
         
         return;
     }
@@ -1935,7 +1935,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://webapp/isWebAppPinned"];
     NSMutableDictionary *payload = [NSMutableDictionary new];
@@ -1952,7 +1952,7 @@
     return subscription;
 }
 
-- (void)sendPairingKey:(NSString *)pairingKey success:(SuccessBlock)success failure:(FailureBlock)failure {
+- (void)sendPairingKey:(NSString *)pairingKey success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure {
    
     NSURL *URL = [NSURL URLWithString:@"ssap://pairing/setPin"];
     NSMutableDictionary *payload = [NSMutableDictionary new];
@@ -2010,12 +2010,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) textInputControlPriority
+- (CNTCapabilityPriorityLevel) textInputControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) sendText:(NSString *)input success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendText:(NSString *)input success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [_keyboardQueue addObject:input];
 
@@ -2023,7 +2023,7 @@
         [self sendKeys];
 }
 
-- (void)sendEnterWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendEnterWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [_keyboardQueue addObject:kKeyboardEnter];
 
@@ -2031,7 +2031,7 @@
         [self sendKeys];
 }
 
-- (void)sendDeleteWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendDeleteWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [_keyboardQueue addObject:kKeyboardDelete];
 
@@ -2116,7 +2116,7 @@
     [command send];
 }
 
-- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(TextInputStatusInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(CNTTextInputStatusInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _keyboardQueue = [[NSMutableArray alloc] init];
     _keyboardQueueProcessing = NO;
@@ -2158,12 +2158,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel)toastControlPriority
+- (CNTCapabilityPriorityLevel)toastControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)showToast:(NSString *)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showToast:(NSString *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2171,7 +2171,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void)showToast:(NSString *)message iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showToast:(NSString *)message iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2181,7 +2181,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void)showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)launchParams success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)launchParams success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2191,7 +2191,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void)showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)launchParams iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)launchParams iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2203,7 +2203,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void)showClickableToast:(NSString *)message URL:(NSURL *)URL success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showClickableToast:(NSString *)message URL:(NSURL *)URL success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2212,7 +2212,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void)showClickableToast:(NSString *)message URL:(NSURL *)URL iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)showClickableToast:(NSString *)message URL:(NSURL *)URL iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     if (message) [params setValue:message forKey:@"message"];
@@ -2223,7 +2223,7 @@
     [self showToastWithParams:params success:success failure:failure];
 }
 
-- (void) showToastWithParams:(NSDictionary *)params success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) showToastWithParams:(NSDictionary *)params success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSMutableDictionary *toastParams = [NSMutableDictionary dictionaryWithDictionary:params];
 
@@ -2255,7 +2255,7 @@
 
 #pragma mark - System info
 
-- (void)getServiceListWithSuccess:(ServiceListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getServiceListWithSuccess:(ServiceListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://api/getServiceList"];
 
@@ -2271,7 +2271,7 @@
     [command send];
 }
 
-- (void)getSystemInfoWithSuccess:(SystemInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getSystemInfoWithSuccess:(SystemInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://system/getSystemInfo"];
 

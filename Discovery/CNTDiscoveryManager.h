@@ -39,7 +39,7 @@
  *
  * Example:
  *
- * @capability kMediaControlPlay
+ * @capability kCNTMediaControlPlay
  *
  @code
    CNTDiscoveryManager *discoveryManager = [CNTDiscoveryManager sharedManager];

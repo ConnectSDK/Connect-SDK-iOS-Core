@@ -20,7 +20,7 @@
 
 #import "CNTZeroConfDiscoveryProvider_Private.h"
 #import "CNTServiceDescription.h"
-#import "CommonMacros.h"
+#import "CNTCommonMacros.h"
 #include <arpa/inet.h>
 
 

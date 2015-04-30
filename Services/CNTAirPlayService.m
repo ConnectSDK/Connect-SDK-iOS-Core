@@ -33,7 +33,7 @@ static CNTAirPlayServiceMode airPlayServiceMode;
 @synthesize httpService = _httpService;
 @synthesize mirroredService = _mirroredService;
 
-+ (void)setCNTAirPlayServiceMode:(CNTAirPlayServiceMode)serviceMode
++ (void)setAirPlayServiceMode:(CNTAirPlayServiceMode)serviceMode
 {
     airPlayServiceMode = serviceMode;
 }
@@ -46,7 +46,7 @@ static CNTAirPlayServiceMode airPlayServiceMode;
 + (NSDictionary *) discoveryParameters
 {
     return @{
-        @"serviceId" : kConnectSDKAirPlayServiceId,
+        @"serviceId" : kCNTConnectSDKAirPlayServiceId,
         @"zeroconf" : @{
                 @"filter" : @"_airplay._tcp"
         }
@@ -60,46 +60,46 @@ static CNTAirPlayServiceMode airPlayServiceMode;
     if ([CNTAirPlayService serviceMode] == CNTAirPlayServiceModeMedia)
     {
         caps = [caps arrayByAddingObjectsFromArray:@[
-                kMediaPlayerDisplayImage,
-                kMediaPlayerPlayVideo,
-                kMediaPlayerPlayAudio,
-                kMediaPlayerClose,
-                kMediaPlayerMetaDataMimeType
+                kCNTMediaPlayerDisplayImage,
+                kCNTMediaPlayerPlayVideo,
+                kCNTMediaPlayerPlayAudio,
+                kCNTMediaPlayerClose,
+                kCNTMediaPlayerMetaDataMimeType
         ]];
 
         caps = [caps arrayByAddingObjectsFromArray:@[
-                kMediaControlPlay,
-                kMediaControlPause,
-                kMediaControlStop,
-                kMediaControlRewind,
-                kMediaControlFastForward,
-                kMediaControlPlayState,
-                kMediaControlDuration,
-                kMediaControlPosition,
-                kMediaControlSeek
+                kCNTMediaControlPlay,
+                kCNTMediaControlPause,
+                kCNTMediaControlStop,
+                kCNTMediaControlRewind,
+                kCNTMediaControlFastForward,
+                kCNTMediaControlPlayState,
+                kCNTMediaControlDuration,
+                kCNTMediaControlPosition,
+                kCNTMediaControlSeek
         ]];
     } else if ([CNTAirPlayService serviceMode] == CNTAirPlayServiceModeWebApp)
     {
         caps = [caps arrayByAddingObjectsFromArray:@[
-                kWebAppLauncherLaunch,
-                kWebAppLauncherMessageSend,
-                kWebAppLauncherMessageReceive,
-                kWebAppLauncherMessageSendJSON,
-                kWebAppLauncherMessageReceiveJSON,
-                kWebAppLauncherClose,
-                kWebAppLauncherConnect,
-                kWebAppLauncherJoin,
-                kWebAppLauncherDisconnect
+                kCNTWebAppLauncherLaunch,
+                kCNTWebAppLauncherMessageSend,
+                kCNTWebAppLauncherMessageReceive,
+                kCNTWebAppLauncherMessageSendJSON,
+                kCNTWebAppLauncherMessageReceiveJSON,
+                kCNTWebAppLauncherClose,
+                kCNTWebAppLauncherConnect,
+                kCNTWebAppLauncherJoin,
+                kCNTWebAppLauncherDisconnect
         ]];
     }
 
     [super setCapabilities:caps];
 }
 
-- (void) sendNotSupportedFailure:(FailureBlock)failure
+- (void) sendNotSupportedFailure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (BOOL) isConnectable
@@ -168,17 +168,17 @@ static CNTAirPlayServiceMode airPlayServiceMode;
     return self.httpService.mediaPlayer;
 }
 
-- (CapabilityPriorityLevel) mediaPlayerPriority
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority
 {
     return self.mediaPlayer.mediaPlayerPriority;
 }
 
-- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -187,8 +187,8 @@ static CNTAirPlayServiceMode airPlayServiceMode;
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -199,24 +199,24 @@ static CNTAirPlayServiceMode airPlayServiceMode;
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaPlayer displayImageWithMediaInfo:mediaInfo success:success failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
         success(mediaLanchObject.session,mediaLanchObject.mediaControl);
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -226,12 +226,12 @@ static CNTAirPlayServiceMode airPlayServiceMode;
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaPlayer playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaPlayer closeMedia:launchSession success:success failure:failure];
 }
@@ -243,62 +243,62 @@ static CNTAirPlayServiceMode airPlayServiceMode;
     return self.httpService.mediaControl;
 }
 
-- (CapabilityPriorityLevel) mediaControlPriority
+- (CNTCapabilityPriorityLevel) mediaControlPriority
 {
     return self.mediaControl.mediaControlPriority;
 }
 
-- (void) playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl playWithSuccess:success failure:failure];
 }
 
-- (void) pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl pauseWithSuccess:success failure:failure];
 }
 
-- (void) stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl stopWithSuccess:success failure:failure];
 }
 
-- (void) rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl rewindWithSuccess:success failure:failure];
 }
 
-- (void) fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl fastForwardWithSuccess:success failure:failure];
 }
 
-- (void) getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void) getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl getDurationWithSuccess:success failure:failure];
 }
 
-- (void) getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl getPlayStateWithSuccess:success failure:failure];
 }
 
-- (void) getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl getPositionWithSuccess:success failure:failure];
 }
 
-- (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl seek:position success:success failure:failure];
 }
 
-- (CNTServiceSubscription *) subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     return [self.mediaControl subscribePlayStateWithSuccess:success failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
    return [self.mediaControl subscribeMediaInfoWithSuccess:success failure:failure];
 }
@@ -306,84 +306,84 @@ static CNTAirPlayServiceMode airPlayServiceMode;
 
 #pragma mark - Helpers
 
-- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    if (launchSession.sessionType == LaunchSessionTypeWebApp)
+    if (launchSession.sessionType == CNTLaunchSessionTypeWebApp)
     {
         [self.webAppLauncher closeWebApp:launchSession success:success failure:failure];
-    } else if (launchSession.sessionType == LaunchSessionTypeMedia)
+    } else if (launchSession.sessionType == CNTLaunchSessionTypeMedia)
     {
         [self.mediaPlayer closeMedia:launchSession success:success failure:failure];
     } else
     {
         if (failure)
-            dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find CNTDeviceService responsible for closing this CNTLaunchSession"]); });
+            dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find CNTDeviceService responsible for closing this CNTLaunchSession"]); });
     }
 }
 
-#pragma mark - WebAppLauncher
+#pragma mark - CNTWebAppLauncher
 
 - (id <CNTWebAppLauncher>) webAppLauncher
 {
     return self.mirroredService.webAppLauncher;
 }
 
-- (CapabilityPriorityLevel) webAppLauncherPriority
+- (CNTCapabilityPriorityLevel) webAppLauncherPriority
 {
     return self.webAppLauncher.webAppLauncherPriority;
 }
 
-- (void) launchWebApp:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId success:success failure:failure];
 }
 
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId params:params success:success failure:failure];
 }
 
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId params:params relaunchIfRunning:relaunchIfRunning success:success failure:failure];
 }
 
-- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher launchWebApp:webAppId relaunchIfRunning:YES success:success failure:failure];
 }
 
-- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher joinWebApp:webAppLaunchSession success:success failure:failure];
 }
 
-- (void) joinWebAppWithId:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWebAppWithId:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher joinWebAppWithId:webAppId success:success failure:failure];
 }
 
-- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.webAppLauncher closeWebApp:launchSession success:success failure:failure];
 }
 
-- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
--(void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+-(void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
     return nil;

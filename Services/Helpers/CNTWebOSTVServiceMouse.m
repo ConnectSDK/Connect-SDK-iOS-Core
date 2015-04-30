@@ -31,8 +31,8 @@
 {
     LGSRWebSocket *_mouseSocket;
 
-    SuccessBlock _success;
-    FailureBlock _failure;
+    CNTSuccessBlock _success;
+    CNTFailureBlock _failure;
 
     CGVector _mouseDistance;
     CGVector _scrollDistance;
@@ -41,7 +41,7 @@
     BOOL _mouseIsScrolling;
 }
 
-- (instancetype) initWithSocket:(NSString*)socket success:(SuccessBlock)success failure:(FailureBlock)failure
+- (instancetype) initWithSocket:(NSString*)socket success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     self = [super init];
 
@@ -112,18 +112,18 @@
     [self sendPackage:clickString];
 }
 
--(void) button:(WebOSTVMouseButton)keyName
+-(void) button:(CNTWebOSTVMouseButton)keyName
 {
     NSString *keyString;
 
     switch (keyName)
     {
-        case WebOSTVMouseButtonHome: keyString = @"HOME"; break;
-        case WebOSTVMouseButtonBack: keyString = @"BACK"; break;
-        case WebOSTVMouseButtonUp: keyString = @"UP"; break;
-        case WebOSTVMouseButtonDown: keyString = @"DOWN"; break;
-        case WebOSTVMouseButtonLeft: keyString = @"LEFT"; break;
-        case WebOSTVMouseButtonRight: keyString = @"RIGHT"; break;
+        case CNTWebOSTVMouseButtonHome: keyString = @"HOME"; break;
+        case CNTWebOSTVMouseButtonBack: keyString = @"BACK"; break;
+        case CNTWebOSTVMouseButtonUp: keyString = @"UP"; break;
+        case CNTWebOSTVMouseButtonDown: keyString = @"DOWN"; break;
+        case CNTWebOSTVMouseButtonLeft: keyString = @"LEFT"; break;
+        case CNTWebOSTVMouseButtonRight: keyString = @"RIGHT"; break;
         default:break;
     }
 
@@ -196,7 +196,7 @@
     }
 
     if (!wasClean && _failure)
-        _failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:reason]);
+        _failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:reason]);
 }
 
 @end

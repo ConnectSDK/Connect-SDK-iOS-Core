@@ -29,7 +29,7 @@
 #import "NSString+CNTCommon.h"
 #import "XMLWriter+CNTConvenienceMethods.h"
 
-NSString *const kDataFieldName = @"XMLData";
+NSString *const kCNTDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
 #define kSubscriptionTimeoutSeconds 300
 
@@ -62,29 +62,29 @@ static const NSInteger kValueNotFound = -1;
 - (void) updateCapabilities
 {
     NSArray *capabilities = @[
-        kMediaPlayerDisplayImage,
-        kMediaPlayerPlayVideo,
-        kMediaPlayerPlayAudio,
-        kMediaPlayerPlayPlaylist,
-        kMediaPlayerClose,
-        kMediaPlayerMetaDataTitle,
-        kMediaPlayerMetaDataMimeType,
-        kMediaControlPlay,
-        kMediaControlPause,
-        kMediaControlStop,
-        kMediaControlSeek,
-        kMediaControlPosition,
-        kMediaControlDuration,
-        kMediaControlPlayState,
-        kMediaControlPlayStateSubscribe,
-        kMediaControlMetadata,
-        kMediaControlMetadataSubscribe,
-        kPlayListControlNext,
-        kPlayListControlPrevious,
-        kPlayListControlJumpTrack
+        kCNTMediaPlayerDisplayImage,
+        kCNTMediaPlayerPlayVideo,
+        kCNTMediaPlayerPlayAudio,
+        kCNTMediaPlayerPlayPlaylist,
+        kCNTMediaPlayerClose,
+        kCNTMediaPlayerMetaDataTitle,
+        kCNTMediaPlayerMetaDataMimeType,
+        kCNTMediaControlPlay,
+        kCNTMediaControlPause,
+        kCNTMediaControlStop,
+        kCNTMediaControlSeek,
+        kCNTMediaControlPosition,
+        kCNTMediaControlDuration,
+        kCNTMediaControlPlayState,
+        kCNTMediaControlPlayStateSubscribe,
+        kCNTMediaControlMetadata,
+        kCNTMediaControlMetadataSubscribe,
+        kCNTPlayListControlNext,
+        kCNTPlayListControlPrevious,
+        kCNTPlayListControlJumpTrack
     ];
 
-    capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
+    capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTVolumeControlCapabilities];
 
     [self setCapabilities:capabilities];
 }
@@ -92,7 +92,7 @@ static const NSInteger kValueNotFound = -1;
 + (NSDictionary *) discoveryParameters
 {
     return @{
-            @"serviceId": kConnectSDKDLNAServiceId,
+            @"serviceId": kCNTConnectSDKDLNAServiceId,
             @"ssdp":@{
                     @"filter":@"urn:schemas-upnp-org:device:MediaRenderer:1",
                     @"requiredServices":@[
@@ -288,7 +288,7 @@ static const NSInteger kValueNotFound = -1;
 - (int) sendCommand:(CNTServiceCommand *)command withPayload:(NSDictionary *)payload toURL:(NSURL *)URL
 {
     NSString *actionField = [payload objectForKey:kActionFieldName];
-    NSString *xml = [payload objectForKey:kDataFieldName];
+    NSString *xml = [payload objectForKey:kCNTDataFieldName];
 
     NSData *xmlData = [xml dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
 
@@ -317,7 +317,7 @@ static const NSInteger kValueNotFound = -1;
         } else if (xmlError)
         {
             if (command.callbackError)
-                dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not parse command response"]); });
+                dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not parse command response"]); });
         } else
         {
             NSDictionary *upnpFault = [self responseDataFromResponse:dataXML
@@ -331,7 +331,7 @@ static const NSInteger kValueNotFound = -1;
                     errorDescription = @"Unknown UPnP error";
 
                 if (command.callbackError)
-                    dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorDescription]); });
+                    dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:errorDescription]); });
             } else
             {
                 if (command.callbackComplete)
@@ -344,9 +344,9 @@ static const NSInteger kValueNotFound = -1;
     return 0;
 }
 
-- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
-    if (type == ServiceSubscriptionTypeSubscribe)
+    if (type == CNTServiceSubscriptionTypeSubscribe)
     {
         [_httpServer addSubscription:subscription];
 
@@ -500,12 +500,12 @@ static const NSInteger kValueNotFound = -1;
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaControlPriority
+- (CNTCapabilityPriorityLevel) mediaControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *playXML = [self commandXMLForCommandName:@"Play"
                                       commandNamespace:kAVTransportNamespace
@@ -513,7 +513,7 @@ static const NSInteger kValueNotFound = -1;
                                             [writer writeElement:@"Speed" withContents:@"1"];
                                         }];
     NSDictionary *playPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Play\"",
-                                  kDataFieldName : playXML};
+            kCNTDataFieldName : playXML};
 
     CNTServiceCommand *playCommand = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:playPayload];
     playCommand.callbackComplete = ^(NSDictionary *responseDic){
@@ -524,13 +524,13 @@ static const NSInteger kValueNotFound = -1;
     [playCommand send];
 }
 
-- (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *pauseXML = [self commandXMLForCommandName:@"Pause"
                                       commandNamespace:kAVTransportNamespace
                                          andWriterBlock:nil];
     NSDictionary *pausePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Pause\"",
-                                   kDataFieldName : pauseXML};
+            kCNTDataFieldName : pauseXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:pausePayload];
     command.callbackComplete = ^(NSDictionary *responseDic){
@@ -541,13 +541,13 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *stopXML = [self commandXMLForCommandName:@"Stop"
                                       commandNamespace:kAVTransportNamespace
                                         andWriterBlock:nil];
     NSDictionary *stopPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Stop\"",
-                                  kDataFieldName : stopXML};
+            kCNTDataFieldName : stopXML};
     
     CNTServiceCommand *stopCommand = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:stopPayload];
     stopCommand.callbackComplete = ^(NSDictionary *responseDic){
@@ -558,19 +558,19 @@ static const NSInteger kValueNotFound = -1;
     [stopCommand send];
 }
 
-- (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *timeString = [self stringForTime:position];
     NSString *seekXML = [self commandXMLForCommandName:@"Seek"
@@ -580,7 +580,7 @@ static const NSInteger kValueNotFound = -1;
                                             [writer writeElement:@"Target" withContents:timeString];
                                         }];
     NSDictionary *seekPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
-                                  kDataFieldName : seekXML};
+            kCNTDataFieldName : seekXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:seekPayload];
     command.callbackComplete = success;
@@ -588,13 +588,13 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *getPlayStateXML = [self commandXMLForCommandName:@"GetTransportInfo"
                                               commandNamespace:kAVTransportNamespace
                                                 andWriterBlock:nil];
     NSDictionary *getPlayStatePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetTransportInfo\"",
-                                          kDataFieldName : getPlayStateXML};
+            kCNTDataFieldName : getPlayStateXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:getPlayStatePayload];
     command.callbackComplete = ^(NSDictionary *responseObject)
@@ -603,22 +603,22 @@ static const NSInteger kValueNotFound = -1;
                                                       forMethod:@"GetTransportInfoResponse"];
         NSString *transportState = [[[response objectForKey:@"CurrentTransportState"] objectForKey:@"text"] uppercaseString];
 
-        MediaControlPlayState playState = MediaControlPlayStateUnknown;
+        CNTMediaControlPlayState playState = CNTMediaControlPlayStateUnknown;
         
         if ([transportState isEqualToString:@"STOPPED"])
-            playState = MediaControlPlayStateFinished;
+            playState = CNTMediaControlPlayStateFinished;
         else if ([transportState isEqualToString:@"PAUSED_PLAYBACK"])
-            playState = MediaControlPlayStatePaused;
+            playState = CNTMediaControlPlayStatePaused;
         else if ([transportState isEqualToString:@"PAUSED_RECORDING"])
-            playState = MediaControlPlayStateUnknown;
+            playState = CNTMediaControlPlayStateUnknown;
         else if ([transportState isEqualToString:@"PLAYING"])
-            playState = MediaControlPlayStatePlaying;
+            playState = CNTMediaControlPlayStatePlaying;
         else if ([transportState isEqualToString:@"RECORDING"])
-            playState = MediaControlPlayStateUnknown;
+            playState = CNTMediaControlPlayStateUnknown;
         else if ([transportState isEqualToString:@"TRANSITIONING"])
-            playState = MediaControlPlayStateIdle;
+            playState = CNTMediaControlPlayStateIdle;
         else if ([transportState isEqualToString:@"NO_MEDIA_PRESENT"])
-            playState = MediaControlPlayStateIdle;
+            playState = CNTMediaControlPlayStateIdle;
 
         if (success)
             success(playState);
@@ -627,7 +627,7 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void)getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
@@ -640,7 +640,7 @@ static const NSInteger kValueNotFound = -1;
     } failure:failure];
 }
 
-- (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
     {
@@ -654,31 +654,31 @@ static const NSInteger kValueNotFound = -1;
     } failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getPlayStateWithSuccess:success failure:failure];
 
-    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseObject) {
         
         NSDictionary *response = responseObject[@"Event"][@"InstanceID"];
         NSString *transportState = response[@"TransportState"][@"val"];
 
-        MediaControlPlayState playState = MediaControlPlayStateUnknown;
+        CNTMediaControlPlayState playState = CNTMediaControlPlayStateUnknown;
 
         if ([transportState isEqualToString:@"STOPPED"])
-            playState = MediaControlPlayStateFinished;
+            playState = CNTMediaControlPlayStateFinished;
         else if ([transportState isEqualToString:@"PAUSED_PLAYBACK"])
-            playState = MediaControlPlayStatePaused;
+            playState = CNTMediaControlPlayStatePaused;
         else if ([transportState isEqualToString:@"PAUSED_RECORDING"])
-            playState = MediaControlPlayStateUnknown;
+            playState = CNTMediaControlPlayStateUnknown;
         else if ([transportState isEqualToString:@"PLAYING"])
-            playState = MediaControlPlayStatePlaying;
+            playState = CNTMediaControlPlayStatePlaying;
         else if ([transportState isEqualToString:@"RECORDING"])
-            playState = MediaControlPlayStateUnknown;
+            playState = CNTMediaControlPlayStateUnknown;
         else if ([transportState isEqualToString:@"TRANSITIONING"])
-            playState = MediaControlPlayStateIdle;
+            playState = CNTMediaControlPlayStateIdle;
         else if ([transportState isEqualToString:@"NO_MEDIA_PRESENT"])
-            playState = MediaControlPlayStateIdle;
+            playState = CNTMediaControlPlayStateIdle;
 
         if (success && transportState)
             success(playState);
@@ -691,13 +691,13 @@ static const NSInteger kValueNotFound = -1;
     return subscription;
 }
 
-- (void) getPositionInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) getPositionInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *getPositionInfoXML = [self commandXMLForCommandName:@"GetPositionInfo"
                                                  commandNamespace:kAVTransportNamespace
                                                    andWriterBlock:nil];
     NSDictionary *getPositionInfoPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#GetPositionInfo\"",
-                                             kDataFieldName : getPositionInfoXML};
+            kCNTDataFieldName : getPositionInfoXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:getPositionInfoPayload];
     command.callbackComplete = success;
@@ -705,7 +705,7 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)getMediaMetaDataWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getPositionInfoWithSuccess:^(NSDictionary *responseObject)
      {
@@ -719,11 +719,11 @@ static const NSInteger kValueNotFound = -1;
      } failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getMediaMetaDataWithSuccess:success failure:failure];
     
-    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseObject) {
         
         NSDictionary *response = responseObject[@"Event"][@"InstanceID"];
         NSString *currentTrackMetaData = response[@"CurrentTrackMetaData"][@"val"];
@@ -825,17 +825,17 @@ static const NSInteger kValueNotFound = -1;
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaPlayerPriority
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -844,8 +844,8 @@ static const NSInteger kValueNotFound = -1;
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -857,8 +857,8 @@ static const NSInteger kValueNotFound = -1;
 }
 
 - (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo
-                           success:(MediaPlayerSuccessBlock)success
-                           failure:(FailureBlock)failure
+                           success:(CNTMediaPlayerSuccessBlock)success
+                           failure:(CNTFailureBlock)failure
 {
     NSString *mimeType = mediaInfo.mimeType ?: @"";
     NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
@@ -902,7 +902,7 @@ static const NSInteger kValueNotFound = -1;
                                               [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
                                           }];
     NSDictionary *setURLPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-                                    kDataFieldName : setURLXML};
+            kCNTDataFieldName : setURLXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:setURLPayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
@@ -911,7 +911,7 @@ static const NSInteger kValueNotFound = -1;
             if (success)
             {
                 CNTLaunchSession *launchSession = [CNTLaunchSession new];
-                launchSession.sessionType = LaunchSessionTypeMedia;
+                launchSession.sessionType = CNTLaunchSessionTypeMedia;
                 launchSession.service = self;
                 CNTMediaLaunchObject *launchObject = [[CNTMediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
                 success(launchObject);
@@ -923,12 +923,12 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -936,7 +936,7 @@ static const NSInteger kValueNotFound = -1;
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -946,7 +946,7 @@ static const NSInteger kValueNotFound = -1;
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -961,7 +961,7 @@ static const NSInteger kValueNotFound = -1;
     if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc"]);
         
         return;
     }
@@ -1015,7 +1015,7 @@ static const NSInteger kValueNotFound = -1;
                                               [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
                                           }];
     NSDictionary *setURLPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
-                                    kDataFieldName : setURLXML};
+            kCNTDataFieldName : setURLXML};
     
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:setURLPayload];
     command.callbackComplete = ^(NSDictionary *responseDic)
@@ -1024,7 +1024,7 @@ static const NSInteger kValueNotFound = -1;
             if (success)
             {
                 CNTLaunchSession *launchSession = [CNTLaunchSession new];
-                launchSession.sessionType = LaunchSessionTypeMedia;
+                launchSession.sessionType = CNTLaunchSessionTypeMedia;
                 launchSession.service = self;
                 CNTMediaLaunchObject *launchObject = [[CNTMediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
                 success(launchObject);
@@ -1037,7 +1037,7 @@ static const NSInteger kValueNotFound = -1;
     
 }
 
-- (void)closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl stopWithSuccess:success failure:failure];
 }
@@ -1049,12 +1049,12 @@ static const NSInteger kValueNotFound = -1;
     return self;
 }
 
-- (CapabilityPriorityLevel) volumeControlPriority
+- (CNTCapabilityPriorityLevel) volumeControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void) volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) volumeUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.volumeControl getVolumeWithSuccess:^(float volume) {
         if (volume < 1.0)
@@ -1062,12 +1062,12 @@ static const NSInteger kValueNotFound = -1;
         else
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Volume is already at max"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Volume is already at max"]);
         }
     } failure:failure];
 }
 
-- (void) volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) volumeDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.volumeControl getVolumeWithSuccess:^(float volume) {
         if (volume > 0.0)
@@ -1075,12 +1075,12 @@ static const NSInteger kValueNotFound = -1;
         else
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Volume is already at 0"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Volume is already at 0"]);
         }
     } failure:failure];
 }
 
-- (void) getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (void) getVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *getVolumeXML = [self commandXMLForCommandName:@"GetVolume"
                                            commandNamespace:kRenderingControlNamespace
@@ -1088,9 +1088,9 @@ static const NSInteger kValueNotFound = -1;
                                                  [writer writeElement:@"Channel" withContents:@"Master"];
                                              }];
     NSDictionary *getVolumePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetVolume\"",
-                                       kDataFieldName : getVolumeXML};
+            kCNTDataFieldName : getVolumeXML};
 
-    SuccessBlock successBlock = ^(NSDictionary *responseXML) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int volume = -1;
 
         volume = [[self responseDataFromResponse:responseXML
@@ -1099,7 +1099,7 @@ static const NSInteger kValueNotFound = -1;
         if (volume == -1)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume information in response"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find volume information in response"]);
         } else
         {
             if (success)
@@ -1113,7 +1113,7 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void) setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) setVolume:(float)volume success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetVolume = [NSString stringWithFormat:@"%d", (int) round(volume * 100)];
     NSString *setVolumeXML = [self commandXMLForCommandName:@"SetVolume"
@@ -1123,7 +1123,7 @@ static const NSInteger kValueNotFound = -1;
                                                  [writer writeElement:@"DesiredVolume" withContents:targetVolume];
                                              }];
     NSDictionary *setVolumePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetVolume\"",
-                                       kDataFieldName : setVolumeXML};
+            kCNTDataFieldName : setVolumeXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:setVolumePayload];
     command.callbackComplete = success;
@@ -1131,11 +1131,11 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (CNTServiceSubscription *) subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.volumeControl getVolumeWithSuccess:success failure:failure];
 
-    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseObject) {
         const NSInteger masterVolume = [self valueForVolumeKey:@"Volume"
                                                      atChannel:@"Master"
                                                     inResponse:responseObject];
@@ -1143,7 +1143,7 @@ static const NSInteger kValueNotFound = -1;
         if (masterVolume == kValueNotFound)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume in subscription response"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find volume in subscription response"]);
         } else
         {
             if (success)
@@ -1158,7 +1158,7 @@ static const NSInteger kValueNotFound = -1;
     return subscription;
 }
 
-- (void) getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (void) getMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *getMuteXML = [self commandXMLForCommandName:@"GetMute"
                                          commandNamespace:kRenderingControlNamespace
@@ -1166,9 +1166,9 @@ static const NSInteger kValueNotFound = -1;
                                                [writer writeElement:@"Channel" withContents:@"Master"];
                                            }];
     NSDictionary *getMutePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#GetMute\"",
-                                     kDataFieldName : getMuteXML};
+            kCNTDataFieldName : getMuteXML};
 
-    SuccessBlock successBlock = ^(NSDictionary *responseXML) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseXML) {
         int mute = -1;
 
         mute = [[self responseDataFromResponse:responseXML
@@ -1177,7 +1177,7 @@ static const NSInteger kValueNotFound = -1;
         if (mute == -1)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute information in response"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find mute information in response"]);
         } else
         {
             if (success)
@@ -1191,7 +1191,7 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (void) setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) setMute:(BOOL)mute success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetMute = [NSString stringWithFormat:@"%d", mute];
     NSString *setMuteXML = [self commandXMLForCommandName:@"SetMute"
@@ -1201,7 +1201,7 @@ static const NSInteger kValueNotFound = -1;
                                                [writer writeElement:@"DesiredMute" withContents:targetMute];
                                            }];
     NSDictionary *setMutePayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:RenderingControl:1#SetMute\"",
-                                     kDataFieldName : setMuteXML};
+            kCNTDataFieldName : setMuteXML};
 
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_renderingControlControlURL payload:setMutePayload];
     command.callbackComplete = success;
@@ -1209,11 +1209,11 @@ static const NSInteger kValueNotFound = -1;
     [command send];
 }
 
-- (CNTServiceSubscription *) subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.volumeControl getMuteWithSuccess:success failure:failure];
 
-    SuccessBlock successBlock = ^(NSDictionary *responseObject) {
+    CNTSuccessBlock successBlock = ^(NSDictionary *responseObject) {
         const NSInteger masterMute = [self valueForVolumeKey:@"Mute"
                                                    atChannel:@"Master"
                                                   inResponse:responseObject];
@@ -1221,7 +1221,7 @@ static const NSInteger kValueNotFound = -1;
         if (masterMute == kValueNotFound)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute in subscription response"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find mute in subscription response"]);
         } else
         {
             if (success)
@@ -1243,18 +1243,18 @@ static const NSInteger kValueNotFound = -1;
     return self;
 }
 
-- (CapabilityPriorityLevel) playListControlPriority
+- (CNTCapabilityPriorityLevel) playListControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playNextWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *nextXML = [self commandXMLForCommandName:@"Next"
                                       commandNamespace:kAVTransportNamespace
                                         andWriterBlock:nil];
     NSDictionary *nextPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Next\"",
-                                  kDataFieldName : nextXML};
+            kCNTDataFieldName : nextXML};
     
     CNTServiceCommand *nextCommand = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:nextPayload];
     nextCommand.callbackComplete = ^(NSDictionary *responseDic){
@@ -1265,13 +1265,13 @@ static const NSInteger kValueNotFound = -1;
     [nextCommand send];
 }
 
-- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playPreviousWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *previousXML = [self commandXMLForCommandName:@"Previous"
                                       commandNamespace:kAVTransportNamespace
                                             andWriterBlock:nil];
     NSDictionary *previousPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Previous\"",
-                                      kDataFieldName : previousXML};
+            kCNTDataFieldName : previousXML};
     
     CNTServiceCommand *previousCommand = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:previousPayload];
     previousCommand.callbackComplete = ^(NSDictionary *responseDic){
@@ -1282,7 +1282,7 @@ static const NSInteger kValueNotFound = -1;
     [previousCommand send];
 }
 
-- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     // our index is zero-based, but in DLNA, track numbers start at 1, so
     // increase by one
@@ -1294,7 +1294,7 @@ static const NSInteger kValueNotFound = -1;
                                             [writer writeElement:@"Target" withContents:trackNumberInString];
                                         }];
     NSDictionary *seekPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#Seek\"",
-                                  kDataFieldName : seekXML};
+            kCNTDataFieldName : seekXML};
     
     CNTServiceCommand *command = [[CNTServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:_avTransportControlURL payload:seekPayload];
     command.callbackComplete = success;

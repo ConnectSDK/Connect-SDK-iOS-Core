@@ -31,19 +31,19 @@
 typedef enum
 {
     /*! Unknown CNTLaunchSession type, may be unable to close this launch session */
-    LaunchSessionTypeUnknown,
+    CNTLaunchSessionTypeUnknown,
 
     /*! CNTLaunchSession represents a launched app */
-    LaunchSessionTypeApp,
+    CNTLaunchSessionTypeApp,
 
     /*! CNTLaunchSession represents an external input picker that was launched */
-    LaunchSessionTypeExternalInputPicker,
+    CNTLaunchSessionTypeExternalInputPicker,
 
     /*! CNTLaunchSession represents a media app */
-    LaunchSessionTypeMedia,
+    CNTLaunchSessionTypeMedia,
 
     /*! CNTLaunchSession represents a web app */
-    LaunchSessionTypeWebApp
+    CNTLaunchSessionTypeWebApp
 } CNTLaunchSessionType;
 
 
@@ -91,9 +91,9 @@ typedef enum
 /*!
  * Closes the session on the first screen device. Depending on the sessionType, the associated service will have different ways of handling the close functionality.
  *
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) closeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) closeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

@@ -35,48 +35,48 @@
 /// Tests that @c -getPlayStateWithSuccess:failure: properly infers the Paused
 /// play state from a sample playback-info response.
 - (void)testGetPlayStateShouldReturnPausedWhenRateIsZero {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStatePaused
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStatePaused
                            forMockResponseInFile:@"airplay_playbackinfo_paused"];
 }
 
 /// Tests that @c -getPlayStateWithSuccess:failure: properly infers the Playing
 /// play state from a sample playback-info response.
 - (void)testGetPlayStateShouldReturnPlayingWhenRateIsOne {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStatePlaying
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStatePlaying
                            forMockResponseInFile:@"airplay_playbackinfo_playing"];
 }
 
 /// Tests that @c -getPlayStateWithSuccess:failure: properly infers the Playing
 /// play state from a sample playback-info response.
 - (void)testGetPlayStateShouldReturnPlayingWhenRateIsTwo {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStatePlaying
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStatePlaying
                            forMockResponseInFile:@"airplay_playbackinfo_ff"];
 }
 
 /// Tests that @c -getPlayStateWithSuccess:failure: properly infers the Playing
 /// play state from a sample playback-info response.
 - (void)testGetPlayStateShouldReturnPlayingWhenRateIsMinusTwo {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStatePlaying
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStatePlaying
                            forMockResponseInFile:@"airplay_playbackinfo_rewind"];
 }
 
 /// Tests that @c -getPlayStateWithSuccess:failure: properly infers the Finished
 /// play state from a sample playback-info response.
 - (void)testGetPlayStateShouldReturnFinishedWhenRateIsMissing {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStateFinished
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStateFinished
                            forMockResponseInFile:@"airplay_playbackinfo_finished"];
 }
 
 /// Tests that @c -getPlayStateWithSuccess:failure: infers the Unknown
 /// play state from an empty playback-info response.
 - (void)testGetPlayStateShouldReturnUnknownWhenResponseIsEmpty {
-    [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStateUnknown
+    [self checkGetPlayStateShouldReturnPlayState:CNTMediaControlPlayStateUnknown
                                  forMockResponse:[NSDictionary dictionary]];
 }
 
 #pragma mark - Helpers
 
-- (void)checkGetPlayStateShouldReturnPlayState:(MediaControlPlayState)expectedPlayState
+- (void)checkGetPlayStateShouldReturnPlayState:(CNTMediaControlPlayState)expectedPlayState
                          forMockResponseInFile:(NSString *)responseFilename {
     NSString *responseFile = [[NSBundle bundleForClass:self.class] pathForResource:responseFilename
                                                                             ofType:@"json"];
@@ -91,7 +91,7 @@
                                  forMockResponse:response];
 }
 
-- (void)checkGetPlayStateShouldReturnPlayState:(MediaControlPlayState)expectedPlayState
+- (void)checkGetPlayStateShouldReturnPlayState:(CNTMediaControlPlayState)expectedPlayState
                                forMockResponse:(NSDictionary *)response {
     // Arrange
     id serviceMock = OCMClassMock([CNTAirPlayService class]);
@@ -116,7 +116,7 @@
                                               @"received playState"];
 
     // Act
-    [serviceHTTP getPlayStateWithSuccess:^(MediaControlPlayState playState) {
+    [serviceHTTP getPlayStateWithSuccess:^(CNTMediaControlPlayState playState) {
         XCTAssertEqual(playState, expectedPlayState,
                        @"playState is incorrect");
 

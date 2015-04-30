@@ -21,33 +21,33 @@
 #import <Foundation/Foundation.h>
 #import "CNTCapability.h"
 
-#define kMouseControlAny @"MouseControl.Any"
+#define kCNTMouseControlAny @"CNTMouseControl.Any"
 
-#define kMouseControlConnect @"MouseControl.Connect"
-#define kMouseControlDisconnect @"MouseControl.Disconnect"
-#define kMouseControlClick @"MouseControl.Click"
-#define kMouseControlMove @"MouseControl.Move"
-#define kMouseControlScroll @"MouseControl.Scroll"
+#define kCNTMouseControlConnect @"CNTMouseControl.Connect"
+#define kCNTMouseControlDisconnect @"CNTMouseControl.Disconnect"
+#define kCNTMouseControlClick @"CNTMouseControl.Click"
+#define kCNTMouseControlMove @"CNTMouseControl.Move"
+#define kCNTMouseControlScroll @"CNTMouseControl.Scroll"
 
-#define kMouseControlCapabilities @[\
-    kMouseControlConnect,\
-    kMouseControlDisconnect,\
-    kMouseControlClick,\
-    kMouseControlMove,\
-    kMouseControlScroll\
+#define kCNTMouseControlCapabilities @[\
+    kCNTMouseControlConnect,\
+    kCNTMouseControlDisconnect,\
+    kCNTMouseControlClick,\
+    kCNTMouseControlMove,\
+    kCNTMouseControlScroll\
 ]
 
 @protocol CNTMouseControl <NSObject>
 
 - (id<CNTMouseControl>)mouseControl;
-- (CapabilityPriorityLevel)mouseControlPriority;
+- (CNTCapabilityPriorityLevel)mouseControlPriority;
 
-- (void) connectMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) connectMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 - (void) disconnectMouse;
 
-- (void) clickWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) clickWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) move:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) scroll:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) move:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) scroll:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

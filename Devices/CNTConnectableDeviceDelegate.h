@@ -118,7 +118,7 @@
  *
  * @param device CNTConnectableDevice containing the CNTDeviceService
  * @param service CNTDeviceService that requires pairing
- * @param pairingType DeviceServicePairingType that the CNTDeviceService requires
+ * @param pairingType CNTDeviceServicePairingType that the CNTDeviceService requires
  * @param pairingData Any data that might be required for the pairing process, will usually be nil
  */
 - (void) connectableDevice:(CNTConnectableDevice *)device service:(CNTDeviceService *)service pairingRequiredOfType:(int)pairingType withData:(id)pairingData;

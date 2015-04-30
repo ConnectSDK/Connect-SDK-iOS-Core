@@ -30,20 +30,20 @@
 /*! Status of the web app */
 typedef enum {
     /*! Web app status is unknown */
-    WebAppStatusUnknown,
+    CNTWebAppStatusUnknown,
 
     /*! Web app is running and in the foreground */
-    WebAppStatusOpen,
+    CNTWebAppStatusOpen,
 
     /*! Web app is running and in the background */
-    WebAppStatusBackground,
+    CNTWebAppStatusBackground,
 
     /*! Web app is in the foreground but has not started running yet */
-    WebAppStatusForeground,
+    CNTWebAppStatusForeground,
 
     /*! Web app is not running and is not in the foreground or background */
-    WebAppStatusClosed
-} WebAppStatus;
+    CNTWebAppStatusClosed
+} CNTWebAppStatus;
 
 
 /*!
@@ -64,7 +64,7 @@ typedef enum {
 
 // @cond INTERNAL
 // This is only being used in CNTWebOSWebAppSession, but could be useful in other places in the future
-typedef void (^ WebAppMessageBlock)(id message);
+typedef void (^CNTWebAppMessageBlock)(id message);
 // @endcond
 
 /*!
@@ -72,14 +72,14 @@ typedef void (^ WebAppMessageBlock)(id message);
  *
  * @param status The current running & foreground status of the web app
  */
-typedef void (^ WebAppStatusBlock)(WebAppStatus status);
+typedef void (^CNTWebAppStatusBlock)(CNTWebAppStatus status);
 
 /*!
  * Success block that is called upon successfully getting a web app's status.
  *
  * @param status The current running & foreground status of the web app
  */
-typedef void (^ WebAppPinStatusBlock)(BOOL status);
+typedef void (^CNTWebAppPinStatusBlock)(BOOL status);
 
 /*!
  * CNTLaunchSession object containing key session information. Much of this information is required for web app messaging & closing the web app.
@@ -102,36 +102,36 @@ typedef void (^ WebAppPinStatusBlock)(BOOL status);
 /*!
  * Subscribes to changes in the web app's status.
  *
- * @param success (optional) WebAppStatusBlock to be called on app status change
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTWebAppStatusBlock to be called on app status change
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (CNTServiceSubscription *) subscribeWebAppStatus:(WebAppStatusBlock)success failure:(FailureBlock)failure;
+- (CNTServiceSubscription *) subscribeWebAppStatus:(CNTWebAppStatusBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * Join an active web app without launching/relaunching. If the app is not running/joinable, the failure block will be called immediately.
  *
- * @param success (optional) SuccessBlock to be called on join success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on join success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) joinWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) joinWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * Closes the web app on the first screen device.
  *
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) closeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) closeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark - Connection handling
 
 /*!
  * Establishes a communication channel with the web app.
  *
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) connectWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) connectWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * Closes any open communication channel with the web app.
@@ -143,19 +143,19 @@ typedef void (^ WebAppPinStatusBlock)(BOOL status);
  *
  * @param webAppId NSString webAppId to be pinned.
  */
-- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * UnPin the web app on the launcher.
  *
  * @param webAppId NSString webAppId to be unpinned.
  */
-- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * To check if the web app is pinned or not
  */
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark - Communication
 
@@ -167,17 +167,17 @@ typedef void (^ WebAppPinStatusBlock)(BOOL status);
 /*!
  * Sends a simple string to the web app. The Connect SDK JavaScript Bridge will receive this message and hand it off as a string object.
  *
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) sendText:(NSString *)message success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) sendText:(NSString *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * Sends a JSON object to the web app. The Connect SDK JavaScript Bridge will receive this message and hand it off as a JavaScript object.
  *
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) sendJSON:(NSDictionary *)message success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) sendJSON:(NSDictionary *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

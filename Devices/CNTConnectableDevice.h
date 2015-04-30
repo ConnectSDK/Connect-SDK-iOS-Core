@@ -47,7 +47,7 @@
  *
  * To be informed of any ready/pairing/disconnect messages from each of the CNTDeviceService, you must set a delegate.
  *
- * CNTConnectableDevice exposes capabilities that exist in the underlying DeviceServices such as TV Control, Media Player, Media Control, Volume Control, etc. These capabilities, when accessed through the CNTConnectableDevice, will be automatically chosen from the most suitable CNTDeviceService by using that CNTDeviceService's CapabilityPriorityLevel.
+ * CNTConnectableDevice exposes capabilities that exist in the underlying DeviceServices such as TV Control, Media Player, Media Control, Volume Control, etc. These capabilities, when accessed through the CNTConnectableDevice, will be automatically chosen from the most suitable CNTDeviceService by using that CNTDeviceService's CNTCapabilityPriorityLevel.
  */
 @interface CNTConnectableDevice : NSObject <CNTDeviceServiceDelegate, CNTJSONObjectCoding>
 
@@ -179,15 +179,15 @@
 - (BOOL) hasAnyCapability:(NSArray *)capabilities;
 
 /*!
- * Set the type of pairing for the CNTConnectableDevice services. By default the value will be DeviceServicePairingTypeNone
+ * Set the type of pairing for the CNTConnectableDevice services. By default the value will be CNTDeviceServicePairingTypeNone
  *
- *  For WebOSTV's If pairingType is set to DeviceServicePairingTypeFirstScreen(default), the device will prompt the user to pair when connecting to the CNTConnectableDevice.
+ *  For WebOSTV's If pairingType is set to CNTDeviceServicePairingTypeFirstScreen(default), the device will prompt the user to pair when connecting to the CNTConnectableDevice.
  *
- * If pairingType is set to DeviceServicePairingTypePinCode, the device will prompt the user to enter a pin to pair when connecting to the CNTConnectableDevice.
+ * If pairingType is set to CNTDeviceServicePairingTypePinCode, the device will prompt the user to enter a pin to pair when connecting to the CNTConnectableDevice.
  *
- * @param pairingType value to be set for the device service from DeviceServicePairingType
+ * @param pairingType value to be set for the device service from CNTDeviceServicePairingType
  */
-- (void)setPairingType:(DeviceServicePairingType)pairingType;
+- (void)setPairingType:(CNTDeviceServicePairingType)pairingType;
 
 #pragma mark Accessors
 

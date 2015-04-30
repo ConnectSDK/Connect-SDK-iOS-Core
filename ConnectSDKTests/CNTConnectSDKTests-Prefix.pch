@@ -1,5 +1,5 @@
 //
-//  ConnectSDKTests-Prefix.pch
+//  CNTConnectSDKTests-Prefix.pch
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 11/11/14.
@@ -18,8 +18,8 @@
 //  limitations under the License.
 //
 
-#ifndef ConnectSDK_ConnectSDKTests_Prefix_pch
-#define ConnectSDK_ConnectSDKTests_Prefix_pch
+#ifndef CNT_ConnectSDK_ConnectSDKTests_Prefix_pch
+#define CNT_ConnectSDK_ConnectSDKTests_Prefix_pch
 
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.

@@ -42,11 +42,11 @@ typedef enum {
  */
 typedef enum {
     /*! DeviceServices will never try to pair with a device */
-    ConnectableDevicePairingLevelOff __attribute__((deprecated)) = CNTDeviceServicePairingLevelOff,
+    CNTConnectableDevicePairingLevelOff __attribute__((deprecated)) = CNTDeviceServicePairingLevelOff,
     
     /*! DeviceServices will try to pair with a device, if needed */
-    ConnectableDevicePairingLevelOn __attribute__((deprecated)) = CNTDeviceServicePairingLevelOn
-} ConnectableDevicePairingLevel;
+    CNTConnectableDevicePairingLevelOn __attribute__((deprecated)) = CNTDeviceServicePairingLevelOn
+} CNTConnectableDevicePairingLevel;
 
 /*!
  * ###Overview
@@ -176,7 +176,7 @@ typedef enum {
 @property (nonatomic, readonly) BOOL requiresPairing;
 
 /*! Type of pairing that this CNTDeviceService requires. May be unknown until you try to connect. */
-@property (nonatomic, readwrite) DeviceServicePairingType pairingType;
+@property (nonatomic, readwrite) CNTDeviceServicePairingType pairingType;
 
 /*! May contain useful information regarding pairing (pairing key length, etc) */
 @property (nonatomic, readonly) id pairingData;
@@ -211,9 +211,9 @@ id ensureString(id value);
  * Every CNTLaunchSession object has an associated CNTDeviceService. Internally, CNTLaunchSession's close method proxies to it's CNTDeviceService's closeLaunchSession method. If, for some reason, your CNTLaunchSession loses it's CNTDeviceService reference, you can call this closeLaunchSession method directly.
  *
  * @param launchSession CNTLaunchSession to be closed
- * @param success (optional) SuccessBlock to be called on success
- * @param failure (optional) FailureBlock to be called on failure
+ * @param success (optional) CNTSuccessBlock to be called on success
+ * @param failure (optional) CNTFailureBlock to be called on failure
  */
-- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

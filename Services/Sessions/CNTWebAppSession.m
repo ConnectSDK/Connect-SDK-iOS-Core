@@ -57,10 +57,10 @@
     return self;
 }
 
-- (void) sendNotSupportedFailure:(FailureBlock)failure
+- (void) sendNotSupportedFailure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - ServiceCommandDelegate methods
@@ -75,58 +75,58 @@
     return -1;
 }
 
-- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
     return -1;
 }
 
 #pragma mark - Web App methods
 
-- (CNTServiceSubscription *) subscribeWebAppStatus:(WebAppStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeWebAppStatus:(CNTWebAppStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 
     return nil;
 }
 
-- (void) connectWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connectWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) joinWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
 - (void)disconnectFromWebApp { }
 
-- (void)sendText:(NSString *)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendText:(NSString *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)sendJSON:(NSDictionary *)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendJSON:(NSDictionary *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
    [self sendNotSupportedFailure:failure];
     return nil;
@@ -139,62 +139,62 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaPlayerPriority
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority
 {
-    return CapabilityPriorityLevelLow;
+    return CNTCapabilityPriorityLevelLow;
 }
 
-- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-#pragma mark - MediaControl
-#pragma mark MediaControl required methods
+#pragma mark - CNTMediaControl
+#pragma mark CNTMediaControl required methods
 
 - (id <CNTMediaControl>)mediaControl
 {
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaControlPriority
+- (CNTCapabilityPriorityLevel)mediaControlPriority
 {
-    return CapabilityPriorityLevelLow;
+    return CNTCapabilityPriorityLevelLow;
 }
 
-- (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     id<CNTMediaControl> mediaControl;
 
@@ -207,7 +207,7 @@
         [self sendNotSupportedFailure:failure];
 }
 
-- (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     id<CNTMediaControl> mediaControl;
 
@@ -220,7 +220,7 @@
         [self sendNotSupportedFailure:failure];
 }
 
-- (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     id<CNTMediaControl> mediaControl;
 
@@ -233,7 +233,7 @@
         [self sendNotSupportedFailure:failure];
 }
 
-- (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     id<CNTMediaControl> mediaControl;
 
@@ -246,7 +246,7 @@
         [self sendNotSupportedFailure:failure];
 }
 
-- (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     id<CNTMediaControl> mediaControl;
 
@@ -259,41 +259,41 @@
         [self sendNotSupportedFailure:failure];
 }
 
-#pragma mark MediaControl optional methods
+#pragma mark CNTMediaControl optional methods
 
-- (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)closeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void) getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void)getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 
     return nil;
 }
 
-- (void) getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
     return nil;

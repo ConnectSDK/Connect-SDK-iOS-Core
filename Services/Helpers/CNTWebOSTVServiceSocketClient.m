@@ -22,9 +22,9 @@
 #import "CNTWebOSTVService.h"
 #import "CNTConnectError.h"
 
-#define kDeviceServicePairingTypeFirstScreen @"PROMPT"
-#define kDeviceServicePairingTypePinCode @"PIN"
-#define kDeviceServicePairingTypeMixed @"COMBINED"
+#define kCNTDeviceServicePairingTypeFirstScreen @"PROMPT"
+#define kCNTDeviceServicePairingTypePinCode @"PIN"
+#define kCNTDeviceServicePairingTypeMixed @"COMBINED"
 
 @interface CNTWebOSTVServiceSocketClient ()
 
@@ -242,7 +242,7 @@
                 self.service.serviceDescription.address = nil;
                 self.service.serviceDescription.UUID = nil;
 
-                NSError *UUIDError = [CNTConnectError generateErrorWithCode:ConnectStatusCodeCertificateError andDetails:nil];
+                NSError *UUIDError = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeCertificateError andDetails:nil];
                 [self disconnectWithError:UUIDError];
             }
         } else
@@ -255,7 +255,7 @@
 
     hello.callbackError = ^(NSError*err)
     {
-        NSError *connectionError = [CNTConnectError generateErrorWithCode:ConnectStatusCodeSocketError andDetails:nil];
+        NSError *connectionError = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeSocketError andDetails:nil];
         [self disconnectWithError:connectionError];
     };
 
@@ -292,7 +292,7 @@
         if (pairingString) {
             self.service.pairingType = [self pairingStringToType:pairingString];
             // TODO: Need to update the method name socketWillRegister to socketWillRequirePairingWithPairingType.
-            if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != DeviceServicePairingTypeNone){
+            if (self.delegate && [self.delegate respondsToSelector:@selector(socketWillRegister:)] && self.service.pairingType != CNTDeviceServicePairingTypeNone){
                 [self.delegate socketWillRegister:self];
             }
         }
@@ -351,38 +351,38 @@
         [_commandQueue removeObject:sendString];
 }
 
--(NSString *)pairingTypeToString:(DeviceServicePairingType)pairingType{
+-(NSString *)pairingTypeToString:(CNTDeviceServicePairingType)pairingType{
     NSString *pairingTypeString = @"";
     
-    if(pairingType == DeviceServicePairingTypeFirstScreen){
-        pairingTypeString = kDeviceServicePairingTypeFirstScreen;
+    if(pairingType == CNTDeviceServicePairingTypeFirstScreen){
+        pairingTypeString = kCNTDeviceServicePairingTypeFirstScreen;
     }else
-        if(pairingType == DeviceServicePairingTypePinCode)
+        if(pairingType == CNTDeviceServicePairingTypePinCode)
         {
-            pairingTypeString = kDeviceServicePairingTypePinCode;
+            pairingTypeString = kCNTDeviceServicePairingTypePinCode;
         }
         else
-            if(pairingType == DeviceServicePairingTypeMixed)
+            if(pairingType == CNTDeviceServicePairingTypeMixed)
             {
-                pairingTypeString = kDeviceServicePairingTypeMixed;
+                pairingTypeString = kCNTDeviceServicePairingTypeMixed;
             }
     return pairingTypeString;
 }
 
--(DeviceServicePairingType)pairingStringToType:(NSString *)pairingString{
-    DeviceServicePairingType pairingType = DeviceServicePairingTypeNone;
+-(CNTDeviceServicePairingType)pairingStringToType:(NSString *)pairingString{
+    CNTDeviceServicePairingType pairingType = CNTDeviceServicePairingTypeNone;
     
-    if([pairingString isEqualToString:kDeviceServicePairingTypeFirstScreen]){
-        pairingType = DeviceServicePairingTypeFirstScreen;
+    if([pairingString isEqualToString:kCNTDeviceServicePairingTypeFirstScreen]){
+        pairingType = CNTDeviceServicePairingTypeFirstScreen;
     }else
-        if([pairingString isEqualToString:kDeviceServicePairingTypePinCode])
+        if([pairingString isEqualToString:kCNTDeviceServicePairingTypePinCode])
         {
-            pairingType = DeviceServicePairingTypePinCode;
+            pairingType = CNTDeviceServicePairingTypePinCode;
         }
         else
-            if([pairingString isEqualToString:kDeviceServicePairingTypeMixed])
+            if([pairingString isEqualToString:kCNTDeviceServicePairingTypeMixed])
             {
-                pairingType = DeviceServicePairingTypeMixed;
+                pairingType = CNTDeviceServicePairingTypeMixed;
             }
     return pairingType;
 }
@@ -408,7 +408,7 @@
     NSError *error;
 
     if (!wasClean)
-        error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:reason];
+        error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:reason];
 
     if (self.delegate)
         [self.delegate socket:self didCloseWithError:error];
@@ -424,14 +424,14 @@
 
     if (error.code == 23556)
     {
-        intError = [CNTConnectError generateErrorWithCode:ConnectStatusCodeCertificateError andDetails:nil];
+        intError = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeCertificateError andDetails:nil];
 
         self.service.webOSTVServiceConfig.SSLCertificates = nil;
         self.service.webOSTVServiceConfig.clientKey = nil;
 
         shouldRetry = YES;
     } else
-        intError = [CNTConnectError generateErrorWithCode:ConnectStatusCodeSocketError andDetails:error.localizedDescription];
+        intError = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeSocketError andDetails:error.localizedDescription];
 
     for (NSString *key in _activeConnections)
     {
@@ -490,7 +490,7 @@
     {
         if (comId && connectionCommand.callbackError)
         {
-            NSError *err = [CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:decodeData];
+            NSError *err = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:decodeData];
             dispatch_on_main(^{ connectionCommand.callbackError(err); });
         }
     } else
@@ -530,7 +530,7 @@
 
 #pragma mark - Subscription methods
 
-- (CNTServiceSubscription *) addSubscribe:(NSURL *)URL payload:(NSDictionary *)payload success:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) addSubscribe:(NSURL *)URL payload:(NSDictionary *)payload success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_subscribed == nil)
         _subscribed = [[NSMutableDictionary alloc] init];
@@ -688,7 +688,7 @@
     }
 }
 
-- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
     if (callId < 0)
         callId = [self getNextId];
@@ -699,7 +699,7 @@
     [subscriptionPayload setObject:@(callId) forKey:@"id"];
     [subscriptionPayload setObject:URL.absoluteString forKey:@"uri"];
 
-    if (type == ServiceSubscriptionTypeSubscribe)
+    if (type == CNTServiceSubscriptionTypeSubscribe)
     {
         [subscriptionPayload setObject:@"subscribe" forKey:@"type"];
 

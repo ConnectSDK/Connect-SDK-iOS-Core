@@ -1,5 +1,5 @@
 //
-//  DLNAService_Private.h
+//  CNTDLNAService_Private.h
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 11/13/14.
@@ -20,7 +20,7 @@
 
 #import "CNTDLNAService.h"
 
-extern NSString *const kDataFieldName;
+extern NSString *const kCNTDataFieldName;
 
 @class CNTDeviceServiceReachability;
 @class CNTDLNAHTTPServer;

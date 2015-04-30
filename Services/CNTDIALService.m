@@ -47,10 +47,10 @@ static NSMutableArray *registeredApps = nil;
 - (void) commonInit
 {
     [self addCapabilities:@[
-            kLauncherApp,
-            kLauncherAppParams,
-            kLauncherAppClose,
-            kLauncherAppState
+            kCNTLauncherApp,
+            kCNTLauncherAppParams,
+            kCNTLauncherAppClose,
+            kCNTLauncherAppState
     ]];
 }
 
@@ -83,7 +83,7 @@ static NSMutableArray *registeredApps = nil;
 + (NSDictionary *) discoveryParameters
 {
     return @{
-             @"serviceId":kConnectSDKDIALServiceId,
+             @"serviceId":kCNTConnectSDKDIALServiceId,
              @"ssdp":@{
                      @"filter":@"urn:dial-multiscreen-org:service:dial:1"
                      }
@@ -106,10 +106,10 @@ static NSMutableArray *registeredApps = nil;
 - (void) updateCapabilities
 {
     NSArray *capabilities = @[
-            kLauncherApp,
-            kLauncherAppParams,
-            kLauncherAppClose,
-            kLauncherAppState
+            kCNTLauncherApp,
+            kCNTLauncherAppParams,
+            kCNTLauncherAppClose,
+            kCNTLauncherAppState
     ];
 
     [self setCapabilities:capabilities];
@@ -193,7 +193,7 @@ static NSMutableArray *registeredApps = nil;
             if (payloadData == nil)
             {
                 if (command.callbackError)
-                    command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Unknown error preparing message to send"]);
+                    command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Unknown error preparing message to send"]);
 
                 return -1;
             }
@@ -234,19 +234,19 @@ static NSMutableArray *registeredApps = nil;
             switch ([httpResponse statusCode])
             {
                 case 503:
-                    error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@"Could not start application"];
+                    error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:@"Could not start application"];
                     break;
 
                 case 501:
-                    error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:@"Was unable to perform the requested action, not supported"];
+                    error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:@"Was unable to perform the requested action, not supported"];
                     break;
 
                 case 413:
-                    error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Message body is too long"];
+                    error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Message body is too long"];
                     break;
 
                 case 404:
-                    error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find requested application"];
+                    error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find requested application"];
                     break;
 
                 case 201: // CREATED:  application launch success
@@ -264,7 +264,7 @@ static NSMutableArray *registeredApps = nil;
                     break;
 
                 default:
-                    error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"An unknown error occurred"];
+                    error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"An unknown error occurred"];
             }
 
             if (statusOK)
@@ -307,22 +307,22 @@ static NSMutableArray *registeredApps = nil;
     return self;
 }
 
-- (CapabilityPriorityLevel) launcherPriority
+- (CNTCapabilityPriorityLevel) launcherPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void)launchApp:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApp:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApplication:appId withParams:nil success:success failure:failure];
 }
 
-- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appId || [appId isEqualToString:@""])
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Must provide a valid app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Must provide a valid app id"]);
 
         return;
     }
@@ -333,17 +333,17 @@ static NSMutableArray *registeredApps = nil;
     [self launchAppWithInfo:appInfo params:params success:success failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchAppWithInfo:appInfo params:nil success:success failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appInfo || !appInfo.id)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Must provide a valid CNTAppInfo object"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Must provide a valid CNTAppInfo object"]);
 
         return;
     }
@@ -371,25 +371,25 @@ static NSMutableArray *registeredApps = nil;
     } failure:failure];
 }
 
-- (void) launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchAppStore:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchBrowser:(NSURL *)target success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchHulu:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchNetflix:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSDictionary *params;
 
@@ -402,12 +402,12 @@ static NSMutableArray *registeredApps = nil;
     [self.launcher launchAppWithInfo:appInfo params:params success:success failure:failure];
 }
 
-- (void)launchYouTube:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchYouTube:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.launcher launchYouTube:contentId startTime:0.0 success:success failure:failure];
 }
 
-- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *params;
 
@@ -415,7 +415,7 @@ static NSMutableArray *registeredApps = nil;
         if (startTime < 0.0)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Start time may not be negative"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Start time may not be negative"]);
 
             return;
         }
@@ -440,15 +440,15 @@ static NSMutableArray *registeredApps = nil;
     }];
 }
 
-- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getApplicationInfo:launchSession.appId success:^(id responseObject)
     {
@@ -462,20 +462,20 @@ static NSMutableArray *registeredApps = nil;
     } failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)closeApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!launchSession || !launchSession.sessionId)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Must provide a valid launch session"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Must provide a valid launch session"]);
 
         return;
     }
@@ -494,26 +494,26 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void)getAppListWithSuccess:(AppListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppListWithSuccess:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Helper methods
 
-- (void) hasApplication:(NSString *)appId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) hasApplication:(NSString *)appId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appId || [appId isEqualToString:@""])
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid app id"]);
 
         return;
     }
@@ -530,12 +530,12 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void) getApplicationInfo:(NSString *)appId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) getApplicationInfo:(NSString *)appId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appId || [appId isEqualToString:@""])
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid app id"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid app id"]);
 
         return;
     }
@@ -554,7 +554,7 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void)launchApplicationWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params resourceName:(NSString *)resourceName success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApplicationWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params resourceName:(NSString *)resourceName success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath;
 
@@ -572,7 +572,7 @@ static NSMutableArray *registeredApps = nil;
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appInfo.id];
         launchSession.name = appInfo.name;
         launchSession.sessionId = locationPath;
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
 
         if (success)

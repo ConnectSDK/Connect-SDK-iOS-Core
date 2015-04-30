@@ -25,8 +25,8 @@
 @interface CNTServiceCommand : NSObject
 
 @property (nonatomic, weak) id<CNTServiceCommandDelegate> delegate;
-@property (nonatomic, copy) SuccessBlock callbackComplete;
-@property (nonatomic, copy) FailureBlock callbackError;
+@property (nonatomic, copy) CNTSuccessBlock callbackComplete;
+@property (nonatomic, copy) CNTFailureBlock callbackError;
 @property (nonatomic, strong) NSString *HTTPMethod;
 @property (nonatomic, strong) id payload;
 @property (nonatomic, strong) NSURL *target;

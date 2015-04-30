@@ -24,7 +24,7 @@
 #import "CNTWebOSTVServiceSocketClient.h"
 
 
-@interface CNTWebOSWebAppSession : CNTWebAppSession <WebOSTVServiceSocketClientDelegate>
+@interface CNTWebOSWebAppSession : CNTWebAppSession <CNTWebOSTVServiceSocketClientDelegate>
 
 @property (nonatomic, readonly) CNTWebOSTVService *service;
 @property (nonatomic) CNTServiceSubscription *appToAppSubscription;

@@ -22,44 +22,44 @@
 #import "CNTCapability.h"
 #import "CNTServiceSubscription.h"
 
-#define kMediaControlAny @"MediaControl.Any"
+#define kCNTMediaControlAny @"CNTMediaControl.Any"
 
-#define kMediaControlPlay @"MediaControl.Play"
-#define kMediaControlPause @"MediaControl.Pause"
-#define kMediaControlStop @"MediaControl.Stop"
-#define kMediaControlDuration @"MediaControl.Duration"
-#define kMediaControlRewind @"MediaControl.Rewind"
-#define kMediaControlFastForward @"MediaControl.FastForward"
-#define kMediaControlSeek @"MediaControl.Seek"
-#define kMediaControlPlayState @"MediaControl.PlayState"
-#define kMediaControlPlayStateSubscribe @"MediaControl.PlayState.Subscribe"
-#define kMediaControlPosition @"MediaControl.Position"
-#define kMediaControlMetadata @"MediaControl.MetaData"
-#define kMediaControlMetadataSubscribe @"MediaControl.MetaData.Subscribe"
+#define kCNTMediaControlPlay @"CNTMediaControl.Play"
+#define kCNTMediaControlPause @"CNTMediaControl.Pause"
+#define kCNTMediaControlStop @"CNTMediaControl.Stop"
+#define kCNTMediaControlDuration @"CNTMediaControl.Duration"
+#define kCNTMediaControlRewind @"CNTMediaControl.Rewind"
+#define kCNTMediaControlFastForward @"CNTMediaControl.FastForward"
+#define kCNTMediaControlSeek @"CNTMediaControl.Seek"
+#define kCNTMediaControlPlayState @"CNTMediaControl.PlayState"
+#define kCNTMediaControlPlayStateSubscribe @"CNTMediaControl.PlayState.Subscribe"
+#define kCNTMediaControlPosition @"CNTMediaControl.Position"
+#define kCNTMediaControlMetadata @"CNTMediaControl.MetaData"
+#define kCNTMediaControlMetadataSubscribe @"CNTMediaControl.MetaData.Subscribe"
 
-#define kMediaControlCapabilities @[\
-    kMediaControlPlay,\
-    kMediaControlPause,\
-    kMediaControlStop,\
-    kMediaControlDuration,\
-    kMediaControlRewind,\
-    kMediaControlFastForward,\
-    kMediaControlSeek,\
-    kMediaControlPlayState,\
-    kMediaControlPlayStateSubscribe,\
-    kMediaControlPosition,\
-    kMediaControlMetadata,\
-    kMediaControlMetadataSubscribe\
+#define kCNTMediaControlCapabilities @[\
+    kCNTMediaControlPlay,\
+    kCNTMediaControlPause,\
+    kCNTMediaControlStop,\
+    kCNTMediaControlDuration,\
+    kCNTMediaControlRewind,\
+    kCNTMediaControlFastForward,\
+    kCNTMediaControlSeek,\
+    kCNTMediaControlPlayState,\
+    kCNTMediaControlPlayStateSubscribe,\
+    kCNTMediaControlPosition,\
+    kCNTMediaControlMetadata,\
+    kCNTMediaControlMetadataSubscribe\
 ]
 
 typedef enum {
-    MediaControlPlayStateUnknown,
-    MediaControlPlayStateIdle,
-    MediaControlPlayStatePlaying,
-    MediaControlPlayStatePaused,
-    MediaControlPlayStateBuffering,
-    MediaControlPlayStateFinished
-} MediaControlPlayState;
+    CNTMediaControlPlayStateUnknown,
+    CNTMediaControlPlayStateIdle,
+    CNTMediaControlPlayStatePlaying,
+    CNTMediaControlPlayStatePaused,
+    CNTMediaControlPlayStateBuffering,
+    CNTMediaControlPlayStateFinished
+} CNTMediaControlPlayState;
 
 @protocol CNTMediaControl <NSObject>
 
@@ -68,42 +68,42 @@ typedef enum {
  *
  * @param playState Play state of the current media file
  */
-typedef void (^ MediaPlayStateSuccessBlock)(MediaControlPlayState playState);
+typedef void (^CNTMediaPlayStateSuccessBlock)(CNTMediaControlPlayState playState);
 
 /*!
  * Success block that is called upon successfully getting the media file's current playhead position.
  *
  * @param position Current playhead position of the current media file, in seconds
  */
-typedef void (^ MediaPositionSuccessBlock)(NSTimeInterval position);
+typedef void (^CNTMediaPositionSuccessBlock)(NSTimeInterval position);
 
 /*!
  * Success block that is called upon successfully getting the media file's duration.
  *
  * @param duration Duration of the current media file, in seconds
  */
-typedef void (^ MediaDurationSuccessBlock)(NSTimeInterval duration);
+typedef void (^CNTMediaDurationSuccessBlock)(NSTimeInterval duration);
 
 - (id<CNTMediaControl>) mediaControl;
-- (CapabilityPriorityLevel) mediaControlPriority;
+- (CNTCapabilityPriorityLevel) mediaControlPriority;
 
 #pragma mark Play control
-- (void) playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @optional
-- (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark Play info
-- (void) getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure;
-- (void) getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure;
-- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)getMediaMetaDataWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure;
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure;
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

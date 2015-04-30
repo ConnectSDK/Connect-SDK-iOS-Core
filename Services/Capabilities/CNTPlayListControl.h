@@ -21,35 +21,35 @@
 
 @protocol CNTPlayListControl <NSObject>
 
-#define kPlayListControlNext @"PlayListControl.Next"
-#define kPlayListControlPrevious @"PlayListControl.Previous"
-#define kPlayListControlJumpTrack @"PlayListControl.JumpTrack"
+#define kCNTPlayListControlNext @"CNTPlayListControl.Next"
+#define kCNTPlayListControlPrevious @"CNTPlayListControl.Previous"
+#define kCNTPlayListControlJumpTrack @"CNTPlayListControl.JumpTrack"
 
-#define kPlayListControlCapabilities @[\
-kMediaControlNext,\
-kMediaControlPrevious,\
-kMediaControlJumpTrack\
+#define kCNTPlayListControlCapabilities @[\
+kCNTMediaControlNext,\
+kCNTMediaControlPrevious,\
+kCNTMediaControlJumpTrack\
 ]
 
 - (id<CNTPlayListControl>) playListControl;
-- (CapabilityPriorityLevel) playListControlPriority;
+- (CNTCapabilityPriorityLevel) playListControlPriority;
 
 #pragma mark Playlist controls
 /*!
  * Plays the next track in the playlist
  */
-- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) playNextWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 /*!
  * Plays the previous track in the playlist
  * @param device CNTConnectableDevice that has been disconnected.
  */
-- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) playPreviousWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 /*!
  * Jumps to track in the playlist
  *
  * @param index NSInteger a zero based index parameter.
  */
-- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 
 @end

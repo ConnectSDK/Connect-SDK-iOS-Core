@@ -24,25 +24,25 @@ NSString *const CNTConnectErrorDomain = @"com.lge.connectsdk.error";
 
 @implementation CNTConnectError
 
-+ (NSError *) generateErrorWithCode:(ConnectStatusCode)code andDetails:(id)details
++ (NSError *) generateErrorWithCode:(CNTConnectStatusCode)code andDetails:(id)details
 {
     NSString *errorMessage;
     
     switch (code)
     {
-        case ConnectStatusCodeTvError:
+        case CNTConnectStatusCodeTvError:
             errorMessage = [NSString stringWithFormat:@"API error: %@", details];
             break;
             
-        case ConnectStatusCodeCertificateError:
+        case CNTConnectStatusCodeCertificateError:
             errorMessage = [NSString stringWithFormat:@"Invalid server certificate"];
             break;
             
-        case ConnectStatusCodeSocketError:
+        case CNTConnectStatusCodeSocketError:
             errorMessage = [NSString stringWithFormat:@"Web Socket Error: %@", details];
             break;
             
-        case ConnectStatusCodeNotSupported:
+        case CNTConnectStatusCodeNotSupported:
             errorMessage = [NSString stringWithFormat:@"This feature is not supported."];
             break;
         

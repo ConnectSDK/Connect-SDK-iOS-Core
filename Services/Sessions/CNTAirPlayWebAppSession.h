@@ -27,6 +27,6 @@
 
 @property (nonatomic, readonly) CNTAirPlayService *service;
 
-@property (nonatomic, readonly) WebAppMessageBlock messageHandler;
+@property (nonatomic, readonly) CNTWebAppMessageBlock messageHandler;
 
 @end

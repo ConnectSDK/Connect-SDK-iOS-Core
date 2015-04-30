@@ -23,18 +23,18 @@
 #import "CNTExternalInputInfo.h"
 #import "CNTAppInfo.h"
 
-#define kExternalInputControlAny @"ExternalInputControl.Any"
+#define kCNTExternalInputControlAny @"CNTExternalInputControl.Any"
 
-#define kExternalInputControlPickerLaunch @"ExternalInputControl.Picker.Launch"
-#define kExternalInputControlPickerClose @"ExternalInputControl.Picker.Close"
-#define kExternalInputControlList @"ExternalInputControl.List"
-#define kExternalInputControlSet @"ExternalInputControl.Set"
+#define kCNTExternalInputControlPickerLaunch @"CNTExternalInputControl.Picker.Launch"
+#define kCNTExternalInputControlPickerClose @"CNTExternalInputControl.Picker.Close"
+#define kCNTExternalInputControlList @"CNTExternalInputControl.List"
+#define kCNTExternalInputControlSet @"CNTExternalInputControl.Set"
 
-#define kExternalInputControlCapabilities @[\
-    kExternalInputControlPickerLaunch,\
-    kExternalInputControlPickerClose,\
-    kExternalInputControlList,\
-    kExternalInputControlSet\
+#define kCNTExternalInputControlCapabilities @[\
+    kCNTExternalInputControlPickerLaunch,\
+    kCNTExternalInputControlPickerClose,\
+    kCNTExternalInputControlList,\
+    kCNTExternalInputControlSet\
 ]
 
 @protocol CNTExternalInputControl <NSObject>
@@ -44,15 +44,15 @@
  *
  * @param externalInputList Array containing an CNTExternalInputInfo object for each available external input on the device
  */
-typedef void (^ ExternalInputListSuccessBlock)(NSArray *externalInputList);
+typedef void (^CNTExternalInputListSuccessBlock)(NSArray *externalInputList);
 
 - (id<CNTExternalInputControl>)externalInputControl;
-- (CapabilityPriorityLevel)externalInputControlPriority;
+- (CNTCapabilityPriorityLevel)externalInputControlPriority;
 
-- (void)launchInputPickerWithSuccess:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)launchInputPickerWithSuccess:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) getExternalInputListWithSuccess:(ExternalInputListSuccessBlock)success failure:(FailureBlock)failure;
-- (void) setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) getExternalInputListWithSuccess:(CNTExternalInputListSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

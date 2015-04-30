@@ -27,7 +27,7 @@
 #import "CNTDeviceServiceReachability.h"
 #import "CNTDiscoveryManager.h"
 #import "CNTServiceAsyncCommand.h"
-#import "CommonMacros.h"
+#import "CNTCommonMacros.h"
 
 #import "XMLWriter+CNTConvenienceMethods.h"
 
@@ -164,73 +164,73 @@ NSString *lgeUDAPRequestURI[8] = {
 
     if ([CNTDiscoveryManager sharedManager].pairingLevel == CNTDeviceServicePairingLevelOn)
     {
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kTextInputControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMouseControlCapabilities];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kKeyControlCapabilities];
-        capabilities = [capabilities arrayByAddingObject:kPowerControlOff];
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaPlayerCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTTextInputControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMouseControlCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTKeyControlCapabilities];
+        capabilities = [capabilities arrayByAddingObject:kCNTPowerControlOff];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaPlayerCapabilities];
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                kMediaControlPlay,
-                kMediaControlPause,
-                kMediaControlStop,
-                kMediaControlRewind,
-                kMediaControlFastForward,
-                kMediaControlPlayState,
-                kMediaControlPosition,
-                kMediaControlDuration,
-                kMediaControlSeek,
+                kCNTMediaControlPlay,
+                kCNTMediaControlPause,
+                kCNTMediaControlStop,
+                kCNTMediaControlRewind,
+                kCNTMediaControlFastForward,
+                kCNTMediaControlPlayState,
+                kCNTMediaControlPosition,
+                kCNTMediaControlDuration,
+                kCNTMediaControlSeek,
 
-                kLauncherApp,
-                kLauncherAppClose,
-                kLauncherAppStore,
-                kLauncherAppList,
-                kLauncherAppState,
-                kLauncherBrowser,
-                kLauncherHulu,
-                kLauncherNetflix,
-                kLauncherNetflixParams,
-                kLauncherYouTube,
-                kLauncherYouTubeParams,
+                kCNTLauncherApp,
+                kCNTLauncherAppClose,
+                kCNTLauncherAppStore,
+                kCNTLauncherAppList,
+                kCNTLauncherAppState,
+                kCNTLauncherBrowser,
+                kCNTLauncherHulu,
+                kCNTLauncherNetflix,
+                kCNTLauncherNetflixParams,
+                kCNTLauncherYouTube,
+                kCNTLauncherYouTubeParams,
 
-                kTVControlChannelUp,
-                kTVControlChannelDown,
-                kTVControlChannelGet,
-                kTVControlChannelList,
-                kTVControlChannelSubscribe,
-                kTVControl3DGet,
-                kTVControl3DSet,
-                kTVControl3DSubscribe,
+                kCNTTVControlChannelUp,
+                kCNTTVControlChannelDown,
+                kCNTTVControlChannelGet,
+                kCNTTVControlChannelList,
+                kCNTTVControlChannelSubscribe,
+                kCNTTVControl3DGet,
+                kCNTTVControl3DSet,
+                kCNTTVControl3DSubscribe,
 
-                kExternalInputControlPickerLaunch,
-                kExternalInputControlPickerClose,
+                kCNTExternalInputControlPickerLaunch,
+                kCNTExternalInputControlPickerClose,
 
-                kVolumeControlVolumeGet,
-                kVolumeControlVolumeUpDown,
-                kVolumeControlMuteGet,
-                kVolumeControlMuteSet
+                kCNTVolumeControlVolumeGet,
+                kCNTVolumeControlVolumeUpDown,
+                kCNTVolumeControlMuteGet,
+                kCNTVolumeControlMuteSet
         ]];
 
         if ([self.modelNumber isEqualToString:@"4.0"])
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                    kLauncherAppStoreParams
+                    kCNTLauncherAppStoreParams
             ]];
         }
     } else
     {
         // TODO: need to handle some of these controls over DLNA if no pairing
-        capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaPlayerCapabilities];
+        capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTMediaPlayerCapabilities];
         capabilities = [capabilities arrayByAddingObjectsFromArray:@[
-                kMediaControlPlay,
-                kMediaControlPause,
-                kMediaControlStop,
-                kMediaControlRewind,
-                kMediaControlFastForward,
-                kMediaPlayerMetaDataTitle,
-                kMediaPlayerMetaDataMimeType,
+                kCNTMediaControlPlay,
+                kCNTMediaControlPause,
+                kCNTMediaControlStop,
+                kCNTMediaControlRewind,
+                kCNTMediaControlFastForward,
+                kCNTMediaPlayerMetaDataTitle,
+                kCNTMediaPlayerMetaDataMimeType,
 
-                kLauncherYouTube,
-                kLauncherYouTubeParams
+                kCNTLauncherYouTube,
+                kCNTLauncherYouTubeParams
         ]];
     }
 
@@ -251,7 +251,7 @@ NSString *lgeUDAPRequestURI[8] = {
      */
 
     return @{
-             @"serviceId": kConnectSDKNetcastTVServiceId,
+             @"serviceId": kCNTConnectSDKNetcastTVServiceId,
              @"ssdp":@{
                     @"filter":@"urn:schemas-upnp-org:device:MediaRenderer:1",
                     // `requiredServices` from the `CNTDLNAService`, see comment above
@@ -376,7 +376,7 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 }
 
-- (void) dismissPairingWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) dismissPairingWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_PAIRING_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -437,7 +437,7 @@ NSString *lgeUDAPRequestURI[8] = {
         {
             [subscription.successCalls enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
              {
-                 ((SuccessBlock) obj)(responseXML);
+                 ((CNTSuccessBlock) obj)(responseXML);
              }];
         }
     };
@@ -512,9 +512,9 @@ NSString *lgeUDAPRequestURI[8] = {
     return [CNTDiscoveryManager sharedManager].pairingLevel == CNTDeviceServicePairingLevelOn;
 }
 
-- (DeviceServicePairingType)pairingType
+- (CNTDeviceServicePairingType)pairingType
 {
-    return DeviceServicePairingTypePinCode;
+    return CNTDeviceServicePairingTypePinCode;
 }
 
 - (id)pairingData
@@ -608,7 +608,7 @@ NSString *lgeUDAPRequestURI[8] = {
                     if (contentLength > 0)
                     {
                         if (command.callbackError)
-                            dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@"Expected data from server, but did not receive any."]); });
+                            dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:@"Expected data from server, but did not receive any."]); });
 
                         return;
                     }
@@ -691,7 +691,7 @@ NSString *lgeUDAPRequestURI[8] = {
     NSError *error;
     if (errorMessage)
     {
-        error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError
+        error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError
                                             andDetails:errorMessage];
     }
 
@@ -762,12 +762,12 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel) launcherPriority
+- (CNTCapabilityPriorityLevel) launcherPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getAppListWithSuccess:(AppListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppListWithSuccess:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     // This is a very inefficient solution for getting a full app list. This particular solution is
     // required to support 2012 Netcast TVs, which require an app count for getting a list of apps.
@@ -820,7 +820,7 @@ NSString *lgeUDAPRequestURI[8] = {
     } failure:failure];
 }
 
-- (void) getNumberOfAppsForType:(int)type success:(void (^)(int numberOfApps))success failure:(FailureBlock)failure
+- (void) getNumberOfAppsForType:(int)type success:(void (^)(int numberOfApps))success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -842,7 +842,7 @@ NSString *lgeUDAPRequestURI[8] = {
         if (numberOfAppsInt == 0)
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@""]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:@""]);
         } else
         {
             if (success)
@@ -853,7 +853,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void) getAppListForType:(int)type numberOfApps:(int)numberOfApps success:(AppListSuccessBlock)success failure:(FailureBlock)failure
+- (void) getAppListForType:(int)type numberOfApps:(int)numberOfApps success:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -882,7 +882,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)launchApp:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApp:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getAppInfoForId:appId success:^(CNTAppInfo *appInfo)
     {
@@ -890,7 +890,7 @@ NSString *lgeUDAPRequestURI[8] = {
     } failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_COMMAND_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -911,7 +911,7 @@ NSString *lgeUDAPRequestURI[8] = {
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appInfo.id];
         launchSession.name = appInfo.name;
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
         launchSession.rawData = [responseObject copy];
 
@@ -922,7 +922,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)getAppInfoForId:(NSString *)appId success:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppInfoForId:(NSString *)appId success:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getAppListWithSuccess:^(NSArray *appList)
     {
@@ -941,23 +941,23 @@ NSString *lgeUDAPRequestURI[8] = {
             success(appInfo);
 
         if (appInfo == nil && failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find app with specified id."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find app with specified id."]);
     } failure:failure];
 }
 
-- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void) launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchAppStore:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:@"roap"];
     targetPath = [targetPath stringByAppendingPathComponent:@"api"];
@@ -984,7 +984,7 @@ NSString *lgeUDAPRequestURI[8] = {
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:@""];
         launchSession.name = @"LG Smart World"; // TODO: this will not work in Korea, use "LG 스마트 월드" instead
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
 
         if (success)
@@ -994,12 +994,12 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchBrowser:(NSURL *)target success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchApp:@"Internet" success:success failure:failure];
 }
 
-- (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchHulu:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getAppInfoForId:@"Hulu Plus" success:^(CNTAppInfo *appInfo)
     {
@@ -1010,7 +1010,7 @@ NSString *lgeUDAPRequestURI[8] = {
     } failure:failure];
 }
 
-- (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchNetflix:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (![[self modelNumber] isEqualToString:@"4.0"])
     {
@@ -1043,12 +1043,12 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)launchYouTube:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchYouTube:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.launcher launchYouTube:contentId startTime:0.0 success:success failure:failure];
 }
 
-- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dialService)
     {
@@ -1068,24 +1068,24 @@ NSString *lgeUDAPRequestURI[8] = {
     } else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:@"Cannot reach DIAL service for launching with provided start time"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:@"Cannot reach DIAL service for launching with provided start time"]);
     }
 }
 
-- (void)closeApplicationWithName:(NSString *)appId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeApplicationWithName:(NSString *)appId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getAppInfoForId:appId success:^(CNTAppInfo *info)
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:info.id];
         launchSession.name = info.name;
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
 
         [self closeApp:launchSession success:success failure:failure];
     } failure:failure];
 }
 
-- (void)closeApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (![launchSession.name isEqualToString:kSmartShareName])
     {
@@ -1117,21 +1117,21 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1158,10 +1158,10 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
@@ -1227,17 +1227,17 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaPlayerPriority
+- (CNTCapabilityPriorityLevel)mediaPlayerPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -1246,8 +1246,8 @@ NSString *lgeUDAPRequestURI[8] = {
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -1258,7 +1258,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
--(void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+-(void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1275,16 +1275,16 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
 }
 
-- (void) playMedia:(NSURL *)videoURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)videoURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:videoURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -1292,7 +1292,7 @@ NSString *lgeUDAPRequestURI[8] = {
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -1302,7 +1302,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
--(void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+-(void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1318,10 +1318,10 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1330,7 +1330,7 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Media Control
@@ -1343,37 +1343,37 @@ NSString *lgeUDAPRequestURI[8] = {
         return self;
 }
 
-- (CapabilityPriorityLevel)mediaControlPriority
+- (CNTCapabilityPriorityLevel)mediaControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodePlay success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodePlay success:success failure:failure];
 }
 
-- (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodePause success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodePause success:success failure:failure];
 }
 
-- (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeStop success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeStop success:success failure:failure];
 }
 
-- (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeRewind success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeRewind success:success failure:failure];
 }
 
-- (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeFastForward success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeFastForward success:success failure:failure];
 }
 
-- (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1382,10 +1382,10 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1394,10 +1394,10 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void) getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void) getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1406,10 +1406,10 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1418,21 +1418,21 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribePlayStateWithSuccess:success failure:failure];
     } else if (failure) {
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     }
 
     return nil;
 }
 
-- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)getMediaMetaDataWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1441,11 +1441,11 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1454,7 +1454,7 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
 }
@@ -1466,12 +1466,12 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)tvControlPriority
+- (CNTCapabilityPriorityLevel)tvControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock)failure
+- (void)getCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1494,7 +1494,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getCurrentChannelWithSuccess:success failure:failure];
 
@@ -1509,7 +1509,7 @@ NSString *lgeUDAPRequestURI[8] = {
     return subscription;
 }
 
-- (void)getChannelListWithSuccess:(ChannelListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getChannelListWithSuccess:(CNTChannelListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1551,17 +1551,17 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)channelUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)channelUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeChannelUp success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeChannelUp success:success failure:failure];
 }
 
-- (void)channelDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)channelDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeChannelDown success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeChannelDown success:success failure:failure];
 }
 
-- (void)setChannel:(CNTChannelInfo *)channelInfo success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setChannel:(CNTChannelInfo *)channelInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *major = [[channelInfo.rawData objectForKey:@"major"] objectForKey:@"text"];
     NSString *minor = [[channelInfo.rawData objectForKey:@"minor"] objectForKey:@"text"];
@@ -1588,35 +1588,35 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
+- (void)get3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1639,7 +1639,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)set3DEnabled:(BOOL)enabled success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)set3DEnabled:(BOOL)enabled success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self get3DEnabledWithSuccess:^(BOOL tv3DEnabled)
     {
@@ -1649,12 +1649,12 @@ NSString *lgeUDAPRequestURI[8] = {
                 success(nil);
         } else
         {
-            [self sendKeyCode:NetcastTVKeyCode3DVideo success:success failure:failure];
+            [self sendKeyCode:CNTNetcastTVKeyCode3DVideo success:success failure:failure];
         }
     } failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribe3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribe3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self get3DEnabledWithSuccess:success failure:failure];
 
@@ -1676,12 +1676,12 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)volumeControlPriority
+- (CNTCapabilityPriorityLevel)volumeControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (void)getVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1705,7 +1705,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (void)getMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [NSString stringWithFormat:@"%@%@%@",
             self.commandURL.absoluteString,
@@ -1729,7 +1729,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setVolume:(float)volume success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService)
     {
@@ -1738,10 +1738,10 @@ NSString *lgeUDAPRequestURI[8] = {
     }
     
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setMute:(BOOL)mute success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getMuteWithSuccess:^(BOOL currentMute)
     {
@@ -1750,37 +1750,37 @@ NSString *lgeUDAPRequestURI[8] = {
             if (success)
                 success(nil);
         } else
-            [self sendKeyCode:NetcastTVKeyCodeMute success:success failure:failure];
+            [self sendKeyCode:CNTNetcastTVKeyCodeMute success:success failure:failure];
     } failure:failure];
 }
 
-- (void)volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)volumeUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeVolumeUp success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeVolumeUp success:success failure:failure];
 }
 
-- (void)volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)volumeDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeVolumeDown success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeVolumeDown success:success failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribeVolumeWithSuccess:success failure:failure];
     } else if (failure) {
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     }
     
     return nil;
 }
 
-- (CNTServiceSubscription *)subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribeMuteWithSuccess:success failure:failure];
     } else if (failure) {
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     }
     
     return nil;
@@ -1793,47 +1793,47 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel) keyControlPriority
+- (CNTCapabilityPriorityLevel) keyControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)upWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)upWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeUp success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeUp success:success failure:failure];
 }
 
-- (void)downWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)downWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeDown success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeDown success:success failure:failure];
 }
 
-- (void)leftWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)leftWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeLeft success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeLeft success:success failure:failure];
 }
 
-- (void)rightWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rightWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeRight success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeRight success:success failure:failure];
 }
 
-- (void)okWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)okWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeOK success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeOK success:success failure:failure];
 }
 
-- (void)backWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)backWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeBack success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeBack success:success failure:failure];
 }
 
-- (void)homeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)homeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeHome success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodeHome success:success failure:failure];
 }
 
-- (void)sendKeyCode:(NetcastTVKeyCode)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendKeyCode:(CNTNetcastTVKeyCode)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self hideMouseWithSuccess:^(id responseObject)
     {
@@ -1862,12 +1862,12 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)mouseControlPriority
+- (CNTCapabilityPriorityLevel)mouseControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) connectMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connectMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _mouseDistance = CGVectorMake(0, 0);
     _mouseIsMoving = NO;
@@ -1883,7 +1883,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [self hideMouseWithSuccess:nil failure:nil];
 }
 
-- (void) showMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) showMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_mouseVisible)
     {
@@ -1916,7 +1916,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void) hideMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) hideMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!_mouseVisible)
     {
@@ -1949,7 +1949,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void) move:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) move:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _mouseDistance = CGVectorMake(
         _mouseDistance.dx + distance.dx,
@@ -1964,7 +1964,7 @@ NSString *lgeUDAPRequestURI[8] = {
     }
 }
 
-- (void) moveMouseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) moveMouseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_COMMAND_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -2001,7 +2001,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void) scroll:(CGVector)distance success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) scroll:(CGVector)distance success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_COMMAND_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -2022,7 +2022,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (void)clickWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)clickWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_COMMAND_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -2047,20 +2047,20 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)powerControlPriority
+- (CNTCapabilityPriorityLevel)powerControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)powerOffWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)powerOffWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodePower success:success failure:failure];
+    [self sendKeyCode:CNTNetcastTVKeyCodePower success:success failure:failure];
 }
 
-- (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) powerOnWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - External Input Control
@@ -2070,14 +2070,14 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel)externalInputControlPriority
+- (CNTCapabilityPriorityLevel)externalInputControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat"
-- (void)launchInputPickerWithSuccess:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchInputPickerWithSuccess:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *appId = @"Input List";
 
@@ -2111,7 +2111,7 @@ NSString *lgeUDAPRequestURI[8] = {
         } else
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find app with specified id."]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find app with specified id."]);
         }
     };
     command.callbackError = failure;
@@ -2119,21 +2119,21 @@ NSString *lgeUDAPRequestURI[8] = {
 }
 #pragma GCC diagnostic pop
 
-- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeInputPicker:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self.keyControl sendKeyCode:NetcastTVKeyCodeExit success:success failure:failure];
+    [self.keyControl sendKeyCode:CNTNetcastTVKeyCodeExit success:success failure:failure];
 }
 
-- (void)getExternalInputListWithSuccess:(ExternalInputListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getExternalInputListWithSuccess:(CNTExternalInputListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)setExternalInput:(CNTExternalInputInfo *)externalInputInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Text Input Control
@@ -2143,12 +2143,12 @@ NSString *lgeUDAPRequestURI[8] = {
     return self;
 }
 
-- (CapabilityPriorityLevel) textInputControlPriority
+- (CNTCapabilityPriorityLevel) textInputControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) sendText:(NSString *)input success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendText:(NSString *)input success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_keyboardString && _keyboardString.length > 0)
         _keyboardString = [_keyboardString stringByAppendingString:input];
@@ -2158,13 +2158,13 @@ NSString *lgeUDAPRequestURI[8] = {
     [self sendText:_keyboardString state:@"Editing" success:success failure:failure];
 }
 
-- (void)sendEnterWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendEnterWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_keyboardString && _keyboardString.length > 0)
     {
         [self sendText:_keyboardString state:@"EditEnd" success:nil failure:nil];
 
-        [self sendKeyCode:NetcastTVKeyCodeRed success:^(id responseObject)
+        [self sendKeyCode:CNTNetcastTVKeyCodeRed success:^(id responseObject)
         {
             _keyboardString = @"";
 
@@ -2174,11 +2174,11 @@ NSString *lgeUDAPRequestURI[8] = {
     } else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You have not inputted any text to send."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You have not inputted any text to send."]);
     }
 }
 
-- (void)sendDeleteWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendDeleteWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_keyboardString && _keyboardString.length > 0)
     {
@@ -2187,11 +2187,11 @@ NSString *lgeUDAPRequestURI[8] = {
     } else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"There are no characters to delete."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"There are no characters to delete."]);
     }
 }
 
-- (void) sendText:(NSString *)text state:(NSString *)state success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendText:(NSString *)text state:(NSString *)state success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_EVENT_REQUEST]];
     NSURL *targetURL = [NSURL URLWithString:targetPath];
@@ -2218,7 +2218,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [command send];
 }
 
-- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(TextInputStatusInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(CNTTextInputStatusInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     __weak CNTNetcastTVService *weakSelf = self;
     
@@ -2239,9 +2239,9 @@ NSString *lgeUDAPRequestURI[8] = {
     return serviceSubscription;
 }
 
-- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
-    if (type == ServiceSubscriptionTypeUnsubscribe)
+    if (type == CNTServiceSubscriptionTypeUnsubscribe)
     {
         NSArray *keys = [_subscribed allKeysForObject:subscription];
         [_subscribed removeObjectsForKeys:keys];
@@ -2250,7 +2250,7 @@ NSString *lgeUDAPRequestURI[8] = {
     return 0;
 }
 
-- (CNTServiceSubscription *) addSubscribe:(NSString *)event success:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) addSubscribe:(NSString *)event success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (_subscribed == nil)
         _subscribed = [[NSMutableDictionary alloc] init];

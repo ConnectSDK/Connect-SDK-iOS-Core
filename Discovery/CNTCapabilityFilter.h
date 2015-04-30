@@ -27,12 +27,12 @@
  * ###CNTCapabilityFilter values
  * Here are some examples of values for the Capability constants.
  *
- * - kMediaPlayerPlayVideo = "CNTMediaPlayer.Display.Video"
- * - kMediaPlayerDisplayImage = "CNTMediaPlayer.Display.Image"
- * - kVolumeControlSubscribe = "CNTVolumeControl.Subscribe"
- * - kMediaControlAny = "Media.Control.Any"
+ * - kCNTMediaPlayerPlayVideo = "CNTMediaPlayer.Display.Video"
+ * - kCNTMediaPlayerDisplayImage = "CNTMediaPlayer.Display.Image"
+ * - kCNTVolumeControlSubscribe = "CNTVolumeControl.Subscribe"
+ * - kCNTMediaControlAny = "Media.Control.Any"
  *
- * All Capability header files also define a constant array of all capabilities defined in that header (ex. kVolumeControlCapabilities).
+ * All Capability header files also define a constant array of all capabilities defined in that header (ex. kCNTVolumeControlCapabilities).
  *
  * ###AND/OR Filtering
  * CNTCapabilityFilter is an AND filter. A CNTConnectableDevice would need to satisfy all conditions of a CNTCapabilityFilter to pass.
@@ -44,9 +44,9 @@
  *
 @code
     NSArray *capabilities = @[
-        kMediaPlayerPlayVideo,
-        kMediaControlAny,
-        kVolumeControlVolumeUpDown
+        kCNTMediaPlayerPlayVideo,
+        kCNTMediaControlAny,
+        kCNTVolumeControlVolumeUpDown
     ];
 
     CNTCapabilityFilter *filter =
@@ -59,13 +59,13 @@
  *
 @code
     NSArray *videoCapabilities = @[
-        kMediaPlayerPlayVideo,
-        kMediaControlAny,
-        kVolumeControlVolumeUpDown
+        kCNTMediaPlayerPlayVideo,
+        kCNTMediaControlAny,
+        kCNTVolumeControlVolumeUpDown
     ];
 
     NSArray *imageCapabilities = @[
-        kMediaPlayerDisplayImage
+        kCNTMediaPlayerDisplayImage
     ];
 
     CNTCapabilityFilter *videoFilter =

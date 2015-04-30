@@ -1,5 +1,5 @@
 //
-//  SocketListener.h
+//  CNTSSDPSocketListener.h
 //  Connect SDK
 //
 //  Created by Mykhailo Vorontsov on 3/29/13.

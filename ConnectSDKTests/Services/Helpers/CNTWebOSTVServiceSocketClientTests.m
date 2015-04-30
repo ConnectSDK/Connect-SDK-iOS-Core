@@ -31,7 +31,7 @@
 
 #pragma mark - Registration Tests
 
-/// Tests that -[WebOSTVServiceSocketClientDelegate socket:registrationFailed:]
+/// Tests that -[CNTWebOSTVServiceSocketClientDelegate socket:registrationFailed:]
 /// method is called when the user has reject pairing on the TV. In this case,
 /// the TV first sends a response with pairing info, then an error with the same
 /// message id.
@@ -41,7 +41,7 @@
     id serviceMock = OCMClassMock([CNTWebOSTVService class]);
     id webSocketMock = OCMClassMock([LGSRWebSocket class]);
 
-    id socketClientDelegateMock = OCMProtocolMock(@protocol(WebOSTVServiceSocketClientDelegate));
+    id socketClientDelegateMock = OCMProtocolMock(@protocol(CNTWebOSTVServiceSocketClientDelegate));
     OCMStub([socketClientDelegateMock socket:OCMOCK_ANY didReceiveMessage:OCMOCK_ANY]).andReturn(YES);
     XCTestExpectation *registrationFailedCalled = [self expectationWithDescription:@"socket:registrationFailed: is called"];
     OCMExpect([socketClientDelegateMock socket:OCMOCK_NOTNIL
@@ -99,8 +99,8 @@
     id serviceMock = OCMClassMock([CNTWebOSTVService class]);
     id webSocketMock = OCMClassMock([LGSRWebSocket class]);
     //Send Pairing type which is not supported by the TV. Supported pairing type is PROMPT
-    OCMStub([serviceMock pairingType]).andReturn(DeviceServicePairingTypeMixed);
-    id socketClientDelegateMock = OCMProtocolMock(@protocol(WebOSTVServiceSocketClientDelegate));
+    OCMStub([serviceMock pairingType]).andReturn(CNTDeviceServicePairingTypeMixed);
+    id socketClientDelegateMock = OCMProtocolMock(@protocol(CNTWebOSTVServiceSocketClientDelegate));
     OCMStub([socketClientDelegateMock socket:OCMOCK_ANY didReceiveMessage:OCMOCK_ANY]).andReturn(YES);
     XCTestExpectation *socketWillRegisterCalled = [self expectationWithDescription:@"socketWillRegister: is called"];
     OCMExpect([socketClientDelegateMock socketWillRegister:OCMOCK_NOTNIL]).andDo(^(NSInvocation *_) {

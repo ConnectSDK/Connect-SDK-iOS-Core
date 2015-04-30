@@ -196,7 +196,7 @@
     DLog(@"eventInfo: %@", eventInfo);
 
     [subscriptions enumerateObjectsUsingBlock:^(CNTServiceSubscription *subscription, NSUInteger subIdx, BOOL *subStop) {
-        [subscription.successCalls enumerateObjectsUsingBlock:^(SuccessBlock success, NSUInteger successIdx, BOOL *successStop) {
+        [subscription.successCalls enumerateObjectsUsingBlock:^(CNTSuccessBlock success, NSUInteger successIdx, BOOL *successStop) {
             dispatch_on_main(^{
                 success(eventInfo);
             });

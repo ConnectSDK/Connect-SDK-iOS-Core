@@ -25,23 +25,23 @@
  */
 typedef enum {
     /*! CNTDeviceService does not require pairing */
-    DeviceServicePairingTypeNone = 0,
+    CNTDeviceServicePairingTypeNone = 0,
 
     /*! CNTDeviceService requires user interaction on the first screen (ex. pairing alert) */
-    DeviceServicePairingTypeFirstScreen,
+    CNTDeviceServicePairingTypeFirstScreen,
 
     /*! First screen is displaying a pairing pin code that can be sent through the CNTDeviceService */
-    DeviceServicePairingTypePinCode,
+    CNTDeviceServicePairingTypePinCode,
 
     /*! CNTDeviceService can pair with multiple pairing types (ex. first screen OR pin) */
-    DeviceServicePairingTypeMixed,
+    CNTDeviceServicePairingTypeMixed,
 
     /*! CNTDeviceService requires AirPlay mirroring to be enabled to connect */
-    DeviceServicePairingTypeAirPlayMirroring,
+    CNTDeviceServicePairingTypeAirPlayMirroring,
 
     /*! CNTDeviceService pairing type is unknown */
-    DeviceServicePairingTypeUnknown
-} DeviceServicePairingType;
+    CNTDeviceServicePairingTypeUnknown
+} CNTDeviceServicePairingType;
 
 @class CNTDeviceService;
 
@@ -100,10 +100,10 @@ typedef enum {
  * If the CNTDeviceService requires pairing, valuable data will be passed to the delegate via this method.
  *
  * @param service CNTDeviceService that requires pairing
- * @param pairingType DeviceServicePairingType that the CNTDeviceService requires
+ * @param pairingType CNTDeviceServicePairingType that the CNTDeviceService requires
  * @param pairingData Any object/data that might be required for the pairing process, will usually be nil
  */
-- (void) deviceService:(CNTDeviceService *)service pairingRequiredOfType:(DeviceServicePairingType)pairingType withData:(id)pairingData;
+- (void) deviceService:(CNTDeviceService *)service pairingRequiredOfType:(CNTDeviceServicePairingType)pairingType withData:(id)pairingData;
 
 /*!
  * This method will be called upon pairing success. On pairing success, a connection to the CNTDeviceService will be attempted.

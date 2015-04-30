@@ -21,22 +21,22 @@
 #import <Foundation/Foundation.h>
 #import "CNTCapability.h"
 
-#define kPowerControlAny @"PowerControl.Any"
+#define kCNTPowerControlAny @"CNTPowerControl.Any"
 
-#define kPowerControlOff @"PowerControl.Off"
-#define kPowerControlOn @"PowerControl.On"
+#define kCNTPowerControlOff @"CNTPowerControl.Off"
+#define kCNTPowerControlOn @"CNTPowerControl.On"
 
-#define kPowerControlCapabilities @[\
-    kPowerControlOff,\
-    kPowerControlOn\
+#define kCNTPowerControlCapabilities @[\
+    kCNTPowerControlOff,\
+    kCNTPowerControlOn\
 ]
 
 @protocol CNTPowerControl <NSObject>
 
 - (id<CNTPowerControl>)powerControl;
-- (CapabilityPriorityLevel)powerControlPriority;
+- (CNTCapabilityPriorityLevel)powerControlPriority;
 
-- (void) powerOffWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) powerOffWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) powerOnWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

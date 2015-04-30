@@ -29,8 +29,8 @@
     CNTServiceSubscription *_webAppPinnedSubscription;
     NSMutableDictionary *_activeCommands;
 
-    SuccessBlock _connectSuccess;
-    FailureBlock _connectFailure;
+    CNTSuccessBlock _connectSuccess;
+    CNTFailureBlock _connectFailure;
 
     int _UID;
 }
@@ -61,7 +61,7 @@
 {
     if (!_fullAppId)
     {
-        if (self.launchSession.sessionType != LaunchSessionTypeWebApp)
+        if (self.launchSession.sessionType != CNTLaunchSessionTypeWebApp)
             _fullAppId = self.launchSession.appId;
         else
         {
@@ -100,7 +100,7 @@
     if (_connectFailure)
     {
         if (!error)
-            error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Unknown error connecting to web socket"];
+            error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Unknown error connecting to web socket"];
 
         _connectFailure(error);
     }
@@ -186,9 +186,9 @@
 
 #pragma mark - Subscription methods
 
-- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int)sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
-    if (type == ServiceSubscriptionTypeUnsubscribe)
+    if (type == CNTServiceSubscriptionTypeUnsubscribe)
     {
         if (subscription == _playStateSubscription)
             _playStateSubscription = nil;
@@ -213,11 +213,11 @@
             return;
 
         NSString *playStateString = [payload objectForKey:@"playState"];
-        MediaControlPlayState playState = [self parsePlayState:playStateString];
+        CNTMediaControlPlayState playState = [self parsePlayState:playStateString];
 
         [_playStateSubscription.successCalls enumerateObjectsUsingBlock:^(id success, NSUInteger idx, BOOL *stop)
         {
-            MediaPlayStateSuccessBlock mediaPlayStateSuccess = (MediaPlayStateSuccessBlock) success;
+            CNTMediaPlayStateSuccessBlock mediaPlayStateSuccess = (CNTMediaPlayStateSuccessBlock) success;
 
             if (mediaPlayStateSuccess)
                 mediaPlayStateSuccess(playState);
@@ -239,7 +239,7 @@
     if (error)
     {
         if (command.callbackError)
-            command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:error]);
+            command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:error]);
     } else
     {
         if (command.callbackComplete)
@@ -255,40 +255,40 @@
         [self.delegate webAppSession:self didReceiveMessage:message];
 }
 
-- (MediaControlPlayState) parsePlayState:(NSString *)playStateString
+- (CNTMediaControlPlayState) parsePlayState:(NSString *)playStateString
 {
-    MediaControlPlayState playState = MediaControlPlayStateUnknown;
+    CNTMediaControlPlayState playState = CNTMediaControlPlayStateUnknown;
 
     if ([playStateString isEqualToString:@"playing"])
-        playState = MediaControlPlayStatePlaying;
+        playState = CNTMediaControlPlayStatePlaying;
     else if ([playStateString isEqualToString:@"paused"])
-        playState = MediaControlPlayStatePaused;
+        playState = CNTMediaControlPlayStatePaused;
     else if ([playStateString isEqualToString:@"idle"])
-        playState = MediaControlPlayStateIdle;
+        playState = CNTMediaControlPlayStateIdle;
     else if ([playStateString isEqualToString:@"buffering"])
-        playState = MediaControlPlayStateBuffering;
+        playState = CNTMediaControlPlayStateBuffering;
     else if ([playStateString isEqualToString:@"finished"])
-        playState = MediaControlPlayStateFinished;
+        playState = CNTMediaControlPlayStateFinished;
 
     return playState;
 }
 
-- (void) connectWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connectWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self connect:NO success:success failure:failure];
 }
 
-- (void) joinWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self connect:YES success:success failure:failure];
 }
 
-- (void) connect:(BOOL)joinOnly success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) connect:(BOOL)joinOnly success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.socket && self.socket.socket.readyState == LGSR_CONNECTING)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"You have a connect request pending, please wait until it has finished"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"You have a connect request pending, please wait until it has finished"]);
 
         return;
     }
@@ -317,19 +317,19 @@
         if (failure)
         {
             if (!error)
-                error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Unknown error connecting to web app"];
+                error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Unknown error connecting to web app"];
             failure(error);
         }
     };
 
-    __weak FailureBlock weakConnectFailure = _connectFailure;
+    __weak CNTFailureBlock weakConnectFailure = _connectFailure;
 
     _connectSuccess = ^(id socketResponseObject) {
         if (!weakSelf || !weakConnectFailure)
             return;
 
         CNTWebOSWebAppSession *strongSelf = weakSelf;
-        FailureBlock strongConnectFailure = weakConnectFailure;
+        CNTFailureBlock strongConnectFailure = weakConnectFailure;
 
         [strongSelf.service connectToWebApp:strongSelf joinOnly:joinOnly success:^(id connectResponseObject)
         {
@@ -351,12 +351,12 @@
     }
 }
 
-- (void)sendText:(NSString *)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendText:(NSString *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!message || message.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Cannot send an empty message"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Cannot send an empty message"]);
 
         return;
     }
@@ -364,12 +364,12 @@
     [self sendP2PMessage:message success:success failure:failure];
 }
 
-- (void)sendJSON:(NSDictionary *)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendJSON:(NSDictionary *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!message || message.count == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"Cannot send an empty message"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"Cannot send an empty message"]);
 
         return;
     }
@@ -377,7 +377,7 @@
     [self sendP2PMessage:message success:success failure:failure];
 }
 
-- (void) sendP2PMessage:(id)message success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendP2PMessage:(id)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSDictionary *payload = @{
             @"type" : @"p2p",
@@ -421,7 +421,7 @@
         dispatch_on_main(^{ [self.delegate webAppSessionDidDisconnect:self]; });
 }
 
-- (void)closeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _activeCommands = [NSMutableDictionary new];
 
@@ -434,22 +434,22 @@
     [self.service.webAppLauncher closeWebApp:self.launchSession success:success failure:failure];
 }
 
-- (void)pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.service.webAppLauncher pinWebApp:webAppId success:success failure:failure];
 }
 
-- (void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.service.webAppLauncher unPinWebApp:webAppId success:success failure:failure];
 }
 
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self.service.webAppLauncher isWebAppPinned:webAppId success:success failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     _webAppPinnedSubscription = [self.service.webAppLauncher subscribeIsWebAppPinned:webAppId success:success failure:failure];
     return _webAppPinnedSubscription;
@@ -462,17 +462,17 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaPlayerPriority
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -481,8 +481,8 @@
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -493,7 +493,7 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -531,12 +531,12 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -544,7 +544,7 @@
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -554,7 +554,7 @@
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -592,7 +592,7 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void) closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self closeWithSuccess:success failure:failure];
 }
@@ -604,12 +604,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaControlPriority
+- (CNTCapabilityPriorityLevel) mediaControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
@@ -631,7 +631,7 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
@@ -662,7 +662,7 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void)getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
@@ -693,7 +693,7 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
@@ -710,7 +710,7 @@
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         NSString *playStateString = [responseObject objectForKey:@"playState"];
-        MediaControlPlayState playState = [self parsePlayState:playStateString];
+        CNTMediaControlPlayState playState = [self parsePlayState:playStateString];
 
         if (success)
             success(playState);
@@ -721,7 +721,7 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!_playStateSubscription)
         _playStateSubscription = [CNTServiceSubscription subscriptionWithDelegate:nil target:nil payload:nil callId:-1];
@@ -738,10 +738,10 @@
     return _playStateSubscription;
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
 }

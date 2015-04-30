@@ -22,21 +22,21 @@
 #import "CNTCapability.h"
 
 typedef enum {
-    WebOSTVMouseButtonHome = 1000,
-    WebOSTVMouseButtonBack = 1001,
-    WebOSTVMouseButtonUp = 1002,
-    WebOSTVMouseButtonDown = 1003,
-    WebOSTVMouseButtonLeft = 1004,
-    WebOSTVMouseButtonRight = 1005
-} WebOSTVMouseButton;
+    CNTWebOSTVMouseButtonHome = 1000,
+    CNTWebOSTVMouseButtonBack = 1001,
+    CNTWebOSTVMouseButtonUp = 1002,
+    CNTWebOSTVMouseButtonDown = 1003,
+    CNTWebOSTVMouseButtonLeft = 1004,
+    CNTWebOSTVMouseButtonRight = 1005
+} CNTWebOSTVMouseButton;
 
 @interface CNTWebOSTVServiceMouse : NSObject
 
-- (instancetype) initWithSocket:(NSString*)socket success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (instancetype) initWithSocket:(NSString*)socket success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 - (void) move:(CGVector)distance;
 - (void) scroll:(CGVector)distance;
 - (void) click;
-- (void) button:(WebOSTVMouseButton)keyName;
+- (void) button:(CNTWebOSTVMouseButton)keyName;
 - (void) disconnect;
 
 @end

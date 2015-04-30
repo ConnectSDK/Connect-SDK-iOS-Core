@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKRokuServiceId @"Roku"
+#define kCNTConnectSDKRokuServiceId @"Roku"
 
 #import "CNTDIALService.h"
 #import "CNTMediaControl.h"
@@ -28,34 +28,34 @@
 
 enum
 {
-    RokuKeyCodeHome,
-    RokuKeyCodeRewind,
-    RokuKeyCodeFastForward,
-    RokuKeyCodePlay,
-    RokuKeyCodeSelect,
-    RokuKeyCodeLeft,
-    RokuKeyCodeRight,
-    RokuKeyCodeDown,
-    RokuKeyCodeUp,
-    RokuKeyCodeBack,
-    RokuKeyCodeInstantReplay,
-    RokuKeyCodeInfo,
-    RokuKeyCodeBackspace,
-    RokuKeyCodeSearch,
-    RokuKeyCodeEnter,
-    RokuKeyCodeLiteral
+    CNTRokuKeyCodeHome,
+    CNTRokuKeyCodeRewind,
+    CNTRokuKeyCodeFastForward,
+    CNTRokuKeyCodePlay,
+    CNTRokuKeyCodeSelect,
+    CNTRokuKeyCodeLeft,
+    CNTRokuKeyCodeRight,
+    CNTRokuKeyCodeDown,
+    CNTRokuKeyCodeUp,
+    CNTRokuKeyCodeBack,
+    CNTRokuKeyCodeInstantReplay,
+    CNTRokuKeyCodeInfo,
+    CNTRokuKeyCodeBackspace,
+    CNTRokuKeyCodeSearch,
+    CNTRokuKeyCodeEnter,
+    CNTRokuKeyCodeLiteral
 };
 
 // @cond INTERNAL
-typedef NSUInteger RokuKeyCode;
+typedef NSUInteger CNTRokuKeyCode;
 
-#define kRokuKeyCodes @[ @"Home", @"Rev", @"Fwd", @"Play", @"Select", @"Left", @"Right", @"Down", @"Up", @"Back", @"InstantReplay", @"Info", @"Backspace", @"Search", @"Enter", @"Lit_" ]
+#define kCNTRokuKeyCodes @[ @"Home", @"Rev", @"Fwd", @"Play", @"Select", @"Left", @"Right", @"Down", @"Up", @"Back", @"InstantReplay", @"Info", @"Backspace", @"Search", @"Enter", @"Lit_" ]
 // @endcond
 
 @interface CNTRokuService : CNTDeviceService <CNTLauncher, CNTMediaPlayer, CNTMediaControl, CNTKeyControl, CNTTextInputControl>
 
 // @cond INTERNAL
-- (void)sendKeyCode:(RokuKeyCode)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendKeyCode:(CNTRokuKeyCode)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 // @endcond
 
 + (void) registerApp:(NSString *)appId;

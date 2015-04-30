@@ -1,5 +1,5 @@
 //
-//  CommonMacros.h
+//  CNTCommonMacros.h
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 3/25/15.

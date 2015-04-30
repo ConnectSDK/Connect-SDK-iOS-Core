@@ -62,11 +62,11 @@
     NSArray *successes = [NSArray arrayWithArray:_successCalls];
     self.callbackComplete = ^(NSDictionary*dic){
         for(int i=0; i< [successes count]; i++){
-            ((SuccessBlock)[successes objectAtIndex:i])(dic);
+            ((CNTSuccessBlock)[successes objectAtIndex:i])(dic);
         }
     };
 }
--(void)addFailure:(FailureBlock)failure
+-(void)addFailure:(CNTFailureBlock)failure
 {
     if(!_failureCalls) _failureCalls = [[NSMutableArray alloc] init];
 
@@ -76,7 +76,7 @@
     NSArray *fails = [NSArray arrayWithArray:_failureCalls];
     self.callbackError = ^(NSError*err){
         for(int i=0; i< [fails count]; i++){
-            ((FailureBlock)[fails objectAtIndex:i])(err);
+            ((CNTFailureBlock)[fails objectAtIndex:i])(err);
         }
     };
 }
@@ -85,7 +85,7 @@
 {
     if ([self.delegate respondsToSelector:@selector(sendSubscription:type:payload:toURL:withId:)])
     {
-        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeSubscribe payload:self.payload toURL:self.target withId:_callId];
+        _callId = [self.delegate sendSubscription:self type:CNTServiceSubscriptionTypeSubscribe payload:self.payload toURL:self.target withId:_callId];
         _isSubscribed = true;
     }
 }
@@ -100,7 +100,7 @@
 {
     if ([self.delegate respondsToSelector:@selector(sendSubscription:type:payload:toURL:withId:)])
     {
-        _callId = [self.delegate sendSubscription:self type:ServiceSubscriptionTypeUnsubscribe payload:self.payload toURL:self.target withId:_callId];
+        _callId = [self.delegate sendSubscription:self type:CNTServiceSubscriptionTypeUnsubscribe payload:self.payload toURL:self.target withId:_callId];
         _isSubscribed = false;
     }
 

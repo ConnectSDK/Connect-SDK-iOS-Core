@@ -29,7 +29,7 @@
 /*! CNTMediaControl object of Media player*/
 @property (nonatomic, strong) id<CNTMediaControl> mediaControl;
 
-/*! PlayList Control Object of Media player*/
+/*! CNTPlayList Control Object of Media player*/
 @property (nonatomic, strong) id<CNTPlayListControl> playListControl;
 
 /*! Launch Session object of Media player*/

@@ -1,5 +1,5 @@
 //
-//  SocketListener.m
+//  CNTSSDPSocketListener.m
 //  Connect SDK
 //
 //  Created by Mykhailo Vorontsov on 3/29/13.
@@ -68,7 +68,7 @@
 
 - (void)raiseError
 {
-	_error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeSocketError andDetails:@"Detection socket disconnected"];
+	_error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeSocketError andDetails:@"Detection socket disconnected"];
 	dispatch_async(self.delegateQueue,
 		^{
 			if ([self.delegate respondsToSelector:@selector(socket:didEncounterError:)])

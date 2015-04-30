@@ -25,27 +25,27 @@
 #import "CNTMediaInfo.h"
 #import "CNTMediaLaunchObject.h"
 
-#define kMediaPlayerAny @"MediaPlayer.Any"
+#define kCNTMediaPlayerAny @"CNTMediaPlayer.Any"
 
-#define kMediaPlayerDisplayImage @"MediaPlayer.Display.Image"
-#define kMediaPlayerPlayVideo @"MediaPlayer.Play.Video"
-#define kMediaPlayerPlayAudio @"MediaPlayer.Play.Audio"
-#define kMediaPlayerPlayPlaylist @"MediaPlayer.Play.Playlist"
-#define kMediaPlayerClose @"MediaPlayer.Close"
-#define kMediaPlayerMetaDataTitle @"MediaPlayer.MetaData.Title"
-#define kMediaPlayerMetaDataDescription @"MediaPlayer.MetaData.Description"
-#define kMediaPlayerMetaDataThumbnail @"MediaPlayer.MetaData.Thumbnail"
-#define kMediaPlayerMetaDataMimeType @"MediaPlayer.MetaData.MimeType"
+#define kCNTMediaPlayerDisplayImage @"CNTMediaPlayer.Display.Image"
+#define kCNTMediaPlayerPlayVideo @"CNTMediaPlayer.Play.Video"
+#define kCNTMediaPlayerPlayAudio @"CNTMediaPlayer.Play.Audio"
+#define kCNTMediaPlayerPlayPlaylist @"CNTMediaPlayer.Play.Playlist"
+#define kCNTMediaPlayerClose @"CNTMediaPlayer.Close"
+#define kCNTMediaPlayerMetaDataTitle @"CNTMediaPlayer.MetaData.Title"
+#define kCNTMediaPlayerMetaDataDescription @"CNTMediaPlayer.MetaData.Description"
+#define kCNTMediaPlayerMetaDataThumbnail @"CNTMediaPlayer.MetaData.Thumbnail"
+#define kCNTMediaPlayerMetaDataMimeType @"CNTMediaPlayer.MetaData.MimeType"
 
-#define kMediaPlayerCapabilities @[\
-    kMediaPlayerDisplayImage,\
-    kMediaPlayerPlayVideo,\
-    kMediaPlayerPlayAudio,\
-    kMediaPlayerClose,\
-    kMediaPlayerMetaDataTitle,\
-    kMediaPlayerMetaDataDescription,\
-    kMediaPlayerMetaDataThumbnail,\
-    kMediaPlayerMetaDataMimeType\
+#define kCNTMediaPlayerCapabilities @[\
+    kCNTMediaPlayerDisplayImage,\
+    kCNTMediaPlayerPlayVideo,\
+    kCNTMediaPlayerPlayAudio,\
+    kCNTMediaPlayerClose,\
+    kCNTMediaPlayerMetaDataTitle,\
+    kCNTMediaPlayerMetaDataDescription,\
+    kCNTMediaPlayerMetaDataThumbnail,\
+    kCNTMediaPlayerMetaDataMimeType\
 ]
 
 @protocol CNTMediaPlayer <NSObject>
@@ -56,30 +56,30 @@
  * @param launchSession CNTLaunchSession to allow closing this media player
  * @param mediaControl CNTMediaControl object used to control playback
  */
-typedef void (^MediaPlayerDisplaySuccessBlock)(CNTLaunchSession *launchSession, id<CNTMediaControl> mediaControl);
-typedef void (^MediaPlayerSuccessBlock)(CNTMediaLaunchObject *mediaLanchObject);
+typedef void (^CNTMediaPlayerDisplaySuccessBlock)(CNTLaunchSession *launchSession, id<CNTMediaControl> mediaControl);
+typedef void (^CNTMediaPlayerSuccessBlock)(CNTMediaLaunchObject *mediaLanchObject);
 
 
 - (id<CNTMediaPlayer>) mediaPlayer;
-- (CapabilityPriorityLevel) mediaPlayerPriority;
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority;
 
 - (void) displayImage:(NSURL *)imageURL
              iconURL:(NSURL *)iconURL
                title:(NSString *)title
          description:(NSString *)description
             mimeType:(NSString *)mimeType
-             success:(MediaPlayerDisplaySuccessBlock)success
-             failure:(FailureBlock)failure
+             success:(CNTMediaPlayerDisplaySuccessBlock)success
+             failure:(CNTFailureBlock)failure
 __attribute__((deprecated));
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 __attribute__((deprecated));
 
 - (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerSuccessBlock)success
-              failure:(FailureBlock)failure;
+              success:(CNTMediaPlayerSuccessBlock)success
+              failure:(CNTFailureBlock)failure;
 
 - (void) playMedia:(NSURL *)mediaURL
            iconURL:(NSURL *)iconURL
@@ -87,21 +87,21 @@ __attribute__((deprecated));
        description:(NSString *)description
           mimeType:(NSString *)mimeType
         shouldLoop:(BOOL)shouldLoop
-           success:(MediaPlayerDisplaySuccessBlock)success
-           failure:(FailureBlock)failure
+           success:(CNTMediaPlayerDisplaySuccessBlock)success
+           failure:(CNTFailureBlock)failure
 __attribute__((deprecated));
 
 - (void) playMedia:(CNTMediaInfo *)mediaInfo
         shouldLoop:(BOOL)shouldLoop
-           success:(MediaPlayerDisplaySuccessBlock)success
-           failure:(FailureBlock)failure
+           success:(CNTMediaPlayerDisplaySuccessBlock)success
+           failure:(CNTFailureBlock)failure
 __attribute__((deprecated));
 
 - (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo
         shouldLoop:(BOOL)shouldLoop
-           success:(MediaPlayerSuccessBlock)success
-                        failure:(FailureBlock)failure;
+           success:(CNTMediaPlayerSuccessBlock)success
+                        failure:(CNTFailureBlock)failure;
 
-- (void) closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

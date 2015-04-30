@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKAirPlayServiceId @"AirPlay"
+#define kCNTConnectSDKAirPlayServiceId @"AirPlay"
 
 #import <Foundation/Foundation.h>
 #import "CNTDeviceService.h"
@@ -43,7 +43,7 @@ typedef enum {
  * ###Default functionality
  * Out of the box, CNTAirPlayService will only support web app launching through AirPlay mirroring. CNTAirPlayService also provides a Media mode, in which HTTP commands will be sent to the AirPlay device to play and control media files (image, video, audio). Due to certain limitations of the AirPlay protocol, you may only support web apps OR media capabilities through Connect SDK. You may still directly access AirPlay APIs through AVPlayer, MPMoviePlayerController, UIWebView, audio routing, etc.
  *
- * To set the capability mode for the CNTAirPlayService, see the `setCNTAirPlayServiceMode:` static method on the CNTAirPlayService class.
+ * To set the capability mode for the CNTAirPlayService, see the `setAirPlayServiceMode:` static method on the CNTAirPlayService class.
  */
 @interface CNTAirPlayService : CNTDeviceService <CNTMediaPlayer, CNTMediaControl, CNTWebAppLauncher>
 
@@ -60,6 +60,6 @@ typedef enum {
 /*!
  * Sets the CNTAirPlayService mode. This property should be set before CNTDiscoveryManager is set for the first time.
  */
-+ (void)setCNTAirPlayServiceMode:(CNTAirPlayServiceMode)serviceMode;
++ (void)setAirPlayServiceMode:(CNTAirPlayServiceMode)serviceMode;
 
 @end

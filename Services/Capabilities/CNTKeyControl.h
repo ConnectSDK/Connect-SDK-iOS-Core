@@ -21,41 +21,41 @@
 #import <Foundation/Foundation.h>
 #import "CNTCapability.h"
 
-#define kKeyControlAny @"KeyControl.Any"
+#define kCNTKeyControlAny @"CNTKeyControl.Any"
 
-#define kKeyControlUp @"KeyControl.Up"
-#define kKeyControlDown @"KeyControl.Down"
-#define kKeyControlLeft @"KeyControl.Left"
-#define kKeyControlRight @"KeyControl.Right"
-#define kKeyControlOK @"KeyControl.OK"
-#define kKeyControlBack @"KeyControl.Back"
-#define kKeyControlHome @"KeyControl.Home"
-#define kKeyControlSendKeyCode @"KeyControl.Send.KeyCode"
+#define kCNTKeyControlUp @"CNTKeyControl.Up"
+#define kCNTKeyControlDown @"CNTKeyControl.Down"
+#define kCNTKeyControlLeft @"CNTKeyControl.Left"
+#define kCNTKeyControlRight @"CNTKeyControl.Right"
+#define kCNTKeyControlOK @"CNTKeyControl.OK"
+#define kCNTKeyControlBack @"CNTKeyControl.Back"
+#define kCNTKeyControlHome @"CNTKeyControl.Home"
+#define kCNTKeyControlSendKeyCode @"CNTKeyControl.Send.KeyCode"
 
-#define kKeyControlCapabilities @[\
-    kKeyControlUp,\
-    kKeyControlDown,\
-    kKeyControlLeft,\
-    kKeyControlRight,\
-    kKeyControlOK,\
-    kKeyControlBack,\
-    kKeyControlHome,\
-    kKeyControlSendKeyCode\
+#define kCNTKeyControlCapabilities @[\
+    kCNTKeyControlUp,\
+    kCNTKeyControlDown,\
+    kCNTKeyControlLeft,\
+    kCNTKeyControlRight,\
+    kCNTKeyControlOK,\
+    kCNTKeyControlBack,\
+    kCNTKeyControlHome,\
+    kCNTKeyControlSendKeyCode\
 ]
 
 @protocol CNTKeyControl <NSObject>
 
 - (id<CNTKeyControl>) keyControl;
-- (CapabilityPriorityLevel) keyControlPriority;
+- (CNTCapabilityPriorityLevel) keyControlPriority;
 
-- (void) upWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) downWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) leftWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) rightWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) okWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) backWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) homeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) upWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) downWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) leftWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) rightWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) okWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) backWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) homeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) sendKeyCode:(NSUInteger)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

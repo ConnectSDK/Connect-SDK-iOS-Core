@@ -1,5 +1,5 @@
 //
-//  WebOSService.h
+//  CNTWebOSTVService.h
 //  Connect SDK
 //
 //  Created by Jeremy White on 12/2/13.
@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKWebOSTVServiceId @"webOS TV"
+#define kCNTConnectSDKWebOSTVServiceId @"webOS TV"
 
 #import <UIKit/UIKit.h>
 #import "CNTDeviceService.h"
@@ -44,38 +44,38 @@
 
 // @cond INTERNAL
 typedef enum {
-    LAUNCH = 0,
-    LAUNCH_WEBAPP,
-    APP_TO_APP,
-    CONTROL_AUDIO,
-    CONTROL_INPUT_MEDIA_PLAYBACK
-} WebOSTVServiceOpenPermission;
+    CNT_LAUNCH = 0,
+    CNT_LAUNCH_WEBAPP,
+    CNT_APP_TO_APP,
+    CNT_CONTROL_AUDIO,
+    CNT_CONTROL_INPUT_MEDIA_PLAYBACK
+} CNTWebOSTVServiceOpenPermission;
 
-#define kWebOSTVServiceOpenPermissions @[@"LAUNCH", @"LAUNCH_WEBAPP", @"APP_TO_APP", @"CONTROL_AUDIO", @"CONTROL_INPUT_MEDIA_PLAYBACK"]
-
-typedef enum {
-    CONTROL_POWER = 0,
-    READ_INSTALLED_APPS,
-    CONTROL_DISPLAY,
-    CONTROL_INPUT_JOYSTICK,
-    CONTROL_INPUT_MEDIA_RECORDING,
-    CONTROL_INPUT_TV,
-    READ_INPUT_DEVICE_LIST,
-    READ_NETWORK_STATE,
-    READ_TV_CHANNEL_LIST,
-    WRITE_NOTIFICATION_TOAST
-} WebOSTVServiceProtectedPermission;
-
-#define kWebOSTVServiceProtectedPermissions @[@"CONTROL_POWER", @"READ_INSTALLED_APPS", @"CONTROL_DISPLAY", @"CONTROL_INPUT_JOYSTICK", @"CONTROL_INPUT_MEDIA_RECORDING", @"CONTROL_INPUT_TV", @"READ_INPUT_DEVICE_LIST", @"READ_NETWORK_STATE", @"READ_TV_CHANNEL_LIST", @"WRITE_NOTIFICATION_TOAST"]
+#define kCNTWebOSTVServiceOpenPermissions @[@"LAUNCH", @"LAUNCH_WEBAPP", @"APP_TO_APP", @"CONTROL_AUDIO", @"CONTROL_INPUT_MEDIA_PLAYBACK"]
 
 typedef enum {
-    CONTROL_INPUT_TEXT = 0,
-    CONTROL_MOUSE_AND_KEYBOARD,
-    READ_CURRENT_CHANNEL,
-    READ_RUNNING_APPS
-} WebOSTVServicePersonalActivityPermission;
+    CNT_CONTROL_POWER = 0,
+    CNT_READ_INSTALLED_APPS,
+    CNT_CONTROL_DISPLAY,
+    CNT_CONTROL_INPUT_JOYSTICK,
+    CNT_CONTROL_INPUT_MEDIA_RECORDING,
+    CNT_CONTROL_INPUT_TV,
+    CNT_READ_INPUT_DEVICE_LIST,
+    CNT_READ_NETWORK_STATE,
+    CNT_READ_TV_CHANNEL_LIST,
+    CNT_WRITE_NOTIFICATION_TOAST
+} CNTWebOSTVServiceProtectedPermission;
 
-#define kWebOSTVServicePersonalActivityPermissions @[@"CONTROL_INPUT_TEXT", @"CONTROL_MOUSE_AND_KEYBOARD", @"READ_CURRENT_CHANNEL", @"READ_RUNNING_APPS"]
+#define kCNTWebOSTVServiceProtectedPermissions @[@"CONTROL_POWER", @"READ_INSTALLED_APPS", @"CONTROL_DISPLAY", @"CONTROL_INPUT_JOYSTICK", @"CONTROL_INPUT_MEDIA_RECORDING", @"CONTROL_INPUT_TV", @"READ_INPUT_DEVICE_LIST", @"READ_NETWORK_STATE", @"READ_TV_CHANNEL_LIST", @"WRITE_NOTIFICATION_TOAST"]
+
+typedef enum {
+    CNT_CONTROL_INPUT_TEXT = 0,
+    CNT_CONTROL_MOUSE_AND_KEYBOARD,
+    CNT_READ_CURRENT_CHANNEL,
+    CNT_READ_RUNNING_APPS
+} CNTWebOSTVServicePersonalActivityPermission;
+
+#define kCNTWebOSTVServicePersonalActivityPermissions @[@"CONTROL_INPUT_TEXT", @"CONTROL_MOUSE_AND_KEYBOARD", @"READ_CURRENT_CHANNEL", @"READ_RUNNING_APPS"]
 
 @property (nonatomic, strong, readonly) CNTWebOSTVServiceSocketClient *socket;
 @property (nonatomic, strong, readonly) CNTWebOSTVServiceMouse *mouseSocket;
@@ -90,15 +90,15 @@ typedef enum {
 #pragma mark - Web app & app to app
 
 // @cond INTERNAL
-- (void) connectToWebApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) connectToWebApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 // @endcond
 
 #pragma mark - Native app to app
 
 // @cond INTERNAL
-- (void) connectToApp:(NSString *)appId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void) joinApp:(NSString *)appId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void) connectToApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) connectToApp:(NSString *)appId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) joinApp:(NSString *)appId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) connectToApp:(CNTWebOSWebAppSession *)webAppSession joinOnly:(BOOL)joinOnly success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 // @endcond
 
 #pragma mark - System Info
@@ -107,8 +107,8 @@ typedef enum {
 typedef void (^ ServiceListSuccessBlock)(NSArray *serviceList);
 typedef void (^ SystemInfoSuccessBlock)(NSArray *featureList);
 
-- (void)getServiceListWithSuccess:(ServiceListSuccessBlock)success failure:(FailureBlock)failure;
-- (void)getSystemInfoWithSuccess:(SystemInfoSuccessBlock)success failure:(FailureBlock)failure;
+- (void)getServiceListWithSuccess:(ServiceListSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)getSystemInfoWithSuccess:(SystemInfoSuccessBlock)success failure:(CNTFailureBlock)failure;
 // @endcond
 
 @end

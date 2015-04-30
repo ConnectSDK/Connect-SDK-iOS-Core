@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKDLNAServiceId @"DLNA"
+#define kCNTConnectSDKDLNAServiceId @"DLNA"
 
 #import "CNTDeviceService.h"
 #import "CNTMediaControl.h"

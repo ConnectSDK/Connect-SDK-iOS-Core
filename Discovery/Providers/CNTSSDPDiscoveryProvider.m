@@ -23,7 +23,7 @@
 #import "CNTServiceDescription.h"
 #import "CTXMLReader.h"
 #import "CNTDeviceService.h"
-#import "CommonMacros.h"
+#import "CNTCommonMacros.h"
 
 #import <sys/utsname.h>
 

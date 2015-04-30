@@ -207,7 +207,7 @@
         }];
     }
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disconnect) name:kConnectSDKWirelessSSIDChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disconnect) name:kCNTConnectSDKWirelessSSIDChanged object:nil];
 }
 
 - (void) disconnect
@@ -218,7 +218,7 @@
             [service disconnect];
     }];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kConnectSDKWirelessSSIDChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kCNTConnectSDKWirelessSSIDChanged object:nil];
 
     dispatch_on_main(^{ [self.delegate connectableDeviceDisconnected:self withError:nil]; });
 }
@@ -439,14 +439,14 @@
 
 #pragma mark Pairing
 
-- (void)setPairingType:(DeviceServicePairingType)pairingType {
+- (void)setPairingType:(CNTDeviceServicePairingType)pairingType {
     [self.services enumerateObjectsUsingBlock:^(CNTDeviceService *service, NSUInteger serviceIdx, BOOL *serviceStop)
      {
          service.pairingType = pairingType;
      }];
 }
 
-- (void)deviceService:(CNTDeviceService *)service pairingRequiredOfType:(DeviceServicePairingType)pairingType withData:(id)pairingData
+- (void)deviceService:(CNTDeviceService *)service pairingRequiredOfType:(CNTDeviceServicePairingType)pairingType withData:(id)pairingData
 {
     if (self.delegate)
     {
@@ -454,7 +454,7 @@
             dispatch_on_main(^{ [self.delegate connectableDevice:self service:service pairingRequiredOfType:pairingType withData:pairingData]; });
         else
         {
-            if (pairingType == DeviceServicePairingTypeAirPlayMirroring)
+            if (pairingType == CNTDeviceServicePairingTypeAirPlayMirroring)
                 [(UIAlertView *)pairingData show];
         }
     }

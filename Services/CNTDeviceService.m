@@ -252,15 +252,15 @@ static BOOL _shouldDisconnectOnBackground = YES;
 
 - (BOOL) requiresPairing
 {
-    return self.pairingType != DeviceServicePairingTypeNone;
+    return self.pairingType != CNTDeviceServicePairingTypeNone;
 }
 
-- (DeviceServicePairingType) pairingType
+- (CNTDeviceServicePairingType) pairingType
 {
-    return DeviceServicePairingTypeNone;
+    return CNTDeviceServicePairingTypeNone;
 }
 
-- (void) setPairingType:(DeviceServicePairingType)pairingType {
+- (void) setPairingType:(CNTDeviceServicePairingType)pairingType {
     //Subclasses should implement this method to set pairing type.
 }
 
@@ -283,12 +283,12 @@ id ensureString(id value)
     return value != nil ? value : @"";
 }
 
-- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeLaunchSession:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!launchSession)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provice a valid CNTLaunchSession object"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provice a valid CNTLaunchSession object"]);
 
         return;
     }
@@ -296,37 +296,37 @@ id ensureString(id value)
     if (!launchSession.service)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"This CNTLaunchSession does not have an associated CNTDeviceService"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"This CNTLaunchSession does not have an associated CNTDeviceService"]);
 
         return;
     }
 
     switch (launchSession.sessionType)
     {
-        case LaunchSessionTypeApp:
+        case CNTLaunchSessionTypeApp:
             if ([launchSession.service conformsToProtocol:@protocol(CNTLauncher)])
                 [((id <CNTLauncher>) launchSession.service) closeApp:launchSession success:success failure:failure];
             break;
 
-        case LaunchSessionTypeMedia:
+        case CNTLaunchSessionTypeMedia:
             if ([launchSession.service conformsToProtocol:@protocol(CNTMediaPlayer)])
                 [((id <CNTMediaPlayer>) launchSession.service) closeMedia:launchSession success:success failure:failure];
             break;
 
-        case LaunchSessionTypeExternalInputPicker:
+        case CNTLaunchSessionTypeExternalInputPicker:
             if ([launchSession.service conformsToProtocol:@protocol(CNTExternalInputControl)])
                 [((id <CNTExternalInputControl>) launchSession.service) closeInputPicker:launchSession success:success failure:failure];
             break;
 
-        case LaunchSessionTypeWebApp:
+        case CNTLaunchSessionTypeWebApp:
             if ([launchSession.service conformsToProtocol:@protocol(CNTWebAppLauncher)])
                 [((id <CNTWebAppLauncher>) launchSession.service) closeWebApp:launchSession success:success failure:failure];
             break;
 
-        case LaunchSessionTypeUnknown:
+        case CNTLaunchSessionTypeUnknown:
         default:
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"This CNTDeviceService does not know how to close this CNTLaunchSession"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"This CNTDeviceService does not know how to close this CNTLaunchSession"]);
     }
 }
 

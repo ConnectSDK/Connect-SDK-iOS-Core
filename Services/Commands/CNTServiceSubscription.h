@@ -32,7 +32,7 @@
 + (instancetype) subscriptionWithDelegate:(id <CNTServiceCommandDelegate>)delegate target:(NSURL *)url payload:(id)payload callId:(int)callId;
 
 -(void) addSuccess:(id)success;
--(void) addFailure:(FailureBlock)failure;
+-(void) addFailure:(CNTFailureBlock)failure;
 
 -(void) subscribe;
 -(void) unsubscribe;

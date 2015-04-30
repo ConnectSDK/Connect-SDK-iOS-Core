@@ -253,7 +253,7 @@
         {
             [self purgeDeviceList];
 
-            [[NSNotificationCenter defaultCenter] postNotificationName:kConnectSDKWirelessSSIDChanged object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kCNTConnectSDKWirelessSSIDChanged object:nil];
         }
 
         _currentSSID = ssidName;
@@ -323,7 +323,7 @@
     {
         if ([description.modelDescription.uppercaseString rangeOfString:@"WEBOS"].location == NSNotFound)
         {
-            isNetcast = [description.serviceId isEqualToString:kConnectSDKNetcastTVServiceId];
+            isNetcast = [description.serviceId isEqualToString:kCNTConnectSDKNetcastTVServiceId];
         }
     }
 

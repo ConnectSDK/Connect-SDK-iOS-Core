@@ -24,33 +24,33 @@
 NSString *const CNTConnectErrorDomain;
 
 /*!
- * Helpful status codes that augment the localizedDescriptions of NSErrors that crop up throughout many places of the SDK. Most NSErrors that Connect SDK provides will have a ConnectStatusCode.
+ * Helpful status codes that augment the localizedDescriptions of NSErrors that crop up throughout many places of the SDK. Most NSErrors that Connect SDK provides will have a CNTConnectStatusCode.
  */
 typedef enum {
     /*! Generic error, unknown cause */
-    ConnectStatusCodeError = 1000,
+    CNTConnectStatusCodeError = 1000,
 
     /*! The TV experienced an error */
-    ConnectStatusCodeTvError = 1001,
+    CNTConnectStatusCodeTvError = 1001,
 
     /*! SSL certificate error */
-    ConnectStatusCodeCertificateError = 1002,
+    CNTConnectStatusCodeCertificateError = 1002,
 
     /*! Error with WebSocket connection */
-    ConnectStatusCodeSocketError = 1003,
+    CNTConnectStatusCodeSocketError = 1003,
 
     /*! Requested action is not supported */
-    ConnectStatusCodeNotSupported = 1100,
+    CNTConnectStatusCodeNotSupported = 1100,
 
     /*! There was a problem with the provided arguments, see error description for details */
-    ConnectStatusCodeArgumentError = 1101,
+    CNTConnectStatusCodeArgumentError = 1101,
 
     /*! Device is not connected */
-    ConnectStatusCodeNotConnected = 1102
-} ConnectStatusCode;
+    CNTConnectStatusCodeNotConnected = 1102
+} CNTConnectStatusCode;
 
 @interface CNTConnectError : NSObject
 
-+ (NSError *) generateErrorWithCode:(ConnectStatusCode)code andDetails:(id)details;
++ (NSError *) generateErrorWithCode:(CNTConnectStatusCode)code andDetails:(id)details;
 
 @end

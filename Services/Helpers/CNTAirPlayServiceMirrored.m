@@ -29,8 +29,8 @@
 
 @interface CNTAirPlayServiceMirrored () <CNTServiceCommandDelegate, UIWebViewDelegate, UIAlertViewDelegate>
 
-@property (nonatomic, copy) SuccessBlock launchSuccessBlock;
-@property (nonatomic, copy) FailureBlock launchFailureBlock;
+@property (nonatomic, copy) CNTSuccessBlock launchSuccessBlock;
+@property (nonatomic, copy) CNTFailureBlock launchFailureBlock;
 
 @property (nonatomic) CNTAirPlayWebAppSession *activeWebAppSession;
 @property (nonatomic) CNTServiceSubscription *playStateSubscription;
@@ -55,10 +55,10 @@
     return self;
 }
 
-- (void) sendNotSupportedFailure:(FailureBlock)failure
+- (void) sendNotSupportedFailure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (void) connect
@@ -91,7 +91,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hScreenConnected:) name:UIScreenDidConnectNotification object:nil];
 
         if (self.service && self.service.delegate && [self.service.delegate respondsToSelector:@selector(deviceService:pairingRequiredOfType:withData:)])
-            dispatch_on_main(^{ [self.service.delegate deviceService:self.service pairingRequiredOfType:DeviceServicePairingTypeAirPlayMirroring withData:_connectingAlertView]; });
+            dispatch_on_main(^{ [self.service.delegate deviceService:self.service pairingRequiredOfType:CNTDeviceServicePairingTypeAirPlayMirroring withData:_connectingAlertView]; });
     }
 }
 
@@ -134,9 +134,9 @@
         [self disconnect];
 }
 
-- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
-    if (type == ServiceSubscriptionTypeUnsubscribe)
+    if (type == CNTServiceSubscriptionTypeUnsubscribe)
     {
         if (subscription == self.playStateSubscription)
         {
@@ -215,34 +215,34 @@
         [self disconnect];
 }
 
-#pragma mark - WebAppLauncher
+#pragma mark - CNTWebAppLauncher
 
 - (id <CNTWebAppLauncher>) webAppLauncher
 {
     return self;
 }
 
-- (CapabilityPriorityLevel) webAppLauncherPriority
+- (CNTCapabilityPriorityLevel) webAppLauncherPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) launchWebApp:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchWebApp:webAppId params:nil relaunchIfRunning:YES success:success failure:failure];
 }
 
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchWebApp:webAppId params:params relaunchIfRunning:YES success:success failure:failure];
 }
 
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!webAppId || webAppId.length == 0)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app URL"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid web app URL"]);
 
         return;
     }
@@ -252,7 +252,7 @@
     if (!self.secondWindow || !self.secondWindow.screen)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not detect a second screen -- make sure you have mirroring enabled"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not detect a second screen -- make sure you have mirroring enabled"]);
 
         return;
     }
@@ -308,7 +308,7 @@
     self.secondWindow.hidden = NO;
 
     CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:webAppId];
-    launchSession.sessionType = LaunchSessionTypeWebApp;
+    launchSession.sessionType = CNTLaunchSessionTypeWebApp;
     launchSession.service = self.service;
 
     CNTAirPlayWebAppSession *webAppSession = [[CNTAirPlayWebAppSession alloc] initWithLaunchSession:launchSession service:self.service];
@@ -346,12 +346,12 @@
     [self.webAppWebView loadRequest:request];
 }
 
-- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchWebApp:webAppId params:nil relaunchIfRunning:YES success:success failure:failure];
 }
 
-- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.webAppWebView && self.connected)
     {
@@ -366,20 +366,20 @@
         } else
         {
             if (failure)
-                dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Web is not currently running"]); });
+                dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Web is not currently running"]); });
         }
     } else
     {
         if (failure)
-            dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Web is not currently running"]); });
+            dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Web is not currently running"]); });
     }
 }
 
-- (void) joinWebAppWithId:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) joinWebAppWithId:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:webAppId];
     launchSession.service = self.service;
-    launchSession.sessionType = LaunchSessionTypeWebApp;
+    launchSession.sessionType = CNTLaunchSessionTypeWebApp;
 
     [self joinWebApp:launchSession success:success failure:failure];
 }
@@ -398,7 +398,7 @@
     self.launchFailureBlock = nil;
 }
 
-- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self disconnectFromWebApp];
 
@@ -417,22 +417,22 @@
         success(nil);
 }
 
-- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
--(void)unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure
+-(void)unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (void)isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (void)isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
 }
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
     return nil;

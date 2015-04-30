@@ -29,7 +29,7 @@
     return nil;
 }
 
-- (instancetype) initWithURL:(NSURL *)url type:(ImageType)type
+- (instancetype) initWithURL:(NSURL *)url type:(CNTImageType)type
 {
     self = [super init];
 

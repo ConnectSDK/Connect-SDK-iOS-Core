@@ -23,18 +23,18 @@
 #import "CNTTextInputStatusInfo.h"
 #import "CNTServiceSubscription.h"
 
-#define kTextInputControlAny @"TextInputControl.Any"
+#define kCNTTextInputControlAny @"CNTTextInputControl.Any"
 
-#define kTextInputControlSendText @"TextInputControl.Send.Text"
-#define kTextInputControlSendEnter @"TextInputControl.Send.Enter"
-#define kTextInputControlSendDelete @"TextInputControl.Send.Delete"
-#define kTextInputControlSubscribe @"TextInputControl.Subscribe"
+#define kCNTTextInputControlSendText @"CNTTextInputControl.Send.Text"
+#define kCNTTextInputControlSendEnter @"CNTTextInputControl.Send.Enter"
+#define kCNTTextInputControlSendDelete @"CNTTextInputControl.Send.Delete"
+#define kCNTTextInputControlSubscribe @"CNTTextInputControl.Subscribe"
 
-#define kTextInputControlCapabilities @[\
-    kTextInputControlSendText,\
-    kTextInputControlSendEnter,\
-    kTextInputControlSendDelete,\
-    kTextInputControlSubscribe\
+#define kCNTTextInputControlCapabilities @[\
+    kCNTTextInputControlSendText,\
+    kCNTTextInputControlSendEnter,\
+    kCNTTextInputControlSendDelete,\
+    kCNTTextInputControlSubscribe\
 ]
 
 @protocol CNTTextInputControl <NSObject>
@@ -44,15 +44,15 @@
  *
  * @param textInputStatusInfo provides keyboard type & visibility information
  */
-typedef void (^ TextInputStatusInfoSuccessBlock)(CNTTextInputStatusInfo *textInputStatusInfo);
+typedef void (^CNTTextInputStatusInfoSuccessBlock)(CNTTextInputStatusInfo *textInputStatusInfo);
 
 - (id<CNTTextInputControl>) textInputControl;
-- (CapabilityPriorityLevel) textInputControlPriority;
+- (CNTCapabilityPriorityLevel) textInputControlPriority;
 
-- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(TextInputStatusInfoSuccessBlock)success failure:(FailureBlock)failure;
+- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(CNTTextInputStatusInfoSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) sendText:(NSString *)input success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) sendEnterWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) sendDeleteWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) sendText:(NSString *)input success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) sendEnterWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) sendDeleteWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

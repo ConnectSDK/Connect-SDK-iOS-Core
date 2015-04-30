@@ -48,7 +48,7 @@ static NSMutableArray *registeredApps = nil;
 + (NSDictionary *)discoveryParameters
 {
     return @{
-            @"serviceId" : kConnectSDKRokuServiceId,
+            @"serviceId" : kCNTConnectSDKRokuServiceId,
             @"ssdp" : @{
                     @"filter" : @"roku:ecp"
             }
@@ -58,30 +58,30 @@ static NSMutableArray *registeredApps = nil;
 - (void) updateCapabilities
 {
     NSArray *capabilities = @[
-        kLauncherAppList,
-        kLauncherApp,
-        kLauncherAppParams,
-        kLauncherAppStore,
-        kLauncherAppStoreParams,
-        kLauncherAppClose,
+        kCNTLauncherAppList,
+        kCNTLauncherApp,
+        kCNTLauncherAppParams,
+        kCNTLauncherAppStore,
+        kCNTLauncherAppStoreParams,
+        kCNTLauncherAppClose,
 
-        kMediaPlayerDisplayImage,
-        kMediaPlayerPlayVideo,
-        kMediaPlayerPlayAudio,
-        kMediaPlayerClose,
-        kMediaPlayerMetaDataTitle,
+        kCNTMediaPlayerDisplayImage,
+        kCNTMediaPlayerPlayVideo,
+        kCNTMediaPlayerPlayAudio,
+        kCNTMediaPlayerClose,
+        kCNTMediaPlayerMetaDataTitle,
 
-        kMediaControlPlay,
-        kMediaControlPause,
-        kMediaControlRewind,
-        kMediaControlFastForward,
+        kCNTMediaControlPlay,
+        kCNTMediaControlPause,
+        kCNTMediaControlRewind,
+        kCNTMediaControlFastForward,
 
-        kTextInputControlSendText,
-        kTextInputControlSendEnter,
-        kTextInputControlSendDelete
+        kCNTTextInputControlSendText,
+        kCNTTextInputControlSendEnter,
+        kCNTTextInputControlSendDelete
     ];
 
-    capabilities = [capabilities arrayByAddingObjectsFromArray:kKeyControlCapabilities];
+    capabilities = [capabilities arrayByAddingObjectsFromArray:kCNTKeyControlCapabilities];
 
     [self setCapabilities:capabilities];
 }
@@ -215,7 +215,7 @@ static NSMutableArray *registeredApps = nil;
         {
             if ([httpResponse statusCode] < 200 || [httpResponse statusCode] >= 300)
             {
-                NSError *error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:nil];
+                NSError *error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:nil];
                 
                 if (command.callbackError)
                     command.callbackError(error);
@@ -241,17 +241,17 @@ static NSMutableArray *registeredApps = nil;
     return self;
 }
 
-- (CapabilityPriorityLevel)launcherPriority
+- (CNTCapabilityPriorityLevel)launcherPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)launchApp:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchApp:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appId)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide an appId."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide an appId."]);
         return;
     }
 
@@ -260,17 +260,17 @@ static NSMutableArray *registeredApps = nil;
     [self launchAppWithInfo:appInfo params:nil success:success failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchAppWithInfo:appInfo params:nil success:success failure:failure];
 }
 
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!appInfo || !appInfo.id)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid CNTAppInfo object."]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You must provide a valid CNTAppInfo object."]);
         return;
     }
 
@@ -303,7 +303,7 @@ static NSMutableArray *registeredApps = nil;
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:appInfo.id];
         launchSession.name = appInfo.name;
-        launchSession.sessionType = LaunchSessionTypeApp;
+        launchSession.sessionType = CNTLaunchSessionTypeApp;
         launchSession.service = self;
 
         if (success)
@@ -313,23 +313,23 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void)launchYouTube:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchYouTube:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self launchYouTube:contentId startTime:0.0 success:success failure:failure];
 }
 
-- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (self.dialService)
         [self.dialService.launcher launchYouTube:contentId startTime:startTime success:success failure:failure];
     else
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:@"Cannot reach DIAL service for launching with provided start time"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:@"Cannot reach DIAL service for launching with provided start time"]);
     }
 }
 
-- (void) launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void) launchAppStore:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTAppInfo *appInfo = [CNTAppInfo appInfoForId:@"11"];
     appInfo.name = @"Channel Store";
@@ -342,19 +342,19 @@ static NSMutableArray *registeredApps = nil;
     [self launchAppWithInfo:appInfo params:params success:success failure:failure];
 }
 
-- (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchBrowser:(NSURL *)target success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchHulu:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
+- (void)launchNetflix:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self getAppListWithSuccess:^(NSArray *appList)
     {
@@ -379,17 +379,17 @@ static NSMutableArray *registeredApps = nil;
         } else
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Netflix app could not be found on TV"]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Netflix app could not be found on TV"]);
         }
     } failure:failure];
 }
 
-- (void)closeApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.keyControl homeWithSuccess:success failure:failure];
 }
 
-- (void)getAppListWithSuccess:(AppListSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppListWithSuccess:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *targetURL = [self.serviceDescription.commandURL URLByAppendingPathComponent:@"query"];
     targetURL = [targetURL URLByAppendingPathComponent:@"apps"];
@@ -420,30 +420,30 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void)getAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (void)getRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
@@ -455,17 +455,17 @@ static NSMutableArray *registeredApps = nil;
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaPlayerPriority
+- (CNTCapabilityPriorityLevel)mediaPlayerPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -474,8 +474,8 @@ static NSMutableArray *registeredApps = nil;
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -486,13 +486,13 @@ static NSMutableArray *registeredApps = nil;
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *imageURL = mediaInfo.url;
     if (!imageURL)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a video URL"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You need to provide a video URL"]);
         
         return;
     }
@@ -518,7 +518,7 @@ static NSMutableArray *registeredApps = nil;
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:@"15985"];
         launchSession.name = @"simplevideoplayer";
-        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.sessionType = CNTLaunchSessionTypeMedia;
         launchSession.service = self;
         
         CNTMediaLaunchObject *launchObject = [[CNTMediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
@@ -530,12 +530,12 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -543,7 +543,7 @@ static NSMutableArray *registeredApps = nil;
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -553,7 +553,7 @@ static NSMutableArray *registeredApps = nil;
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -567,7 +567,7 @@ static NSMutableArray *registeredApps = nil;
     if (!mediaURL)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You need to provide a media URL"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"You need to provide a media URL"]);
         
         return;
     }
@@ -612,7 +612,7 @@ static NSMutableArray *registeredApps = nil;
     {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:@"15985"];
         launchSession.name = @"simplevideoplayer";
-        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.sessionType = CNTLaunchSessionTypeMedia;
         launchSession.service = self;
          CNTMediaLaunchObject *launchObject = [[CNTMediaLaunchObject alloc] initWithLaunchSession:launchSession andMediaControl:self.mediaControl];
          if(success){
@@ -623,80 +623,80 @@ static NSMutableArray *registeredApps = nil;
     [command send];
 }
 
-- (void)closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.keyControl homeWithSuccess:success failure:failure];
 }
 
-#pragma mark - MediaControl
+#pragma mark - CNTMediaControl
 
 - (id <CNTMediaControl>)mediaControl
 {
     return self;
 }
 
-- (CapabilityPriorityLevel)mediaControlPriority
+- (CNTCapabilityPriorityLevel)mediaControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodePlay success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodePlay success:success failure:failure];
 }
 
-- (void)pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     // Roku does not have pause, it only has play/pause
-    [self sendKeyCode:RokuKeyCodePlay success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodePlay success:success failure:failure];
 }
 
-- (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeRewind success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeRewind success:success failure:failure];
 }
 
-- (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeFastForward success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeFastForward success:success failure:failure];
 }
 
-- (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
-{
-    if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
-- (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (CNTServiceSubscription *)subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
+{
+    if (failure)
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void)getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
 }
@@ -708,56 +708,56 @@ static NSMutableArray *registeredApps = nil;
     return self;
 }
 
-- (CapabilityPriorityLevel) keyControlPriority
+- (CNTCapabilityPriorityLevel) keyControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void)upWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)upWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeUp success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeUp success:success failure:failure];
 }
 
-- (void)downWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)downWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeDown success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeDown success:success failure:failure];
 }
 
-- (void)leftWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)leftWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeLeft success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeLeft success:success failure:failure];
 }
 
-- (void)rightWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)rightWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeRight success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeRight success:success failure:failure];
 }
 
-- (void)homeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)homeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeHome success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeHome success:success failure:failure];
 }
 
-- (void)backWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)backWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeBack success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeBack success:success failure:failure];
 }
 
-- (void)okWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)okWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeSelect success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeSelect success:success failure:failure];
 }
 
-- (void)sendKeyCode:(RokuKeyCode)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendKeyCode:(CNTRokuKeyCode)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    if (keyCode > kRokuKeyCodes.count)
+    if (keyCode > kCNTRokuKeyCodes.count)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:nil]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:nil]);
         return;
     }
 
-    NSString *keyCodeString = kRokuKeyCodes[keyCode];
+    NSString *keyCodeString = kCNTRokuKeyCodes[keyCode];
 
     [self sendKeyPress:keyCodeString success:success failure:failure];
 }
@@ -769,12 +769,12 @@ static NSMutableArray *registeredApps = nil;
     return self;
 }
 
-- (CapabilityPriorityLevel) textInputControlPriority
+- (CNTCapabilityPriorityLevel) textInputControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CNTCapabilityPriorityLevelNormal;
 }
 
-- (void) sendText:(NSString *)input success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendText:(NSString *)input success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     // TODO: optimize this with queueing similiar to webOS and Netcast services
     NSMutableArray *stringToSend = [NSMutableArray new];
@@ -787,33 +787,33 @@ static NSMutableArray *registeredApps = nil;
     [stringToSend enumerateObjectsUsingBlock:^(NSString *charToSend, NSUInteger idx, BOOL *stop)
     {
 
-        NSString *codeToSend = [NSString stringWithFormat:@"%@%@", kRokuKeyCodes[RokuKeyCodeLiteral], [CNTConnectUtil urlEncode:charToSend]];
+        NSString *codeToSend = [NSString stringWithFormat:@"%@%@", kCNTRokuKeyCodes[CNTRokuKeyCodeLiteral], [CNTConnectUtil urlEncode:charToSend]];
 
         [self sendKeyPress:codeToSend success:success failure:failure];
     }];
 }
 
-- (void)sendEnterWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendEnterWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeEnter success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeEnter success:success failure:failure];
 }
 
-- (void)sendDeleteWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)sendDeleteWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
-    [self sendKeyCode:RokuKeyCodeBackspace success:success failure:failure];
+    [self sendKeyCode:CNTRokuKeyCodeBackspace success:success failure:failure];
 }
 
-- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(TextInputStatusInfoSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribeTextInputStatusWithSuccess:(CNTTextInputStatusInfoSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        [CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil];
+        [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil];
 
     return nil;
 }
 
 #pragma mark - Helper methods
 
-- (void) sendKeyPress:(NSString *)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) sendKeyPress:(NSString *)keyCode success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *targetURL = [self.serviceDescription.commandURL URLByAppendingPathComponent:@"keypress"];
     targetURL = [NSURL URLWithString:[targetURL.absoluteString stringByAppendingPathComponent:keyCode]];
@@ -836,7 +836,7 @@ static NSMutableArray *registeredApps = nil;
     return appInfo;
 }
 
-- (void) hasApp:(NSString *)appName success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) hasApp:(NSString *)appName success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.launcher getAppListWithSuccess:^(NSArray *appList)
     {
@@ -860,12 +860,12 @@ static NSMutableArray *registeredApps = nil;
             } else
             {
                 if (failure)
-                    failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find this app on the TV"]);
+                    failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not find this app on the TV"]);
             }
         } else
         {
             if (failure)
-                failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@"Could not find any apps on the TV."]);
+                failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeTvError andDetails:@"Could not find any apps on the TV."]);
         }
     } failure:failure];
 }

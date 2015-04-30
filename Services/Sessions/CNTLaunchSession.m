@@ -78,12 +78,12 @@
     return [launchSession.appId isEqualToString:self.appId] && [launchSession.sessionId isEqualToString:self.sessionId];
 }
 
-- (void)closeWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)closeWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (!self.service)
     {
         if (failure)
-            failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"This CNTLaunchSession has no CNTDeviceService reference"]);
+            failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeArgumentError andDetails:@"This CNTLaunchSession has no CNTDeviceService reference"]);
 
         return;
     }

@@ -22,24 +22,24 @@
 #import "CNTCapability.h"
 #import "CNTServiceSubscription.h"
 
-#define kVolumeControlAny @"VolumeControl.Any"
+#define kCNTVolumeControlAny @"CNTVolumeControl.Any"
 
-#define kVolumeControlVolumeGet @"VolumeControl.Get"
-#define kVolumeControlVolumeSet @"VolumeControl.Set"
-#define kVolumeControlVolumeUpDown @"VolumeControl.UpDown"
-#define kVolumeControlVolumeSubscribe @"VolumeControl.Subscribe"
-#define kVolumeControlMuteGet @"VolumeControl.Mute.Get"
-#define kVolumeControlMuteSet @"VolumeControl.Mute.Set"
-#define kVolumeControlMuteSubscribe @"VolumeControl.Mute.Subscribe"
+#define kCNTVolumeControlVolumeGet @"CNTVolumeControl.Get"
+#define kCNTVolumeControlVolumeSet @"CNTVolumeControl.Set"
+#define kCNTVolumeControlVolumeUpDown @"CNTVolumeControl.UpDown"
+#define kCNTVolumeControlVolumeSubscribe @"CNTVolumeControl.Subscribe"
+#define kCNTVolumeControlMuteGet @"CNTVolumeControl.Mute.Get"
+#define kCNTVolumeControlMuteSet @"CNTVolumeControl.Mute.Set"
+#define kCNTVolumeControlMuteSubscribe @"CNTVolumeControl.Mute.Subscribe"
 
-#define kVolumeControlCapabilities @[\
-    kVolumeControlVolumeGet,\
-    kVolumeControlVolumeSet,\
-    kVolumeControlVolumeUpDown,\
-    kVolumeControlVolumeSubscribe,\
-    kVolumeControlMuteGet,\
-    kVolumeControlMuteSet,\
-    kVolumeControlMuteSubscribe\
+#define kCNTVolumeControlCapabilities @[\
+    kCNTVolumeControlVolumeGet,\
+    kCNTVolumeControlVolumeSet,\
+    kCNTVolumeControlVolumeUpDown,\
+    kCNTVolumeControlVolumeSubscribe,\
+    kCNTVolumeControlMuteGet,\
+    kCNTVolumeControlMuteSet,\
+    kCNTVolumeControlMuteSubscribe\
 ]
 
 @protocol CNTVolumeControl <NSObject>
@@ -49,31 +49,31 @@
  *
  * @param volume Current system volume, value is a float between 0.0 and 1.0
  */
-typedef void (^ VolumeSuccessBlock)(float volume);
+typedef void (^CNTVolumeSuccessBlock)(float volume);
 
 /*!
  * Success block that is called upon successfully getting the device's system mute status.
  *
  * @param mute Current system mute status
  */
-typedef void (^ MuteSuccessBlock)(BOOL mute);
+typedef void (^CNTMuteSuccessBlock)(BOOL mute);
 
 - (id<CNTVolumeControl>)volumeControl;
-- (CapabilityPriorityLevel)volumeControlPriority;
+- (CNTCapabilityPriorityLevel)volumeControlPriority;
 
 #pragma mark Volume
-- (void) volumeUpWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) volumeDownWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) volumeUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) volumeDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) getVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure;
-- (void) setVolume:(float)volume success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) getVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) setVolume:(float)volume success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(VolumeSuccessBlock)success failure:(FailureBlock)failure;
+- (CNTServiceSubscription *)subscribeVolumeWithSuccess:(CNTVolumeSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark Mute
-- (void) getMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure;
-- (void) setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) getMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) setMute:(BOOL)mute success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (CNTServiceSubscription *)subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure;
+- (CNTServiceSubscription *)subscribeMuteWithSuccess:(CNTMuteSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end

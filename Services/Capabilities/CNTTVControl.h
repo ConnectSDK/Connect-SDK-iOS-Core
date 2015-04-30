@@ -24,36 +24,36 @@
 #import "CNTProgramInfo.h"
 #import "CNTServiceSubscription.h"
 
-#define kTVControlAny @"TVControl.Any"
+#define kCNTTVControlAny @"CNTTVControl.Any"
 
-#define kTVControlChannelGet @"TVControl.Channel.Get"
-#define kTVControlChannelSet @"TVControl.Channel.Set"
-#define kTVControlChannelUp @"TVControl.Channel.Up"
-#define kTVControlChannelDown @"TVControl.Channel.Down"
-#define kTVControlChannelList @"TVControl.Channel.List"
-#define kTVControlChannelSubscribe @"TVControl.Channel.Subscribe"
-#define kTVControlProgramGet @"TVControl.Program.Get"
-#define kTVControlProgramList @"TVControl.Program.List"
-#define kTVControlProgramSubscribe @"TVControl.Program.Subscribe"
-#define kTVControlProgramListSubscribe @"TVControl.Program.List.Subscribe"
-#define kTVControl3DGet @"TVControl.3D.Get"
-#define kTVControl3DSet @"TVControl.3D.Set"
-#define kTVControl3DSubscribe @"TVControl.3D.Subscribe"
+#define kCNTTVControlChannelGet @"CNTTVControl.Channel.Get"
+#define kCNTTVControlChannelSet @"CNTTVControl.Channel.Set"
+#define kCNTTVControlChannelUp @"CNTTVControl.Channel.Up"
+#define kCNTTVControlChannelDown @"CNTTVControl.Channel.Down"
+#define kCNTTVControlChannelList @"CNTTVControl.Channel.List"
+#define kCNTTVControlChannelSubscribe @"CNTTVControl.Channel.Subscribe"
+#define kCNTTVControlProgramGet @"CNTTVControl.Program.Get"
+#define kCNTTVControlProgramList @"CNTTVControl.Program.List"
+#define kCNTTVControlProgramSubscribe @"CNTTVControl.Program.Subscribe"
+#define kCNTTVControlProgramListSubscribe @"CNTTVControl.Program.List.Subscribe"
+#define kCNTTVControl3DGet @"CNTTVControl.3D.Get"
+#define kCNTTVControl3DSet @"CNTTVControl.3D.Set"
+#define kCNTTVControl3DSubscribe @"CNTTVControl.3D.Subscribe"
 
-#define kTVControlCapabilities @[\
-    kTVControlChannelGet,\
-    kTVControlChannelSet,\
-    kTVControlChannelUp,\
-    kTVControlChannelDown,\
-    kTVControlChannelList,\
-    kTVControlChannelSubscribe,\
-    kTVControlProgramGet,\
-    kTVControlProgramList,\
-    kTVControlProgramSubscribe,\
-    kTVControlProgramListSubscribe,\
-    kTVControl3DGet,\
-    kTVControl3DSet,\
-    kTVControl3DSubscribe\
+#define kCNTTVControlCapabilities @[\
+    kCNTTVControlChannelGet,\
+    kCNTTVControlChannelSet,\
+    kCNTTVControlChannelUp,\
+    kCNTTVControlChannelDown,\
+    kCNTTVControlChannelList,\
+    kCNTTVControlChannelSubscribe,\
+    kCNTTVControlProgramGet,\
+    kCNTTVControlProgramList,\
+    kCNTTVControlProgramSubscribe,\
+    kCNTTVControlProgramListSubscribe,\
+    kCNTTVControl3DGet,\
+    kCNTTVControl3DSet,\
+    kCNTTVControl3DSubscribe\
 ]
 
 @protocol CNTTVControl <NSObject>
@@ -63,59 +63,59 @@
  *
  * @param channelInfo Object containing information about the current channel
  */
-typedef void (^ CurrentChannelSuccessBlock)(CNTChannelInfo *channelInfo);
+typedef void (^CNTCurrentChannelSuccessBlock)(CNTChannelInfo *channelInfo);
 
 /*!
  * Success block that is called upon successfully getting the channel list.
  *
  * @param channelList Array containing a CNTChannelInfo object for each available channel on the TV
  */
-typedef void (^ ChannelListSuccessBlock)(NSArray *channelList);
+typedef void (^CNTChannelListSuccessBlock)(NSArray *channelList);
 
 /*!
  * Success block that is called upon successfully getting the current program's information.
  *
  * @param programInfo Object containing information about the current program
  */
-typedef void (^ ProgramInfoSuccessBlock)(CNTProgramInfo *programInfo);
+typedef void (^CNTProgramInfoSuccessBlock)(CNTProgramInfo *programInfo);
 
 /*!
  * Success block that is called upon successfully getting the program list for the current channel.
  *
  * @param programList Array containing a CNTProgramInfo object for each available program on the TV's current channel
  */
-typedef void (^ ProgramListSuccessBlock)(NSArray *programList);
+typedef void (^CNTProgramListSuccessBlock)(NSArray *programList);
 
 /*!
  * Success block that is called upon successfully getting the TV's 3D mode
  *
  * @param tv3DEnabled Whether 3D mode is currently enabled on the TV
  */
-typedef void (^ TV3DEnabledSuccessBlock)(BOOL tv3DEnabled);
+typedef void (^CNTTV3DEnabledSuccessBlock)(BOOL tv3DEnabled);
 
 - (id<CNTTVControl>)tvControl;
-- (CapabilityPriorityLevel)tvControlPriority;
+- (CNTCapabilityPriorityLevel)tvControlPriority;
 
 #pragma mark Set channel
-- (void) channelUpWithSuccess:(SuccessBlock)success failure:(FailureBlock) failure;
-- (void) channelDownWithSuccess:(SuccessBlock)success failure:(FailureBlock) failure;
-- (void) setChannel:(CNTChannelInfo *)channelInfo success:(SuccessBlock)success failure:(FailureBlock) failure;
+- (void) channelUpWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (void) channelDownWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (void) setChannel:(CNTChannelInfo *)channelInfo success:(CNTSuccessBlock)success failure:(CNTFailureBlock) failure;
 
 #pragma mark Channel Info
-- (void) getCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock) failure;
-- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CurrentChannelSuccessBlock)success failure:(FailureBlock) failure;
-- (void) getChannelListWithSuccess:(ChannelListSuccessBlock)success failure:(FailureBlock) failure;
+- (void) getCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (CNTServiceSubscription *)subscribeCurrentChannelWithSuccess:(CNTCurrentChannelSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (void) getChannelListWithSuccess:(CNTChannelListSuccessBlock)success failure:(CNTFailureBlock) failure;
 
 #pragma mark Program Info
-- (void) getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock) failure;
-- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock) failure;
+- (void) getProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (CNTServiceSubscription *)subscribeProgramInfoWithSuccess:(CNTProgramInfoSuccessBlock)success failure:(CNTFailureBlock) failure;
 
-- (void) getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock) failure;
-- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock) failure;
+- (void) getProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (CNTServiceSubscription *)subscribeProgramListWithSuccess:(CNTProgramListSuccessBlock)success failure:(CNTFailureBlock) failure;
 
 #pragma mark 3D mode
-- (void) get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock) failure;
-- (void) set3DEnabled:(BOOL)enabled success:(SuccessBlock)success failure:(FailureBlock) failure;
-- (CNTServiceSubscription *) subscribe3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock) failure;
+- (void) get3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (void) set3DEnabled:(BOOL)enabled success:(CNTSuccessBlock)success failure:(CNTFailureBlock) failure;
+- (CNTServiceSubscription *) subscribe3DEnabledWithSuccess:(CNTTV3DEnabledSuccessBlock)success failure:(CNTFailureBlock) failure;
 
 @end

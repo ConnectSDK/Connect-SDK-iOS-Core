@@ -24,7 +24,7 @@
 #import "LGSRWebSocket.h"
 
 @class CNTWebOSTVService;
-@protocol WebOSTVServiceSocketClientDelegate;
+@protocol CNTWebOSTVServiceSocketClientDelegate;
 
 
 @interface CNTWebOSTVServiceSocketClient : NSObject <CNTServiceCommandDelegate, LGSRWebSocketDelegate>
@@ -35,13 +35,13 @@
 - (void) disconnect;
 - (void) disconnectWithError:(NSError *)error;
 
-- (CNTServiceSubscription *) addSubscribe:(NSURL *)URL payload:(NSDictionary *)payload success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (CNTServiceSubscription *) addSubscribe:(NSURL *)URL payload:(NSDictionary *)payload success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 - (CNTServiceSubscription *) killSubscribe:(NSURL *)URL payload:(NSDictionary *)payload;
 
 - (void) sendDictionaryOverSocket:(NSDictionary *)payload;
 - (void) sendStringOverSocket:(NSString *)payload;
 
-@property (nonatomic) id<WebOSTVServiceSocketClientDelegate> delegate;
+@property (nonatomic) id<CNTWebOSTVServiceSocketClientDelegate> delegate;
 @property (nonatomic) CNTWebOSTVService *service;
 @property (nonatomic, readonly) BOOL connected;
 @property (nonatomic, readonly) LGSRWebSocket *socket;
@@ -50,7 +50,7 @@
 
 @end
 
-@protocol WebOSTVServiceSocketClientDelegate <NSObject>
+@protocol CNTWebOSTVServiceSocketClientDelegate <NSObject>
 
 - (void) socketDidConnect:(CNTWebOSTVServiceSocketClient *)socket;
 - (void) socket:(CNTWebOSTVServiceSocketClient *)socket didCloseWithError:(NSError *)error;

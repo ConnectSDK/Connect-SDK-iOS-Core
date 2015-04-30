@@ -138,7 +138,7 @@
                     NSError *error = parseError;
 
                     if (!error)
-                        error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
+                        error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
 
                     if (command.callbackError)
                         dispatch_on_main(^{ command.callbackError(error); });
@@ -156,7 +156,7 @@
             if (payloadData == nil)
             {
                 if (command.callbackError)
-                    command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Unknown error preparing message to send"]);
+                    command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Unknown error preparing message to send"]);
 
                 return -1;
             }
@@ -195,7 +195,7 @@
         if (!weakRequest)
         {
             if (command.callbackError)
-                dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:ConnectStatusCodeSocketError andDetails:@"Could not access request data"]); });
+                dispatch_on_main(^{ command.callbackError([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeSocketError andDetails:@"Could not access request data"]); });
             
             return;
         }
@@ -237,7 +237,7 @@
     return -1;
 }
 
-- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(ServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
+- (int) sendSubscription:(CNTServiceSubscription *)subscription type:(CNTServiceSubscriptionType)type payload:(id)payload toURL:(NSURL *)URL withId:(int)callId
 {
     return -1;
 }
@@ -249,17 +249,17 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaPlayerPriority
+- (CNTCapabilityPriorityLevel) mediaPlayerPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:imageURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     
     [self displayImageWithMediaInfo:mediaInfo success:^(CNTMediaLaunchObject *mediaLanchObject) {
@@ -268,8 +268,8 @@
 }
 
 - (void) displayImage:(CNTMediaInfo *)mediaInfo
-              success:(MediaPlayerDisplaySuccessBlock)success
-              failure:(FailureBlock)failure
+              success:(CNTMediaPlayerDisplaySuccessBlock)success
+              failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -280,7 +280,7 @@
     [self displayImage:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType success:success failure:failure];
 }
 
-- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) displayImageWithMediaInfo:(CNTMediaInfo *)mediaInfo success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _assetId = [[CTGuid randomGuid] stringValue];
     
@@ -291,7 +291,7 @@
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject) {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:commandPathComponent];
-        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.sessionType = CNTLaunchSessionTypeMedia;
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
         
@@ -315,7 +315,7 @@
                 if (downloadError)
                     dispatch_on_main(^{ failure(downloadError); });
                 else
-                    dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not download requested image"]); });
+                    dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not download requested image"]); });
             }
             
             return;
@@ -336,14 +336,14 @@
                 if (!processedImageData)
                 {
                     if (failure)
-                        dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded image to JPEG format"]); });
+                        dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not convert downloaded image to JPEG format"]); });
                     
                     return;
                 }
             } else
             {
                 if (failure)
-                    dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not convert downloaded data to a suitable image format"]); });
+                    dispatch_on_main(^{ failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Could not convert downloaded data to a suitable image format"]); });
                 
                 return;
             }
@@ -354,19 +354,19 @@
     });
 }
 
-- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(NSURL *)mediaURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     CNTMediaInfo *mediaInfo = [[CNTMediaInfo alloc] initWithURL:mediaURL mimeType:mimeType];
     mediaInfo.title = title;
     mediaInfo.description = description;
-    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:ImageTypeThumb];
+    CNTImageInfo *imageInfo = [[CNTImageInfo alloc] initWithURL:iconURL type:CNTImageTypeThumb];
     [mediaInfo addImage:imageInfo];
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(CNTMediaLaunchObject *mediaLanchObject) {
         success(mediaLanchObject.session,mediaLanchObject.mediaControl);
     } failure:failure];
 }
 
-- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
+- (void) playMedia:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerDisplaySuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSURL *iconURL;
     if(mediaInfo.images){
@@ -376,7 +376,7 @@
     [self playMedia:mediaInfo.url iconURL:iconURL title:mediaInfo.title description:mediaInfo.description mimeType:mediaInfo.mimeType shouldLoop:shouldLoop success:success failure:failure];
 }
 
-- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
+- (void) playMediaWithMediaInfo:(CNTMediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(CNTMediaPlayerSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     _assetId = [[CTGuid randomGuid] stringValue];
     
@@ -392,7 +392,7 @@
         NSError *error = parseError;
         
         if (!error)
-            error = [CNTConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
+            error = [CNTConnectError generateErrorWithCode:CNTConnectStatusCodeError andDetails:@"Error occurred while parsing property list"];
         
         if (failure)
             failure(error);
@@ -407,7 +407,7 @@
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject) {
         CNTLaunchSession *launchSession = [CNTLaunchSession launchSessionForAppId:commandPathComponent];
-        launchSession.sessionType = LaunchSessionTypeMedia;
+        launchSession.sessionType = CNTLaunchSessionTypeMedia;
         launchSession.service = self.service;
         launchSession.sessionId = self.sessionId;
         
@@ -423,7 +423,7 @@
     [command send];
 }
 
-- (void) closeMedia:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) closeMedia:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     [self.mediaControl stopWithSuccess:success failure:failure];
 }
@@ -435,12 +435,12 @@
     return self;
 }
 
-- (CapabilityPriorityLevel) mediaControlPriority
+- (CNTCapabilityPriorityLevel) mediaControlPriority
 {
-    return CapabilityPriorityLevelHigh;
+    return CNTCapabilityPriorityLevelHigh;
 }
 
-- (void) playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath = [NSString stringWithFormat:@"%@rate?value=1.000000", self.service.serviceDescription.commandURL.absoluteString];
     NSURL *commandURL = [NSURL URLWithString:commandPath];
@@ -453,7 +453,7 @@
     [command send];
 }
 
-- (void) pauseWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) pauseWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath = [NSString stringWithFormat:@"%@rate?value=0.000000", self.service.serviceDescription.commandURL.absoluteString];
     NSURL *commandURL = [NSURL URLWithString:commandPath];
@@ -466,7 +466,7 @@
     [command send];
 }
 
-- (void) stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) stopWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPathComponent = @"stop";
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
@@ -485,7 +485,7 @@
     [command send];
 }
 
-- (void) rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) rewindWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath = [NSString stringWithFormat:@"%@rate?value=-2.000000", self.service.serviceDescription.commandURL.absoluteString];
     NSURL *commandURL = [NSURL URLWithString:commandPath];
@@ -498,7 +498,7 @@
     [command send];
 }
 
-- (void) fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) fastForwardWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath = [NSString stringWithFormat:@"%@rate?value=2.000000", self.service.serviceDescription.commandURL.absoluteString];
     NSURL *commandURL = [NSURL URLWithString:commandPath];
@@ -511,7 +511,7 @@
     [command send];
 }
 
-- (void) getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
+- (void) getDurationWithSuccess:(CNTMediaDurationSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPathComponent = [NSString stringWithFormat:@"playback-info"];
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
@@ -529,7 +529,7 @@
     [command send];
 }
 
-- (void) getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPathComponent = [NSString stringWithFormat:@"playback-info"];
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
@@ -537,18 +537,18 @@
     CNTServiceCommand *command = [CNTServiceCommand commandWithDelegate:self.serviceCommandDelegate target:commandURL payload:nil];
     command.HTTPMethod = @"GET";
     command.callbackComplete = ^(NSDictionary *responseObject) {
-        MediaControlPlayState playState = MediaControlPlayStateUnknown;
+        CNTMediaControlPlayState playState = CNTMediaControlPlayStateUnknown;
 
         NSNumber *rateValue = responseObject[@"rate"];
         if (rateValue) {
             NSInteger rate = [rateValue integerValue];
             playState = ((rate == 0) ?
-                         MediaControlPlayStatePaused :
-                         MediaControlPlayStatePlaying);
+                         CNTMediaControlPlayStatePaused :
+                         CNTMediaControlPlayStatePlaying);
         } else {
             NSNumber *readyToPlayValue = responseObject[@"readyToPlay"];
             if (readyToPlayValue && ([readyToPlayValue integerValue] == 0)) {
-                playState = MediaControlPlayStateFinished;
+                playState = CNTMediaControlPlayStateFinished;
             }
         }
 
@@ -560,7 +560,7 @@
     [command send];
 }
 
-- (void) getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
+- (void) getPositionWithSuccess:(CNTMediaPositionSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPathComponent = [NSString stringWithFormat:@"playback-info"];
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
@@ -578,7 +578,7 @@
     [command send];
 }
 
-- (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) seek:(NSTimeInterval)position success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     NSString *commandPath = [NSString stringWithFormat:@"%@scrub?position=%.06f", self.service.serviceDescription.commandURL.absoluteString, position];
     NSURL *commandURL = [NSURL URLWithString:commandPath];
@@ -591,38 +591,38 @@
     [command send];
 }
 
-- (CNTServiceSubscription *) subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *) subscribePlayStateWithSuccess:(CNTMediaPlayStateSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
 }
 
-- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (CNTServiceSubscription *)subscribeMediaInfoWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
 }
 
-- (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playNextWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
+- (void) playPreviousWithSuccess:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
-- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure
 {
     if (failure)
-        failure([CNTConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+        failure([CNTConnectError generateErrorWithCode:CNTConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Helpers

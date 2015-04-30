@@ -24,32 +24,32 @@
 #import "CNTWebAppSession.h"
 #import "CNTMediaControl.h"
 
-#define kWebAppLauncherAny @"WebAppLauncher.Any"
+#define kCNTWebAppLauncherAny @"CNTWebAppLauncher.Any"
 
-#define kWebAppLauncherLaunch @"WebAppLauncher.Launch"
-#define kWebAppLauncherLaunchParams @"WebAppLauncher.Launch.Params"
-#define kWebAppLauncherMessageSend @"WebAppLauncher.Message.Send"
-#define kWebAppLauncherMessageReceive @"WebAppLauncher.Message.Receive"
-#define kWebAppLauncherMessageSendJSON @"WebAppLauncher.Message.Send.JSON"
-#define kWebAppLauncherMessageReceiveJSON @"WebAppLauncher.Message.Receive.JSON"
-#define kWebAppLauncherConnect @"WebAppLauncher.Connect"
-#define kWebAppLauncherDisconnect @"WebAppLauncher.Disconnect"
-#define kWebAppLauncherJoin @"WebAppLauncher.Join"
-#define kWebAppLauncherClose @"WebAppLauncher.Close"
-#define kWebAppLauncherPin @"WebAppLauncher.Pin"
+#define kCNTWebAppLauncherLaunch @"CNTWebAppLauncher.Launch"
+#define kCNTWebAppLauncherLaunchParams @"CNTWebAppLauncher.Launch.Params"
+#define kCNTWebAppLauncherMessageSend @"CNTWebAppLauncher.Message.Send"
+#define kCNTWebAppLauncherMessageReceive @"CNTWebAppLauncher.Message.Receive"
+#define kCNTWebAppLauncherMessageSendJSON @"CNTWebAppLauncher.Message.Send.JSON"
+#define kCNTWebAppLauncherMessageReceiveJSON @"CNTWebAppLauncher.Message.Receive.JSON"
+#define kCNTWebAppLauncherConnect @"CNTWebAppLauncher.Connect"
+#define kCNTWebAppLauncherDisconnect @"CNTWebAppLauncher.Disconnect"
+#define kCNTWebAppLauncherJoin @"CNTWebAppLauncher.Join"
+#define kCNTWebAppLauncherClose @"CNTWebAppLauncher.Close"
+#define kCNTWebAppLauncherPin @"CNTWebAppLauncher.Pin"
 
-#define kWebAppLauncherCapabilities @[\
-    kWebAppLauncherLaunch,\
-    kWebAppLauncherLaunchParams,\
-    kWebAppLauncherMessageSend,\
-    kWebAppLauncherMessageReceive,\
-    kWebAppLauncherMessageSendJSON,\
-    kWebAppLauncherMessageReceiveJSON,\
-    kWebAppLauncherConnect,\
-    kWebAppLauncherDisconnect,\
-    kWebAppLauncherJoin,\
-    kWebAppLauncherClose,\
-    kWebAppLauncherPin\
+#define kCNTWebAppLauncherCapabilities @[\
+    kCNTWebAppLauncherLaunch,\
+    kCNTWebAppLauncherLaunchParams,\
+    kCNTWebAppLauncherMessageSend,\
+    kCNTWebAppLauncherMessageReceive,\
+    kCNTWebAppLauncherMessageSendJSON,\
+    kCNTWebAppLauncherMessageReceiveJSON,\
+    kCNTWebAppLauncherConnect,\
+    kCNTWebAppLauncherDisconnect,\
+    kCNTWebAppLauncherJoin,\
+    kCNTWebAppLauncherClose,\
+    kCNTWebAppLauncherPin\
 ]
 
 @protocol CNTWebAppLauncher <NSObject>
@@ -59,34 +59,34 @@
  *
  * @param webAppSession Object containing important information about the web app's session. This object is required to perform many functions with the web app, including app-to-app communication, media playback, closing, etc.
  */
-typedef void (^ WebAppLaunchSuccessBlock)(CNTWebAppSession *webAppSession);
+typedef void (^CNTWebAppLaunchSuccessBlock)(CNTWebAppSession *webAppSession);
 
 - (id<CNTWebAppLauncher>) webAppLauncher;
-- (CapabilityPriorityLevel) webAppLauncherPriority;
+- (CNTCapabilityPriorityLevel) webAppLauncherPriority;
 
-- (void) launchWebApp:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-
-/*!
- * This method requires pairing on webOS
- */
-- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+- (void) launchWebApp:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 /*!
  * This method requires pairing on webOS
  */
-- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+- (void) launchWebApp:(NSString *)webAppId relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void) joinWebAppWithId:(NSString *)webAppId success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+/*!
+ * This method requires pairing on webOS
+ */
+- (void) launchWebApp:(NSString *)webAppId params:(NSDictionary *)params relaunchIfRunning:(BOOL)relaunchIfRunning success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) joinWebApp:(CNTLaunchSession *)webAppLaunchSession success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) joinWebAppWithId:(NSString *)webAppId success:(CNTWebAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) pinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) closeWebApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) unPinWebApp:(NSString *)webAppId success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) pinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) isWebAppPinned:(NSString *)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
+- (void) unPinWebApp:(NSString *)webAppId success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure;
+- (void) isWebAppPinned:(NSString *)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure;
+
+- (CNTServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(CNTWebAppPinStatusBlock)success failure:(CNTFailureBlock)failure;
 @end

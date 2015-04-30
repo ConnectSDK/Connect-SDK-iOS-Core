@@ -224,7 +224,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     [self setupSendCommandTestWithName:@"GetTransportInfo"
                              namespace:kAVTransportNamespace
                            actionBlock:^{
-                               [self.service getPlayStateWithSuccess:^(MediaControlPlayState playState) {
+                               [self.service getPlayStateWithSuccess:^(CNTMediaControlPlayState playState) {
                                    XCTFail(@"success?");
                                } failure:^(NSError *error) {
                                    XCTFail(@"fail? %@", error);
@@ -733,8 +733,8 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     XCTestExpectation *getPlayStateSuccessExpectation = [self expectationWithDescription:@"The play state is parsed properly"];
 
     // Act
-    [self.service getPlayStateWithSuccess:^(MediaControlPlayState playState) {
-        XCTAssertEqual(playState, MediaControlPlayStatePlaying,
+    [self.service getPlayStateWithSuccess:^(CNTMediaControlPlayState playState) {
+        XCTAssertEqual(playState, CNTMediaControlPlayStatePlaying,
                        @"The play state is incorrect");
         [getPlayStateSuccessExpectation fulfill];
     }
@@ -825,7 +825,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     }
                              failure:^(NSError *error) {
                                  XCTAssertEqualObjects(error.domain, CNTConnectErrorDomain, @"The error domain is incorrect");
-                                 XCTAssertEqual(error.code, ConnectStatusCodeTvError, @"The error code is incorrect");
+                                 XCTAssertEqual(error.code, CNTConnectStatusCodeTvError, @"The error code is incorrect");
                                  if (errorDescription) {
                                      XCTAssertNotEqual(NSNotFound,
                                                        [error.localizedDescription rangeOfString:errorDescription].location,
@@ -877,7 +877,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                                 withPayload:OCMOCK_NOTNIL
                                                       toURL:OCMOCK_ANY]) andDo:^(NSInvocation *inv) {
         NSDictionary *payload = [inv objectArgumentAtIndex:1];
-        NSString *xmlString = payload[kDataFieldName];
+        NSString *xmlString = payload[kCNTDataFieldName];
         XCTAssertNotNil(xmlString, @"XML request not found");
 
         NSError *error = nil;
@@ -930,7 +930,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                mediaInfo.title = sampleTitle;
                                mediaInfo.description = sampleDescription;
                                mediaInfo.images = @[[[CNTImageInfo alloc] initWithURL:[NSURL URLWithString:sampleAlbumArtURL]
-                                                                              type:ImageTypeAlbumArt]];
+                                                                              type:CNTImageTypeAlbumArt]];
 
                                [self.service playMediaWithMediaInfo:mediaInfo
                                                          shouldLoop:NO

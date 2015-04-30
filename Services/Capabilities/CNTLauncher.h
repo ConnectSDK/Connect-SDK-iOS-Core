@@ -24,46 +24,46 @@
 #import "CNTServiceSubscription.h"
 #import "CNTLaunchSession.h"
 
-#define kLauncherAny @"Launcher.Any"
+#define kCNTLauncherAny @"CNTLauncher.Any"
 
-#define kLauncherApp @"Launcher.App"
-#define kLauncherAppParams @"Launcher.App.Params"
-#define kLauncherAppClose @"Launcher.App.Close"
-#define kLauncherAppList @"Launcher.App.List"
-#define kLauncherAppStore @"Launcher.AppStore"
-#define kLauncherAppStoreParams @"Launcher.AppStore.Params"
-#define kLauncherBrowser @"Launcher.Browser"
-#define kLauncherBrowserParams @"Launcher.Browser.Params"
-#define kLauncherHulu @"Launcher.Hulu"
-#define kLauncherHuluParams @"Launcher.Hulu.Params"
-#define kLauncherNetflix @"Launcher.Netflix"
-#define kLauncherNetflixParams @"Launcher.Netflix.Params"
-#define kLauncherYouTube @"Launcher.YouTube"
-#define kLauncherYouTubeParams @"Launcher.YouTube.Params"
-#define kLauncherAppState @"Launcher.AppState"
-#define kLauncherAppStateSubscribe @"Launcher.AppState.Subscribe"
-#define kLauncherRunningApp @"Launcher.RunningApp"
-#define kLauncherRunningAppSubscribe @"Launcher.RunningApp.Subscribe"
+#define kCNTLauncherApp @"CNTLauncher.App"
+#define kCNTLauncherAppParams @"CNTLauncher.App.Params"
+#define kCNTLauncherAppClose @"CNTLauncher.App.Close"
+#define kCNTLauncherAppList @"CNTLauncher.App.List"
+#define kCNTLauncherAppStore @"CNTLauncher.AppStore"
+#define kCNTLauncherAppStoreParams @"CNTLauncher.AppStore.Params"
+#define kCNTLauncherBrowser @"CNTLauncher.Browser"
+#define kCNTLauncherBrowserParams @"CNTLauncher.Browser.Params"
+#define kCNTLauncherHulu @"CNTLauncher.Hulu"
+#define kCNTLauncherHuluParams @"CNTLauncher.Hulu.Params"
+#define kCNTLauncherNetflix @"CNTLauncher.Netflix"
+#define kCNTLauncherNetflixParams @"CNTLauncher.Netflix.Params"
+#define kCNTLauncherYouTube @"CNTLauncher.YouTube"
+#define kCNTLauncherYouTubeParams @"CNTLauncher.YouTube.Params"
+#define kCNTLauncherAppState @"CNTLauncher.AppState"
+#define kCNTLauncherAppStateSubscribe @"CNTLauncher.AppState.Subscribe"
+#define kCNTLauncherRunningApp @"CNTLauncher.RunningApp"
+#define kCNTLauncherRunningAppSubscribe @"CNTLauncher.RunningApp.Subscribe"
 
-#define kLauncherCapabilities @[\
-    kLauncherApp,\
-    kLauncherAppParams,\
-    kLauncherAppClose,\
-    kLauncherAppList,\
-    kLauncherAppStore,\
-    kLauncherAppStoreParams,\
-    kLauncherBrowser,\
-    kLauncherBrowserParams,\
-    kLauncherHulu,\
-    kLauncherHuluParams,\
-    kLauncherNetflix,\
-    kLauncherNetflixParams,\
-    kLauncherYouTube,\
-    kLauncherYouTubeParams,\
-    kLauncherAppState,\
-    kLauncherAppStateSubscribe,\
-    kLauncherRunningApp,\
-    kLauncherRunningAppSubscribe\
+#define kCNTLauncherCapabilities @[\
+    kCNTLauncherApp,\
+    kCNTLauncherAppParams,\
+    kCNTLauncherAppClose,\
+    kCNTLauncherAppList,\
+    kCNTLauncherAppStore,\
+    kCNTLauncherAppStoreParams,\
+    kCNTLauncherBrowser,\
+    kCNTLauncherBrowserParams,\
+    kCNTLauncherHulu,\
+    kCNTLauncherHuluParams,\
+    kCNTLauncherNetflix,\
+    kCNTLauncherNetflixParams,\
+    kCNTLauncherYouTube,\
+    kCNTLauncherYouTubeParams,\
+    kCNTLauncherAppState,\
+    kCNTLauncherAppStateSubscribe,\
+    kCNTLauncherRunningApp,\
+    kCNTLauncherRunningAppSubscribe\
 ]
 
 @protocol CNTLauncher <NSObject>
@@ -73,21 +73,21 @@
  *
  * @param appInfo Object containing info about the running app
  */
-typedef void (^ AppInfoSuccessBlock)(CNTAppInfo *appInfo);
+typedef void (^CNTAppInfoSuccessBlock)(CNTAppInfo *appInfo);
 
 /*!
  * Success block that is called upon successfully launching an app.
  *
  * @param CNTLaunchSession Object containing important information about the app's launch session
  */
-typedef void (^ AppLaunchSuccessBlock)(CNTLaunchSession *launchSession);
+typedef void (^CNTAppLaunchSuccessBlock)(CNTLaunchSession *launchSession);
 
 /*!
  * Success block that is called upon successfully getting the app list.
  *
  * @param appList Array containing an CNTAppInfo object for each available app on the device
  */
-typedef void (^ AppListSuccessBlock)(NSArray *appList);
+typedef void (^CNTAppListSuccessBlock)(NSArray *appList);
 
 /*!
  * Success block that is called upon successfully getting an app's state.
@@ -95,38 +95,38 @@ typedef void (^ AppListSuccessBlock)(NSArray *appList);
  * @param running Whether the app is currently running
  * @param visible Whether the app is currently visible on the screen
  */
-typedef void (^ AppStateSuccessBlock)(BOOL running, BOOL visible);
+typedef void (^CNTAppStateSuccessBlock)(BOOL running, BOOL visible);
 
 - (id<CNTLauncher>) launcher;
-- (CapabilityPriorityLevel) launcherPriority;
+- (CNTCapabilityPriorityLevel) launcherPriority;
 
 #pragma mark Launch & close
-- (void)launchApp:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+- (void)launchApp:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchAppWithInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void)closeApp:(CNTLaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)closeApp:(CNTLaunchSession *)launchSession success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark App Info
-- (void) getAppListWithSuccess:(AppListSuccessBlock)success failure:(FailureBlock)failure;
+- (void) getAppListWithSuccess:(CNTAppListSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure;
-- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure;
+- (void) getRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (CNTServiceSubscription *)subscribeRunningAppWithSuccess:(CNTAppInfoSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void)getAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure;
-- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure;
+- (void)getAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (CNTServiceSubscription *)subscribeAppState:(CNTLaunchSession *)launchSession success:(CNTAppStateSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 #pragma mark Helpers for deep linking
-- (void)launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchYouTube:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+- (void)launchAppStore:(NSString *)appId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchBrowser:(NSURL *)target success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchYouTube:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchYouTube:(NSString *)contentId startTime:(float)startTime success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 // TODO: add app store deep linking
 
 // @cond INTERNAL
-- (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
-- (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure;
+- (void)launchNetflix:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void)launchHulu:(NSString *)contentId success:(CNTAppLaunchSuccessBlock)success failure:(CNTFailureBlock)failure;
 // @endcond
 
 @end

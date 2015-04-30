@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#define kConnectSDKDIALServiceId @"DIAL"
+#define kCNTConnectSDKDIALServiceId @"DIAL"
 
 #import "CNTDeviceService.h"
 #import "CNTServiceCommandDelegate.h"

@@ -22,32 +22,32 @@
 #import "CNTCapability.h"
 #import "CNTAppInfo.h"
 
-#define kToastControlAny @"ToastControl.Any"
+#define kCNTToastControlAny @"CNTToastControl.Any"
 
-#define kToastControlShowToast @"ToastControl.Show"
-#define kToastControlShowClickableToastApp @"ToastControl.Show.Clickable.App"
-#define kToastControlShowClickableToastAppParams @"ToastControl.Show.Clickable.App.Params"
-#define kToastControlShowClickableToastURL @"ToastControl.Show.Clickable.URL"
+#define kCNTToastControlShowToast @"CNTToastControl.Show"
+#define kCNTToastControlShowClickableToastApp @"CNTToastControl.Show.Clickable.App"
+#define kCNTToastControlShowClickableToastAppParams @"CNTToastControl.Show.Clickable.App.Params"
+#define kCNTToastControlShowClickableToastURL @"CNTToastControl.Show.Clickable.URL"
 
-#define kToastControlCapabilities @[\
-    kToastControlShowToast,\
-    kToastControlShowClickableToastApp,\
-    kToastControlShowClickableToastAppParams,\
-    kToastControlShowClickableToastURL\
+#define kCNTToastControlCapabilities @[\
+    kCNTToastControlShowToast,\
+    kCNTToastControlShowClickableToastApp,\
+    kCNTToastControlShowClickableToastAppParams,\
+    kCNTToastControlShowClickableToastURL\
 ]
 
 @protocol CNTToastControl <NSObject>
 
 - (id<CNTToastControl>)toastControl;
-- (CapabilityPriorityLevel)toastControlPriority;
+- (CNTCapabilityPriorityLevel)toastControlPriority;
 
-- (void) showToast:(NSString *)message success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) showToast:(NSString *)message iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) showToast:(NSString *)message success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) showToast:(NSString *)message iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) showClickableToast:(NSString *)message appInfo:(CNTAppInfo *)appInfo params:(NSDictionary *)params iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
-- (void) showClickableToast:(NSString *)message URL:(NSURL *)URL success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void) showClickableToast:(NSString *)message URL:(NSURL *)URL iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void) showClickableToast:(NSString *)message URL:(NSURL *)URL success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
+- (void) showClickableToast:(NSString *)message URL:(NSURL *)URL iconData:(NSString *)iconData iconExtension:(NSString *)iconExtension success:(CNTSuccessBlock)success failure:(CNTFailureBlock)failure;
 
 @end
