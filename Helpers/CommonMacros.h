@@ -28,3 +28,8 @@ static inline void _assert_state(const BOOL condition, NSString *msg) {
                                      userInfo:nil];
     }
 };
+
+/// Get a property's name as a string. Prevents mistypings when using methods
+/// like `valueForKey:`.
+/// http://stackoverflow.com/questions/6615826/get-property-name-as-a-string/12623102#12623102
+#define STRING_PROPERTY(prop) NSStringFromSelector(@selector(prop))
