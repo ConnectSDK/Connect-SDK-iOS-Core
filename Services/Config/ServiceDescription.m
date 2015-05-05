@@ -194,7 +194,7 @@
     }
 
     hash ^= self.port;
-    hash ^= @(self.lastDetection).hash;
+    // NB: lastDetection isn't used here
 
     return hash;
 }
