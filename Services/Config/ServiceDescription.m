@@ -151,10 +151,12 @@
     const BOOL haveSameCommandURL = (!self.commandURL && !service.commandURL) || [self.commandURL isEqual:service.commandURL];
     const BOOL haveSameServiceList = (!self.serviceList && !service.serviceList) || [self.serviceList isEqualToArray:service.serviceList];
     const BOOL haveSameHeaders = (!self.locationResponseHeaders && !service.locationResponseHeaders) || [self.locationResponseHeaders isEqualToDictionary:service.locationResponseHeaders];
+    const BOOL haveSameDevices = ((!self.device && !service.device) ||
+                                  [self.device isEqual:service.device]);
 
     // NB: lastDetection isn't compared here
     return (haveSamePort && haveSameCommandURL && haveSameServiceList &&
-            haveSameHeaders);
+            haveSameHeaders && haveSameDevices);
 }
 
 - (BOOL)isEqual:(id)object
@@ -183,7 +185,8 @@
                             STRING_PROPERTY(commandURL),
                             STRING_PROPERTY(locationXML),
                             STRING_PROPERTY(serviceList),
-                            STRING_PROPERTY(locationResponseHeaders)];
+                            STRING_PROPERTY(locationResponseHeaders),
+                            STRING_PROPERTY(device)];
     NSUInteger hash = 0;
     for (NSString *propName in properties) {
         id prop = [self valueForKey:propName];
