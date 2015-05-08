@@ -57,29 +57,40 @@
  * @param mediaControl MediaControl object used to control playback
  */
 typedef void (^MediaPlayerDisplaySuccessBlock)(LaunchSession *launchSession, id<MediaControl> mediaControl);
-typedef void (^MediaPlayerSuccessBlock)(MediaLaunchObject *mediaLanchObject);
+typedef void (^MediaPlayerSuccessBlock)(MediaLaunchObject *mediaLaunchObject);
 
 
 - (id<MediaPlayer>) mediaPlayer;
 - (CapabilityPriorityLevel) mediaPlayerPriority;
 
+- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo
+                           success:(MediaPlayerSuccessBlock)success
+                           failure:(FailureBlock)failure;
+
+- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo
+                     shouldLoop:(BOOL)shouldLoop
+                        success:(MediaPlayerSuccessBlock)success
+                        failure:(FailureBlock)failure;
+
+- (void) closeMedia:(LaunchSession *)launchSession
+            success:(SuccessBlock)success
+            failure:(FailureBlock)failure;
+
+#pragma mark - Deprecated Methods
+
 - (void) displayImage:(NSURL *)imageURL
-             iconURL:(NSURL *)iconURL
-               title:(NSString *)title
-         description:(NSString *)description
-            mimeType:(NSString *)mimeType
-             success:(MediaPlayerDisplaySuccessBlock)success
-             failure:(FailureBlock)failure
-__attribute__((deprecated));
+              iconURL:(NSURL *)iconURL
+                title:(NSString *)title
+          description:(NSString *)description
+             mimeType:(NSString *)mimeType
+              success:(MediaPlayerDisplaySuccessBlock)success
+              failure:(FailureBlock)failure
+__deprecated_msg("Please use displayImageWithMediaInfo:success:failure: instead");
 
 - (void) displayImage:(MediaInfo *)mediaInfo
               success:(MediaPlayerDisplaySuccessBlock)success
               failure:(FailureBlock)failure
-__attribute__((deprecated));
-
-- (void) displayImageWithMediaInfo:(MediaInfo *)mediaInfo
-              success:(MediaPlayerSuccessBlock)success
-              failure:(FailureBlock)failure;
+__deprecated_msg("Please use displayImageWithMediaInfo:success:failure: instead");
 
 - (void) playMedia:(NSURL *)mediaURL
            iconURL:(NSURL *)iconURL
@@ -89,19 +100,12 @@ __attribute__((deprecated));
         shouldLoop:(BOOL)shouldLoop
            success:(MediaPlayerDisplaySuccessBlock)success
            failure:(FailureBlock)failure
-__attribute__((deprecated));
+__deprecated_msg("Please use playMediaWithMediaInfo:shouldLoop:success:failure: instead");
 
 - (void) playMedia:(MediaInfo *)mediaInfo
         shouldLoop:(BOOL)shouldLoop
            success:(MediaPlayerDisplaySuccessBlock)success
            failure:(FailureBlock)failure
-__attribute__((deprecated));
-
-- (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo
-        shouldLoop:(BOOL)shouldLoop
-           success:(MediaPlayerSuccessBlock)success
-                        failure:(FailureBlock)failure;
-
-- (void) closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure;
+__deprecated_msg("Please use playMediaWithMediaInfo:shouldLoop:success:failure: instead");
 
 @end
