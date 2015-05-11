@@ -299,4 +299,29 @@
     return nil;
 }
 
+#pragma mark - Playlist Control
+
+- (id <PlayListControl>)playListControl
+{
+    return self;
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    if (failure){
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    }
+}
+
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    if (failure){
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    }
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    if (failure){
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    }
+}
+
 @end

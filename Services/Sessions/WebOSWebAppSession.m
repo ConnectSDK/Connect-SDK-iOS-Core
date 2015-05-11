@@ -581,7 +581,7 @@
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
         if(success){
             success(launchObject);
         }
@@ -745,5 +745,86 @@
     
     return nil;
 }
+
+#pragma mark - Playlist Control
+
+- (id <PlayListControl>) playListControl
+{
+    return self;
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure {
+    int requestIdNumber = [self getNextId];
+    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
+    
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : @{
+                                      @"type" : @"playNext",
+                                      @"requestId" : requestId
+                                      }
+                              };
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
+    command.callbackComplete = ^(id responseObject)
+    {
+        if (success)
+            success(responseObject);
+    };
+    command.callbackError = failure;
+    [_activeCommands setObject:command forKey:requestId];
+    
+    [self sendJSON:message success:nil failure:failure];
+}
+
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    int requestIdNumber = [self getNextId];
+    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
+    
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : @{
+                                      @"type" : @"playPrevious",
+                                      @"requestId" : requestId
+                                      }
+                              };
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
+    command.callbackComplete = ^(id responseObject)
+    {
+        if (success)
+            success(responseObject);
+    };
+    command.callbackError = failure;
+    [_activeCommands setObject:command forKey:requestId];
+    
+    [self sendJSON:message success:nil failure:failure];
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    int requestIdNumber = [self getNextId];
+    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
+    
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : @{
+                                      @"type" : @"jumpToTrack",
+                                      @"requestId" : requestId,
+                                      @"index" : [NSNumber numberWithInteger:index]
+                                      }
+                              };
+    
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
+    command.callbackComplete = ^(id responseObject)
+    {
+        if (success)
+            success(responseObject);
+    };
+    command.callbackError = failure;
+    [_activeCommands setObject:command forKey:requestId];
+    
+    [self sendJSON:message success:nil failure:failure];
+}
+
 
 @end
