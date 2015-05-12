@@ -303,25 +303,24 @@
 
 - (id <PlayListControl>)playListControl
 {
-    return self;
+    return nil;
+}
+
+- (CapabilityPriorityLevel)playListControlPriority
+{
+    return CapabilityPriorityLevelVeryLow;
 }
 
 - (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
-    if (failure){
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
-    if (failure){
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
-    if (failure){
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 @end
