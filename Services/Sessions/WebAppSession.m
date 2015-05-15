@@ -308,7 +308,7 @@
 
 - (CapabilityPriorityLevel)playListControlPriority
 {
-    return CapabilityPriorityLevelVeryLow;
+    return CapabilityPriorityLevelLow;
 }
 
 - (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
