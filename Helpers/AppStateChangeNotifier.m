@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "DispatchQueueBlockRunner.h"
+
 @interface AppStateChangeNotifier ()
 
 /// Stores an observer handle for @c UIApplicationDidEnterBackgroundNotification
@@ -34,6 +36,8 @@
 @end
 
 @implementation AppStateChangeNotifier
+
+#pragma mark - Public Methods
 
 - (void)startListening {
     // both should be either subscribed or not
@@ -51,9 +55,8 @@
                                        object:[UIApplication sharedApplication]
                                         queue:queue
                                    usingBlock:^(NSNotification *note) {
-                                       if (self.didBackgroundBlock) {
-                                           self.didBackgroundBlock();
-                                       }
+                                       [self runStateChangeBlock:
+                                        self.didBackgroundBlock];
                                    }];
         });
 
@@ -62,9 +65,8 @@
                                        object:[UIApplication sharedApplication]
                                         queue:queue
                                    usingBlock:^(NSNotification *note) {
-                                       if (self.didForegroundBlock) {
-                                           self.didForegroundBlock();
-                                       }
+                                       [self runStateChangeBlock:
+                                        self.didForegroundBlock];
                                    }];
         });
     }
@@ -78,11 +80,26 @@
     self.foregroundObserverHandle = nil;
 }
 
+- (id<BlockRunner> __nonnull)blockRunner {
+    if (!_blockRunner) {
+        _blockRunner = [DispatchQueueBlockRunner mainQueueRunner];
+    }
+
+    return _blockRunner;
+}
+
 #pragma mark - Helpers
 
 /// Returns a @c NSNotificationCenter used by the class.
 - (NSNotificationCenter *)center {
     return [NSNotificationCenter defaultCenter];
+}
+
+/// Runs the given @c AppStateChangeBlock if not @c nil.
+- (void)runStateChangeBlock:(nullable AppStateChangeBlock)block {
+    if (block) {
+        [self.blockRunner runBlock:block];
+    }
 }
 
 @end

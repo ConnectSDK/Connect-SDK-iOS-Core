@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol BlockRunner;
+
 NS_ASSUME_NONNULL_BEGIN
 /**
  * Listens to app state change events (didEnterBackground and didBecomeActive,
@@ -36,6 +38,11 @@ typedef void (^AppStateChangeBlock)();
 
 /// The block is called when the app has entered foreground.
 @property (nonatomic, copy, nullable) AppStateChangeBlock didForegroundBlock;
+
+/// The @c BlockRunner instance specifying where to run the blocks. The
+/// default value is the main dispatch queue runner. Cannot be @c nil, as it
+/// will reset to the default value.
+@property (nonatomic, strong) id<BlockRunner> blockRunner;
 
 
 /// Starts listening for app state change events. This method is idempotent.
