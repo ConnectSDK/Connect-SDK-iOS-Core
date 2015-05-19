@@ -23,8 +23,15 @@
 @implementation OCMArg (ArgumentCaptor)
 
 + (id __nonnull)captureTo:(out id __nullable __strong *__nonnull)objectPointer {
-    return [[self class] checkWithBlock:^BOOL(id obj) {
+    return [self checkWithBlock:^BOOL(id obj) {
         *objectPointer = obj;
+        return YES;
+    }];
+}
+
++ (id __nonnull)captureBlockTo:(out VoidBlock __nullable __strong * __nonnull)blockPointer {
+    return [self checkWithBlock:^BOOL(id obj) {
+        *blockPointer = [obj copy];
         return YES;
     }];
 }
