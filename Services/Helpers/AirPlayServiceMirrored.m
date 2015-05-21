@@ -26,6 +26,28 @@
 #import "ConnectUtil.h"
 #import "AirPlayService.h"
 
+@interface AirPlayServiceWindow : UIWindow
+@end
+@implementation AirPlayServiceWindow
+
+- (BOOL)isKeyWindow {
+    return NO;
+}
+
+- (void)makeKeyAndVisible {
+    DLog(@"makeKeyAndVisible Override");
+}
+
+@end
+
+@interface AirPlayServiceViewController : UIViewController
+@end
+@implementation AirPlayServiceViewController
+- (BOOL)shouldAutorotate {
+    return NO;
+}
+@end
+
 
 @interface AirPlayServiceMirrored () <ServiceCommandDelegate, UIWebViewDelegate, UIAlertViewDelegate>
 
@@ -189,9 +211,8 @@
 
         CGRect screenBounds = secondScreen.bounds;
 
-        _secondWindow = [[UIWindow alloc] initWithFrame:screenBounds];
+        _secondWindow = [[AirPlayServiceWindow alloc] initWithFrame:screenBounds];
         _secondWindow.screen = secondScreen;
-        [_secondWindow makeKeyAndVisible];
 
         DLog(@"Displaying content with bounds %@", NSStringFromCGRect(screenBounds));
     }
@@ -301,7 +322,7 @@
     _webAppWebView.mediaPlaybackAllowsAirPlay = NO;
     _webAppWebView.mediaPlaybackRequiresUserAction = NO;
 
-    UIViewController *secondScreenViewController = [[UIViewController alloc] init];
+    AirPlayServiceViewController *secondScreenViewController = [[AirPlayServiceViewController alloc] init];
     secondScreenViewController.view = _webAppWebView;
     _webAppWebView.delegate = self;
     self.secondWindow.rootViewController = secondScreenViewController;
