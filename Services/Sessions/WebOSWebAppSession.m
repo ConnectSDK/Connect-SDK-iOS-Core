@@ -759,48 +759,32 @@
 }
 
 - (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure {
-    int requestIdNumber = [self getNextId];
-    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-    NSDictionary *mediaCommand = @{
-                                   @"type" : @"playNext",
-                                   @"requestId" : requestId
-                                   };
-    NSDictionary *message = [self messageForMediaCommand:mediaCommand];
-    [self sendCommandForRequestId:requestId withMessage:message success:success failure:failure];
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"playNext"
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
 }
 
 - (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
-    int requestIdNumber = [self getNextId];
-    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-    NSDictionary *mediaCommand = @{
-                                   @"type" : @"playPrevious",
-                                   @"requestId" : requestId
-                                   };
-    NSDictionary *message = [self messageForMediaCommand:mediaCommand];
-    [self sendCommandForRequestId:requestId withMessage:message success:success failure:failure];
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"playPrevious"
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
 }
 
 - (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"jumpToTrack",
+                                                                                        @"index" : [NSNumber numberWithInteger:index]
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
+}
+
+- (void)sendMediaCommand:(NSMutableDictionary *)mediaCommand success:(SuccessBlock)success failure:(FailureBlock)failure{
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-    NSDictionary *mediaCommand = @{
-                                   @"type" : @"jumpToTrack",
-                                   @"requestId" : requestId,
-                                   @"index" : [NSNumber numberWithInteger:index]
-                                   };
-    NSDictionary *message = [self messageForMediaCommand:mediaCommand];
-    [self sendCommandForRequestId:requestId withMessage:message success:success failure:failure];
-}
-
-- (NSDictionary *)messageForMediaCommand:(NSDictionary *)mediaCommand {
-    NSDictionary *message = @{
-                              @"contentType" : @"connectsdk.mediaCommand",
-                              @"mediaCommand" : mediaCommand
-                            };
-    return message;
-}
-
-- (void)sendCommandForRequestId:(NSString *)requestId withMessage:(NSDictionary *)message success:(SuccessBlock)success failure:(FailureBlock)failure{
+    [mediaCommand setObject:requestId forKey:@"requestId"];
+     NSDictionary *message = [self messageForMediaCommand:mediaCommand];
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
@@ -813,4 +797,11 @@
     [self sendJSON:message success:nil failure:failure];
 }
 
+- (NSDictionary *)messageForMediaCommand:(NSDictionary *)mediaCommand {
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : mediaCommand
+                              };
+    return message;
+}
 @end
