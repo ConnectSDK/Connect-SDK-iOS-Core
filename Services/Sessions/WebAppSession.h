@@ -60,7 +60,7 @@ typedef enum {
  *
  * The Connect SDK JavaScript Bridge has been produced to provide normalized support for these capabilities across protocols (Chromecast, webOS, etc).
  */
-@interface WebAppSession : NSObject <ServiceCommandDelegate, MediaPlayer, MediaControl, JSONObjectCoding>
+@interface WebAppSession : NSObject <ServiceCommandDelegate, MediaPlayer, MediaControl, JSONObjectCoding, PlayListControl>
 
 // @cond INTERNAL
 // This is only being used in WebOSWebAppSession, but could be useful in other places in the future
