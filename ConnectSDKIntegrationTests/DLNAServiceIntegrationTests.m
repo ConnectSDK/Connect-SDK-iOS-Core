@@ -43,8 +43,8 @@ describe(@"ConnectSDK", ^{
 
         // use a custom delegate to avoid showing any UI and get the discovery
         // callbacks
-        id delegateMock = OCMProtocolMock(@protocol(DiscoveryManagerDelegate));
-        manager.delegate = delegateMock;
+        id delegateStub = OCMProtocolMock(@protocol(DiscoveryManagerDelegate));
+        manager.delegate = delegateStub;
 
         // use DLNA service only
         [manager registerDeviceService:[DLNAService class]
@@ -58,7 +58,7 @@ describe(@"ConnectSDK", ^{
                 expect([device serviceWithName:kConnectSDKDLNAServiceId]).notTo.beNil();
             };
 
-            OCMStub([delegateMock discoveryManager:manager
+            OCMStub([delegateStub discoveryManager:manager
                                      didFindDevice:
                      [OCMArg checkWithBlock:^BOOL(ConnectableDevice *device) {
                 if ([kExpectedDeviceName isEqualToString:device.friendlyName]) {
