@@ -89,6 +89,13 @@ typedef enum
 + (LaunchSession *) launchSessionForAppId:(NSString *)appId;
 
 /*!
+ * Deserializes a @c LaunchSession object from json object.
+ *
+ * @param json Serialized @c LaunchSession object by <tt>-[LaunchSession toJSONObject]</tt>.
+ */
++ (LaunchSession *) launchSessionFromJSONObject:(NSDictionary *)json;
+
+/*!
  * Closes the session on the first screen device. Depending on the sessionType, the associated service will have different ways of handling the close functionality.
  *
  * @param success (optional) SuccessBlock to be called on success
