@@ -199,7 +199,7 @@
             capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kPlayListControlCapabilities];
-            capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist]];
+            capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist,kMediaPlayerLoop]];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
