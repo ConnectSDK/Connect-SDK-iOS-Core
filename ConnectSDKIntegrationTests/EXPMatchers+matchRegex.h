@@ -1,8 +1,8 @@
 //
-//  OCMStubRecorder+XCTestExpectation.h
+//  EXPMatchers+matchRegex.h
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 4/24/15.
+//  Created by Eugene Nikolskyi on 5/26/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,7 @@
 //  limitations under the License.
 //
 
-#import <OCMock/OCMStubRecorder.h>
+#import <Expecta/Expecta.h>
 
-NS_ASSUME_NONNULL_BEGIN
-@interface OCMStubRecorder (XCTestExpectation)
-
-/// Convenience method to fulfill an @c XCTestExpectation with a stub.
-- (id)andFulfillExpectation:(XCTestExpectation *)expectation;
-
-@end
-NS_ASSUME_NONNULL_END
+/// Expects a string to fully match the given @c regex.
+EXPMatcherInterface(matchRegex, (NSString *regex));

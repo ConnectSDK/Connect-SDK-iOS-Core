@@ -1,8 +1,8 @@
 //
-//  OCMStubRecorder+XCTestExpectation.h
+//  ConnectSDKIntegrationTests-Prefix.pch
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 4/24/15.
+//  Created by Eugene Nikolskyi on 5/26/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,15 @@
 //  limitations under the License.
 //
 
-#import <OCMock/OCMStubRecorder.h>
+#ifndef ConnectSDK_ConnectSDKIntegrationTests_Prefix_pch
+#define ConnectSDK_ConnectSDKIntegrationTests_Prefix_pch
 
-NS_ASSUME_NONNULL_BEGIN
-@interface OCMStubRecorder (XCTestExpectation)
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
-/// Convenience method to fulfill an @c XCTestExpectation with a stub.
-- (id)andFulfillExpectation:(XCTestExpectation *)expectation;
+#import "ConnectSDKTests-Prefix.pch"
 
-@end
-NS_ASSUME_NONNULL_END
+#import <Expecta/Expecta.h>
+#import <Specta/Specta.h>
+
+#endif

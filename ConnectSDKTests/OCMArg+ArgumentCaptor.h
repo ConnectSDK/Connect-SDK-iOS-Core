@@ -1,8 +1,8 @@
 //
-//  OCMStubRecorder+XCTestExpectation.h
+//  OCMArg+ArgumentCaptor.h
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 4/24/15.
+//  Created by Eugene Nikolskyi on 5/13/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,13 @@
 //  limitations under the License.
 //
 
-#import <OCMock/OCMStubRecorder.h>
+#import <OCMock/OCMArg.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@interface OCMStubRecorder (XCTestExpectation)
+@interface OCMArg (ArgumentCaptor)
 
-/// Convenience method to fulfill an @c XCTestExpectation with a stub.
-- (id)andFulfillExpectation:(XCTestExpectation *)expectation;
+/// Convenience method to capture an argument for later use/verification.
++ (id)captureTo:(out __strong __nullable id *__nonnull)objectPointer;
 
 @end
 NS_ASSUME_NONNULL_END

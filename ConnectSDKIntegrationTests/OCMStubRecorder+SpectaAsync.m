@@ -1,8 +1,8 @@
 //
-//  OCMStubRecorder+XCTestExpectation.h
+//  OCMStubRecorder+SpectaAsync.m
 //  ConnectSDK
 //
-//  Created by Eugene Nikolskyi on 4/24/15.
+//  Created by Eugene Nikolskyi on 5/27/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,14 @@
 //  limitations under the License.
 //
 
-#import <OCMock/OCMStubRecorder.h>
+#import "OCMStubRecorder+SpectaAsync.h"
 
-NS_ASSUME_NONNULL_BEGIN
-@interface OCMStubRecorder (XCTestExpectation)
+@implementation OCMStubRecorder (SpectaAsync)
 
-/// Convenience method to fulfill an @c XCTestExpectation with a stub.
-- (id)andFulfillExpectation:(XCTestExpectation *)expectation;
+- (id __nonnull)andDoneWaiting:(DoneCallback __nonnull)done {
+    return [self andDo:^(NSInvocation *_) {
+        done();
+    }];
+}
 
 @end
-NS_ASSUME_NONNULL_END
