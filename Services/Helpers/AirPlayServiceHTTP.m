@@ -287,8 +287,8 @@
     NSString *commandPathComponent = @"photo";
     NSURL *commandURL = [self.service.serviceDescription.commandURL URLByAppendingPathComponent:commandPathComponent];
     
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:commandURL payload:nil];
-    command.HTTPMethod = @"POST";
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:commandURL payload:nil];
+    command.HTTPMethod = @"PUT";
     command.callbackComplete = ^(id responseObject) {
         LaunchSession *launchSession = [LaunchSession launchSessionForAppId:commandPathComponent];
         launchSession.sessionType = LaunchSessionTypeMedia;
