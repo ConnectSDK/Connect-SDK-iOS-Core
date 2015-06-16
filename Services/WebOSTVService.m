@@ -754,7 +754,7 @@
 - (void)launchInputPickerWithSuccess:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
     [self launchApp:@"com.webos.app.inputpicker" success:success failure:^(NSError *error) {
-        [self launchApp:@"com.webos.app.inputpicker" success:success failure:failure];
+        [self launchApp:@"com.webos.app.inputmgr" success:success failure:failure];
     }];
 }
 
