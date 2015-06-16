@@ -159,7 +159,11 @@
 
                 if (!payloadKey || payloadKey.length == 0)
                     return NO;
-
+                
+                if ([payloadKey isEqualToString:@"media-error"]){
+                    [self handleMediaEvent:messageJSON];
+                }
+                
                 id messagePayload = [messageJSON objectForKey:payloadKey];
 
                 if (!messagePayload)
@@ -206,7 +210,18 @@
 - (void) handleMediaEvent:(NSDictionary *)payload
 {
     NSString *type = [payload objectForKey:@"type"];
-
+    
+    if(type == nil){
+        NSString *errorMessage = [payload objectForKey:@"error"];
+        if(errorMessage){
+            [_playStateSubscription.failureCalls enumerateObjectsUsingBlock:^(id failure, NSUInteger idx, BOOL *stop)
+             {
+                 FailureBlock mediaFailure = (FailureBlock)failure;
+                 mediaFailure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage]);
+             }];
+        }
+    }
+    else
     if ([type isEqualToString:@"playState"])
     {
         if (!_playStateSubscription)
