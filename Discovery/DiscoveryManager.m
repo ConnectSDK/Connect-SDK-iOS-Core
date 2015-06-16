@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "DiscoveryManager.h"
+#import "DiscoveryManager_Private.h"
 
 #import "DiscoveryProviderDelegate.h"
 #import "DiscoveryProvider.h"
@@ -136,14 +136,25 @@
 {
     if (![discoveryClass isSubclassOfClass:[DiscoveryProvider class]])
         return;
-    
+
+    [self registerDeviceService:deviceClass
+   withDiscoveryProviderFactory:^DiscoveryProvider *{
+       return [discoveryClass new];
+   }];
+}
+
+- (void)registerDeviceService:(Class)deviceClass
+ withDiscoveryProviderFactory:(DiscoveryProvider *(^)(void))providerFactory
+{
     if (![deviceClass isSubclassOfClass:[DeviceService class]])
         return;
     
     __block DiscoveryProvider *discoveryProvider;
+    // FIXME don't create new provider unless necessary
+    DiscoveryProvider *newDiscoveryProvider = providerFactory();
     
     [_discoveryProviders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[obj class] isSubclassOfClass:discoveryClass])
+        if ([[obj class] isSubclassOfClass:[newDiscoveryProvider class]])
         {
             discoveryProvider = obj;
             *stop = YES;
@@ -152,7 +163,7 @@
     
     if (discoveryProvider == nil)
     {
-        discoveryProvider = [[discoveryClass alloc] init];
+        discoveryProvider = newDiscoveryProvider;
         discoveryProvider.delegate = self;
         _discoveryProviders = [_discoveryProviders arrayByAddingObject:discoveryProvider];
     }
