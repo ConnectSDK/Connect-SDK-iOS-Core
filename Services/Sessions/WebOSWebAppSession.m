@@ -214,10 +214,9 @@
     if(type == nil){
         NSString *errorMessage = [payload objectForKey:@"error"];
         if(errorMessage){
-            [_playStateSubscription.failureCalls enumerateObjectsUsingBlock:^(id failure, NSUInteger idx, BOOL *stop)
+            [_playStateSubscription.failureCalls enumerateObjectsUsingBlock:^(FailureBlock failure, NSUInteger idx, BOOL *stop)
              {
-                 FailureBlock mediaFailure = (FailureBlock)failure;
-                 mediaFailure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage]);
+                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage]);
              }];
         }
     }
