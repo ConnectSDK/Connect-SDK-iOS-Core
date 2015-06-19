@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSWebAppSession.h"
+#import "WebOSWebAppSession_Private.h"
 #import "ConnectError.h"
 
 
@@ -359,7 +359,7 @@
         _connectSuccess(nil);
     } else
     {
-        _socket = [[WebOSTVServiceSocketClient alloc] initWithService:self.service];
+        _socket = [self createSocketWithService:self.service];
         _socket.delegate = self;
         [_socket connect];
     }
@@ -818,4 +818,11 @@
                               };
     return message;
 }
+
+#pragma mark - Private Methods
+
+- (WebOSTVServiceSocketClient *)createSocketWithService:(WebOSTVService *)service {
+    return [[WebOSTVServiceSocketClient alloc] initWithService:service];
+}
+
 @end

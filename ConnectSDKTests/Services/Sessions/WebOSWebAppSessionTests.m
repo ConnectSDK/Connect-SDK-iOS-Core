@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSWebAppSession.h"
+#import "WebOSWebAppSession_Private.h"
 #import "WebOSTVServiceSocketClient.h"
 
 @interface WebOSWebAppSessionTests : XCTestCase
@@ -28,16 +28,19 @@
 @implementation WebOSWebAppSessionTests
 
 - (void)testMediaPlayerErrorShouldCallFailureBlockInPlayStateSubscription{
-    WebOSWebAppSession *session = [WebOSWebAppSession new];
-    session.fullAppId = @"com.lgsmartplatform.redirect.MediaPlayer";
     // Arrange
+    id socketMock = OCMClassMock([WebOSTVServiceSocketClient class]);
+    WebOSWebAppSession *session = OCMPartialMock([WebOSWebAppSession new]);
+    OCMStub([session createSocketWithService:OCMOCK_ANY]).andReturn(socketMock);
+    session.fullAppId = @"com.lgsmartplatform.redirect.MediaPlayer";
+
     XCTestExpectation *failureBlockCalledExpectation = [self expectationWithDescription:@"Failure block is called"];
     [session subscribePlayStateWithSuccess:^(MediaControlPlayState playState) {
          XCTFail(@"Success should not be called when Media player throws error");
     } failure:^(NSError *error) {
         [failureBlockCalledExpectation fulfill];
     }];
-    
+
     NSDictionary *errorPayload = @{
                                    @"from" : @"com.lgsmartplatform.redirect.MediaPlayer",
                                    @"payload" : @{
@@ -46,14 +49,12 @@
                                            },
                                    @"type" : @"p2p"
                                    };
-    
 
-    // Action
-    [session socket:nil didReceiveMessage:errorPayload];
-   
+    // Act
+    [session socket:socketMock didReceiveMessage:errorPayload];
+
     // Assert
-    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
-                                 handler:nil];
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
 }
 
 @end
