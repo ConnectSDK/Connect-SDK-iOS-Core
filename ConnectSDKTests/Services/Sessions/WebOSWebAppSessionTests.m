@@ -5,7 +5,6 @@
 //  Created by Ibrahim Adnan on 6/18/15.
 //  Copyright (c) 2015 LG Electronics. All rights reserved.
 //
-//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
@@ -19,8 +18,6 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 #import "WebOSWebAppSession.h"
 #import "WebOSTVServiceSocketClient.h"
 
@@ -30,22 +27,14 @@
 
 @implementation WebOSWebAppSessionTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-- (void)testFailureBlockIsCalledinPlayStateSubscriptionWhenMediaPlayerThrowsError{
+- (void)testMediaPlayerErrorShouldCallFailureBlockInPlayStateSubscription{
     WebOSWebAppSession *session = [WebOSWebAppSession new];
     session.fullAppId = @"com.lgsmartplatform.redirect.MediaPlayer";
     // Arrange
     XCTestExpectation *failureBlockCalledExpectation = [self expectationWithDescription:@"Failure block is called"];
-    [session subscribePlayStateWithSuccess:nil failure:^(NSError *error) {
+    [session subscribePlayStateWithSuccess:^(MediaControlPlayState playState) {
+         XCTFail(@"Success should not be called when Media player throws error");
+    } failure:^(NSError *error) {
         [failureBlockCalledExpectation fulfill];
     }];
     
@@ -60,7 +49,7 @@
     
 
     // Action
-    [session socket:OCMOCK_ANY didReceiveMessage:errorPayload];
+    [session socket:nil didReceiveMessage:errorPayload];
    
     // Assert
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
