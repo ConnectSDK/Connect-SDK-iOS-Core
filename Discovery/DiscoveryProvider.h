@@ -70,4 +70,16 @@
  */
 - (void) stopDiscovery;
 
+/**
+ * Pauses the discovery while the app is in background. Calls @c -stopDiscovery
+ * by default.
+ */
+- (void)pauseDiscovery;
+
+/**
+ * Resumes the discovery when the app has foregrounded. Calls @c -startDiscovery
+ * be default.
+ */
+- (void)resumeDiscovery;
+
 @end

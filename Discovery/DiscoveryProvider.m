@@ -29,4 +29,12 @@
 - (void)startDiscovery { }
 - (void)stopDiscovery { }
 
+- (void)pauseDiscovery {
+    [self stopDiscovery];
+}
+
+- (void)resumeDiscovery {
+    [self startDiscovery];
+}
+
 @end

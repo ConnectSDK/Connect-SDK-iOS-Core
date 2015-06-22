@@ -35,6 +35,8 @@
 #import "ServiceConfigDelegate.h"
 #import "CapabilityFilter.h"
 
+#import "AppStateChangeNotifier.h"
+
 #import <SystemConfiguration/CaptiveNetwork.h>
 
 @interface DiscoveryManager() <DiscoveryProviderDelegate, ServiceConfigDelegate>
@@ -96,7 +98,13 @@
     _useDeviceStore = (_deviceStore != nil);
 }
 
-- (instancetype) init
+- (instancetype)init {
+    return [self initWithAppStateChangeNotifier:nil];
+}
+
+#pragma mark - Private Init
+
+- (instancetype) initWithAppStateChangeNotifier:(nullable AppStateChangeNotifier *)stateNotifier
 {
     self = [super init];
     
@@ -111,6 +119,17 @@
 
         _allDevices = [[NSMutableDictionary alloc] init];
         _compatibleDevices = [[NSMutableDictionary alloc] init];
+
+        _appStateChangeNotifier = stateNotifier ?: [AppStateChangeNotifier new];
+        __weak typeof(self) wself = self;
+        _appStateChangeNotifier.didBackgroundBlock = ^{
+            typeof(self) sself = wself;
+            [sself pauseDiscovery];
+        };
+        _appStateChangeNotifier.didForegroundBlock = ^{
+            typeof(self) sself = wself;
+            [sself resumeDiscovery];
+        };
 
         [self startSSIDTimer];
     }
@@ -445,8 +464,7 @@
         [service startDiscovery];
     }];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [self.appStateChangeNotifier startListening];
 }
 
 - (void) stopDiscovery
@@ -462,8 +480,35 @@
     
     if (!_shouldResumeSearch)
     {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+        [self.appStateChangeNotifier stopListening];
+    }
+}
+
+/// Pauses all discovery providers and the SSID change timer.
+- (void)pauseDiscovery {
+    // moved from -hAppDidEnterBackground:
+    [self stopSSIDTimer];
+
+    if (_searching)
+    {
+        _searching = NO;
+        _shouldResumeSearch = YES;
+
+        [self.discoveryProviders makeObjectsPerformSelector:@selector(pauseDiscovery)];
+    }
+}
+
+/// Resumes all discovery providers and the SSID change timer.
+- (void)resumeDiscovery {
+    // moved from -hAppDidBecomeActive:
+    [self startSSIDTimer];
+
+    if (_shouldResumeSearch)
+    {
+        _searching = YES;
+        _shouldResumeSearch = NO;
+
+        [self.discoveryProviders makeObjectsPerformSelector:@selector(resumeDiscovery)];
     }
 }
 
@@ -652,36 +697,6 @@
     }
 
     return foundDevice;
-}
-
-#pragma mark - Handle background state
-
-- (void) hAppDidEnterBackground:(NSNotification *)notification
-{
-    [self stopSSIDTimer];
-
-    if (_searching)
-    {
-        _shouldResumeSearch = YES;
-        [self stopDiscovery];
-    }
-}
-
-- (void) hAppDidBecomeActive:(NSNotification *)notification
-{
-    [self startSSIDTimer];
-
-    if (_shouldResumeSearch)
-    {
-        _shouldResumeSearch = NO;
-        [self startDiscovery];
-    }
-}
-
-- (void) dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 #pragma mark - Device Picker creation
