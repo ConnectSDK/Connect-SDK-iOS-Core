@@ -31,6 +31,7 @@
 #define kMediaPlayerPlayVideo @"MediaPlayer.Play.Video"
 #define kMediaPlayerPlayAudio @"MediaPlayer.Play.Audio"
 #define kMediaPlayerPlayPlaylist @"MediaPlayer.Play.Playlist"
+#define kMediaPlayerLoop @"MediaPlayer.Loop"
 #define kMediaPlayerClose @"MediaPlayer.Close"
 #define kMediaPlayerMetaDataTitle @"MediaPlayer.MetaData.Title"
 #define kMediaPlayerMetaDataDescription @"MediaPlayer.MetaData.Description"

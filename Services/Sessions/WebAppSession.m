@@ -299,4 +299,28 @@
     return nil;
 }
 
+#pragma mark - Playlist Control
+
+- (id <PlayListControl>)playListControl
+{
+    return nil;
+}
+
+- (CapabilityPriorityLevel)playListControlPriority
+{
+    return CapabilityPriorityLevelLow;
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
+}
+
 @end

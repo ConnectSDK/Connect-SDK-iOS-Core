@@ -36,11 +36,12 @@
 #import "ToastControl.h"
 #import "ExternalInputControl.h"
 #import "TextInputControl.h"
+#import "PlayListControl.h"
 
 @class WebOSWebAppSession;
 @class WebOSTVServiceSocketClient;
 
-@interface WebOSTVService : DeviceService <Launcher, MediaPlayer, MediaControl, VolumeControl, TVControl, KeyControl, MouseControl, PowerControl, WebAppLauncher, ExternalInputControl, ToastControl, TextInputControl>
+@interface WebOSTVService : DeviceService <Launcher, MediaPlayer, MediaControl, VolumeControl, TVControl, KeyControl, MouseControl, PowerControl, WebAppLauncher, ExternalInputControl, ToastControl, TextInputControl, PlayListControl>
 
 // @cond INTERNAL
 typedef enum {

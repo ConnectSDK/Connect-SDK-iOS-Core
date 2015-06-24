@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSWebAppSession.h"
+#import "WebOSWebAppSession_Private.h"
 #import "ConnectError.h"
 
 
@@ -159,7 +159,11 @@
 
                 if (!payloadKey || payloadKey.length == 0)
                     return NO;
-
+                
+                if ([payloadKey isEqualToString:@"media-error"]){
+                    [self handleMediaEvent:messageJSON];
+                }
+                
                 id messagePayload = [messageJSON objectForKey:payloadKey];
 
                 if (!messagePayload)
@@ -206,7 +210,17 @@
 - (void) handleMediaEvent:(NSDictionary *)payload
 {
     NSString *type = [payload objectForKey:@"type"];
-
+    
+    if(type == nil){
+        NSString *errorMessage = [payload objectForKey:@"error"];
+        if(errorMessage){
+            [_playStateSubscription.failureCalls enumerateObjectsUsingBlock:^(FailureBlock failure, NSUInteger idx, BOOL *stop)
+             {
+                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:errorMessage]);
+             }];
+        }
+    }
+    else
     if ([type isEqualToString:@"playState"])
     {
         if (!_playStateSubscription)
@@ -345,7 +359,7 @@
         _connectSuccess(nil);
     } else
     {
-        _socket = [[WebOSTVServiceSocketClient alloc] initWithService:self.service];
+        _socket = [self createSocketWithService:self.service];
         _socket.delegate = self;
         [_socket connect];
     }
@@ -581,7 +595,7 @@
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
-        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl];
+        MediaLaunchObject *launchObject = [[MediaLaunchObject alloc] initWithLaunchSession:self.launchSession andMediaControl:self.mediaControl andPlayListControl:self.playListControl];
         if(success){
             success(launchObject);
         }
@@ -744,6 +758,71 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
+}
+
+#pragma mark - Playlist Control
+
+- (id <PlayListControl>) playListControl
+{
+    return self;
+}
+
+- (CapabilityPriorityLevel)playListControlPriority
+{
+    return CapabilityPriorityLevelHigh;
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure {
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"playNext"
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
+}
+
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"playPrevious"
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    NSMutableDictionary *mediaCommand = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                        @"type" : @"jumpToTrack",
+                                                                                        @"index" : [NSNumber numberWithInteger:index]
+                                                                                        }];
+    [self sendMediaCommand:mediaCommand success:success failure:failure];
+}
+
+- (void)sendMediaCommand:(NSMutableDictionary *)mediaCommand success:(SuccessBlock)success failure:(FailureBlock)failure{
+    int requestIdNumber = [self getNextId];
+    NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
+    [mediaCommand setObject:requestId forKey:@"requestId"];
+     NSDictionary *message = [self messageForMediaCommand:mediaCommand];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
+    command.callbackComplete = ^(id responseObject)
+    {
+        if (success)
+            success(responseObject);
+    };
+    command.callbackError = failure;
+    [_activeCommands setObject:command forKey:requestId];
+    
+    [self sendJSON:message success:nil failure:failure];
+}
+
+- (NSDictionary *)messageForMediaCommand:(NSDictionary *)mediaCommand {
+    NSDictionary *message = @{
+                              @"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : mediaCommand
+                              };
+    return message;
+}
+
+#pragma mark - Private Methods
+
+- (WebOSTVServiceSocketClient *)createSocketWithService:(WebOSTVService *)service {
+    return [[WebOSTVServiceSocketClient alloc] initWithService:service];
 }
 
 @end
