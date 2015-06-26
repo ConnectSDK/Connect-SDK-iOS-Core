@@ -20,7 +20,10 @@
 
 #import "BlockRunner.h"
 
-/// Runs a @c block synchronously on the current thread/queue.
+/**
+ * Runs a @c block synchronously on the current thread/queue (that is, in the
+ * middle of @c -runBlock: call).
+ */
 @interface SynchronousBlockRunner : NSObject <BlockRunner>
 
 @end
