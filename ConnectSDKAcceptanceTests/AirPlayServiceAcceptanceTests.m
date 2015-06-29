@@ -1,5 +1,5 @@
 //
-//  AirPlayServiceIntegrationTests.m
+//  AirPlayServiceAcceptanceTests.m
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 2015-02-06.

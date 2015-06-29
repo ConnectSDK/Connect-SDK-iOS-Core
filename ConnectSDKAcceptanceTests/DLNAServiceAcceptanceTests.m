@@ -1,5 +1,5 @@
 //
-//  DLNAServiceIntegrationTests.m
+//  DLNAServiceAcceptanceTests.m
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 5/26/15.
