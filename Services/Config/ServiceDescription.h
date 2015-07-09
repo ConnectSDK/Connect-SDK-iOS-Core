@@ -39,6 +39,16 @@
 @property (nonatomic, strong) NSArray *serviceList;
 @property (nonatomic, strong) NSDictionary *locationResponseHeaders;
 @property (nonatomic) double lastDetection;
+/**
+ * @brief A device object set by a discovery provider when a service requires it (that is, it is the
+ * only way to control the remote device).
+ *
+ * For example, @c CastService requires a @c GCKDevice object retrieved during discovery in
+ * <tt>CastDiscoveryProvider</tt>. On the other hand, @c DLNAService doesn't require any specific
+ * object, because it works via HTTP using other properties.
+ * @note The service is responsible for checking that the property is of the expected type.
+ */
+@property (nonatomic, strong) id device;
 
 - (instancetype)initWithAddress:(NSString *)address UUID:(NSString*)UUID;
 + (instancetype)descriptionWithAddress:(NSString *)address UUID:(NSString*)UUID;

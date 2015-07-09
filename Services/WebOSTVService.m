@@ -198,6 +198,8 @@
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
+            capabilities = [capabilities arrayByAddingObjectsFromArray:kPlayListControlCapabilities];
+            capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist,kMediaPlayerLoop]];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
@@ -440,6 +442,12 @@
     externalInputInfo.rawData = [info copy];
 
     return externalInputInfo;
+}
+
+- (void) sendNotSupportedFailure:(FailureBlock)failure
+{
+    if (failure)
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Launcher
@@ -745,7 +753,9 @@
 
 - (void)launchInputPickerWithSuccess:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
-    [self launchApp:@"com.webos.app.inputpicker" success:success failure:failure];
+    [self launchApp:@"com.webos.app.inputpicker" success:success failure:^(NSError *error) {
+        [self launchApp:@"com.webos.app.inputmgr" success:success failure:failure];
+    }];
 }
 
 - (void)closeInputPicker:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1070,6 +1080,30 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     
     return nil;
+}
+
+#pragma mark - Playlist Control
+
+- (id <PlayListControl>)playListControl
+{
+    return self;
+}
+
+- (CapabilityPriorityLevel) playListControlPriority
+{
+    return CapabilityPriorityLevelHigh;
+}
+
+- (void)playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure{
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Volume

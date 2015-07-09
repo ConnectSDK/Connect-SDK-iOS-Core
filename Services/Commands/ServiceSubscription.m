@@ -20,6 +20,8 @@
 
 #import "ServiceSubscription.h"
 
+const int kUnsetCallId = -1;
+
 @implementation ServiceSubscription
 
 -(instancetype)initWithDelegate:(id <ServiceCommandDelegate>)delegate target:(NSURL *)target payload:(id)payload callId:(int)callId

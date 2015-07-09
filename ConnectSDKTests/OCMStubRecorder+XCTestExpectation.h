@@ -18,11 +18,13 @@
 //  limitations under the License.
 //
 
-#import <OCMock/OCMock.h>
+#import <OCMock/OCMStubRecorder.h>
 
+NS_ASSUME_NONNULL_BEGIN
 @interface OCMStubRecorder (XCTestExpectation)
 
 /// Convenience method to fulfill an @c XCTestExpectation with a stub.
 - (id)andFulfillExpectation:(XCTestExpectation *)expectation;
 
 @end
+NS_ASSUME_NONNULL_END

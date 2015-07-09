@@ -26,9 +26,9 @@
 #define kPlayListControlJumpTrack @"PlayListControl.JumpTrack"
 
 #define kPlayListControlCapabilities @[\
-kMediaControlNext,\
-kMediaControlPrevious,\
-kMediaControlJumpTrack\
+    kPlayListControlNext,\
+    kPlayListControlPrevious,\
+    kPlayListControlJumpTrack\
 ]
 
 - (id<PlayListControl>) playListControl;

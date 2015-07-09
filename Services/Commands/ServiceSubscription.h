@@ -20,6 +20,9 @@
 
 #import "ServiceCommand.h"
 
+/// A special value identifying the @c callId is unset.
+extern const int kUnsetCallId;
+
 @interface ServiceSubscription : ServiceCommand
 
 @property (nonatomic, readonly) int callId;

@@ -22,13 +22,71 @@
 #import "AirPlayServiceHTTP_Private.h"
 
 #import "NSInvocation+ObjectGetter.h"
+#import "OCMStubRecorder+XCTestExpectation.h"
 
 /// Tests for the @c AirPlayServiceHTTP class.
 @interface AirPlayServiceHTTPTests : XCTestCase
 
+@property (strong) id /*AirPlayService **/ serviceMock;
+@property (strong) AirPlayServiceHTTP *serviceHTTP;
+@property (strong) id /*<ServiceCommandDelegate>*/ serviceCommandDelegateMock;
+
 @end
 
 @implementation AirPlayServiceHTTPTests
+
+#pragma mark - Setup
+
+- (void)setUp {
+    [super setUp];
+
+    self.serviceMock = OCMClassMock([AirPlayService class]);
+    self.serviceHTTP = [[AirPlayServiceHTTP alloc]
+                        initWithAirPlayService:self.serviceMock];
+
+    self.serviceCommandDelegateMock = OCMStrictProtocolMock(@protocol(ServiceCommandDelegate));
+    self.serviceHTTP.serviceCommandDelegate = self.serviceCommandDelegateMock;
+}
+
+- (void)tearDown {
+    self.serviceCommandDelegateMock = nil;
+    self.serviceHTTP = nil;
+    self.serviceMock = nil;
+
+    [super tearDown];
+}
+
+#pragma mark - Request Tests
+
+- (void)testDisplayImageShouldSendPUTPhotoRequest {
+    id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
+    [OCMStub([serviceDescriptionMock commandURL]) andReturn:
+     [NSURL URLWithString:@"http://10.0.0.1:9099/"]];
+    [OCMStub([self.serviceMock serviceDescription]) andReturn:serviceDescriptionMock];
+
+    XCTestExpectation *commandIsSent = [self expectationWithDescription:
+                                        @"Proper request should be sent"];
+    [OCMExpect([self.serviceCommandDelegateMock sendCommand:
+                [OCMArg checkWithBlock:^BOOL(ServiceCommand *command) {
+        return [@"PUT" isEqualToString:command.HTTPMethod];
+    }]
+                                                withPayload:OCMOCK_NOTNIL
+                                                      toURL:
+                [OCMArg checkWithBlock:^BOOL(NSURL *url) {
+        return [@"/photo" isEqualToString:url.path];
+    }]]) andFulfillExpectation:commandIsSent];
+
+    NSURL *url = [[NSBundle bundleForClass:self.class] URLForResource:@"the-san-francisco-peaks-of-flagstaff-718x544"
+                                                        withExtension:@"jpg"];
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:url
+                                                 mimeType:@"image/jpg"];
+    [self.serviceHTTP displayImageWithMediaInfo:mediaInfo
+                                        success:nil
+                                        failure:nil];
+
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
+    OCMVerifyAll(self.serviceCommandDelegateMock);
+}
 
 #pragma mark - getPlayState Tests
 
@@ -94,44 +152,38 @@
 - (void)checkGetPlayStateShouldReturnPlayState:(MediaControlPlayState)expectedPlayState
                                forMockResponse:(NSDictionary *)response {
     // Arrange
-    id serviceMock = OCMClassMock([AirPlayService class]);
-    AirPlayServiceHTTP *serviceHTTP = [[AirPlayServiceHTTP alloc]
-                                       initWithAirPlayService:serviceMock];
+    [OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                                withPayload:OCMOCK_ANY
+                                                      toURL:OCMOCK_ANY])
+     andDo:^(NSInvocation *invocation) {
+         ServiceCommand *command = [invocation objectArgumentAtIndex:0];
+         XCTAssertNotNil(command, @"Couldn't get the command argument");
 
-    id serviceCommandDelegateMock = OCMProtocolMock(@protocol(ServiceCommandDelegate));
-    serviceHTTP.serviceCommandDelegate = serviceCommandDelegateMock;
-
-    [OCMExpect([serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
-                                           withPayload:OCMOCK_ANY
-                                                 toURL:OCMOCK_ANY]) andDo:^(NSInvocation *invocation) {
-        ServiceCommand *command = [invocation objectArgumentAtIndex:0];
-        XCTAssertNotNil(command, @"Couldn't get the command argument");
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            command.callbackComplete(response);
-        });
+         dispatch_async(dispatch_get_main_queue(), ^{
+             command.callbackComplete(response);
+         });
     }];
 
     XCTestExpectation *didReceivePlayState = [self expectationWithDescription:
                                               @"received playState"];
 
     // Act
-    [serviceHTTP getPlayStateWithSuccess:^(MediaControlPlayState playState) {
+    [self.serviceHTTP getPlayStateWithSuccess:^(MediaControlPlayState playState) {
         XCTAssertEqual(playState, expectedPlayState,
                        @"playState is incorrect");
 
         [didReceivePlayState fulfill];
     }
-                                 failure:^(NSError *error) {
-                                     XCTFail(@"Failure %@", error);
-                                 }];
+                                      failure:^(NSError *error) {
+                                          XCTFail(@"Failure %@", error);
+                                      }];
 
     // Assert
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout
                                  handler:^(NSError *error) {
                                      XCTAssertNil(error);
-                                     OCMVerifyAll(serviceCommandDelegateMock);
                                  }];
+    OCMVerifyAll(self.serviceCommandDelegateMock);
 }
 
 @end

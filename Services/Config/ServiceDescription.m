@@ -19,11 +19,7 @@
 //
 
 #import "ServiceDescription.h"
-
-/// Get a property's name as a string. Prevents mistypings when using methods
-/// like `valueForKey:`.
-/// http://stackoverflow.com/questions/6615826/get-property-name-as-a-string/12623102#12623102
-#define STRING_PROPERTY(prop) NSStringFromSelector(@selector(prop))
+#import "CommonMacros.h"
 
 @implementation ServiceDescription
 
@@ -155,10 +151,12 @@
     const BOOL haveSameCommandURL = (!self.commandURL && !service.commandURL) || [self.commandURL isEqual:service.commandURL];
     const BOOL haveSameServiceList = (!self.serviceList && !service.serviceList) || [self.serviceList isEqualToArray:service.serviceList];
     const BOOL haveSameHeaders = (!self.locationResponseHeaders && !service.locationResponseHeaders) || [self.locationResponseHeaders isEqualToDictionary:service.locationResponseHeaders];
+    const BOOL haveSameDevices = ((!self.device && !service.device) ||
+                                  [self.device isEqual:service.device]);
 
     // NB: lastDetection isn't compared here
     return (haveSamePort && haveSameCommandURL && haveSameServiceList &&
-            haveSameHeaders);
+            haveSameHeaders && haveSameDevices);
 }
 
 - (BOOL)isEqual:(id)object
@@ -187,7 +185,8 @@
                             STRING_PROPERTY(commandURL),
                             STRING_PROPERTY(locationXML),
                             STRING_PROPERTY(serviceList),
-                            STRING_PROPERTY(locationResponseHeaders)];
+                            STRING_PROPERTY(locationResponseHeaders),
+                            STRING_PROPERTY(device)];
     NSUInteger hash = 0;
     for (NSString *propName in properties) {
         id prop = [self valueForKey:propName];
@@ -195,7 +194,7 @@
     }
 
     hash ^= self.port;
-    hash ^= @(self.lastDetection).hash;
+    // NB: lastDetection isn't used here
 
     return hash;
 }
