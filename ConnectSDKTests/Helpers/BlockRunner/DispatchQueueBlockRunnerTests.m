@@ -67,13 +67,30 @@
 }
 
 - (void)testBlockShouldNotBeRunSynchronously {
-    __block NSUInteger testValue = 0;
-    void(^incrementValueBlock)(void) = ^{
-        ++testValue;
-    };
-    [self.runner runBlock:incrementValueBlock];
-    XCTAssertEqual(testValue, 0,
-                   @"The block should not run synchronously");
+    /* to verify the block is not called synchronously, it shouldn't increment a
+     value, that is checked after scheduling the block. however, GCD doesn't
+     promise that the block won't run immediately, which actually happens and
+     failed the test very occasionally. now, we run the test thousands of times
+     to verify the block is called asynchronously in most cases (>= 80%). */
+
+    NSUInteger failCount = 0;
+    static const NSUInteger iterationCount = 10000;
+    for (NSUInteger i = 0; i < iterationCount; ++i) {
+        __block NSUInteger testValue = 0;
+        void(^incrementValueBlock)(void) = ^{
+            ++testValue;
+
+            XCTAssertFalse([NSThread isMainThread]);
+        };
+        [self.runner runBlock:incrementValueBlock];
+
+        NSUInteger isFail = (0 != testValue);
+        failCount += isFail;
+    }
+
+    XCTAssertLessThan(failCount, (NSUInteger)trunc(iterationCount * 0.2),
+                      @"The block should not run synchronously "
+                      @"(in more than 20%% of cases)");
 }
 
 - (void)testBlockShouldBeRunAsynchronously {
