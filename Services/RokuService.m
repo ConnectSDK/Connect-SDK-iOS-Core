@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "RokuService.h"
+#import "RokuService_Private.h"
 #import "ConnectError.h"
 #import "CTXMLReader.h"
 #import "ConnectUtil.h"
@@ -176,6 +176,13 @@ static NSMutableArray *registeredApps = nil;
     }
 
     return _dialService;
+}
+
+#pragma mark - Getters & Setters
+
+/// Returns the set delegate property value or self.
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self;
 }
 
 #pragma mark - ServiceCommandDelegate
@@ -497,11 +504,8 @@ static NSMutableArray *registeredApps = nil;
         return;
     }
     
-    NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
-    
-    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&h=%@&tr=crossfade",
-                                 [ConnectUtil urlEncode:imageURL.absoluteString], // content path
-                                 [ConnectUtil urlEncode:host] // host
+    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&tr=crossfade",
+                                 [ConnectUtil urlEncode:imageURL.absoluteString] // content path
                                  ];
     
     NSString *commandPath = [NSString pathWithComponents:@[
@@ -512,7 +516,7 @@ static NSMutableArray *registeredApps = nil;
     
     NSURL *targetURL = [NSURL URLWithString:commandPath];
     
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:nil];
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject)
     {
@@ -575,22 +579,19 @@ static NSMutableArray *registeredApps = nil;
     NSString *mediaType = [[mimeType componentsSeparatedByString:@"/"] lastObject];
     BOOL isVideo = [[mimeType substringToIndex:1] isEqualToString:@"v"];
     
-    NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
     NSString *applicationPath;
     
     if (isVideo)
     {
-        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=(null)&h=%@&videoName=%@&videoFormat=%@",
+        applicationPath = [NSString stringWithFormat:@"15985?t=v&u=%@&k=(null)&videoName=%@&videoFormat=%@",
                            [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
-                           [ConnectUtil urlEncode:host], // host
                            title ? [ConnectUtil urlEncode:title] : @"(null)", // video name
                            ensureString(mediaType) // video format
                            ];
     } else
     {
-        applicationPath = [NSString stringWithFormat:@"15985?t=a&u=%@&k=(null)&h=%@&songname=%@&artistname=%@&songformat=%@&albumarturl=%@",
+        applicationPath = [NSString stringWithFormat:@"15985?t=a&u=%@&k=(null)&songname=%@&artistname=%@&songformat=%@&albumarturl=%@",
                            [ConnectUtil urlEncode:mediaURL.absoluteString], // content path
-                           [ConnectUtil urlEncode:host], // host
                            title ? [ConnectUtil urlEncode:title] : @"(null)", // song name
                            description ? [ConnectUtil urlEncode:description] : @"(null)", // artist name
                            ensureString(mediaType), // audio format
@@ -606,7 +607,7 @@ static NSMutableArray *registeredApps = nil;
     
     NSURL *targetURL = [NSURL URLWithString:commandPath];
     
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:nil];
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject)
     {
