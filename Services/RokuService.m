@@ -504,11 +504,8 @@ static NSMutableArray *registeredApps = nil;
         return;
     }
     
-    NSString *host = [NSString stringWithFormat:@"%@:%@", self.serviceDescription.address, @(self.serviceDescription.port)];
-    
-    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&h=%@&tr=crossfade",
-                                 [ConnectUtil urlEncode:imageURL.absoluteString], // content path
-                                 [ConnectUtil urlEncode:host] // host
+    NSString *applicationPath = [NSString stringWithFormat:@"15985?t=p&u=%@&tr=crossfade",
+                                 [ConnectUtil urlEncode:imageURL.absoluteString] // content path
                                  ];
     
     NSString *commandPath = [NSString pathWithComponents:@[
@@ -519,7 +516,7 @@ static NSMutableArray *registeredApps = nil;
     
     NSURL *targetURL = [NSURL URLWithString:commandPath];
     
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:nil];
     command.HTTPMethod = @"POST";
     command.callbackComplete = ^(id responseObject)
     {

@@ -38,6 +38,16 @@
     }];
 }
 
+- (void)testDisplayImageShouldNotSendEventURL {
+    NSURL *url = [NSURL URLWithString:@"http://example.com/"];
+    MediaInfo *imageInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"image/png"];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
+        [service displayImageWithMediaInfo:imageInfo
+                                   success:nil
+                                   failure:nil];
+    }];
+}
+
 #pragma mark - Helpers
 
 - (void)checkPlayMediaBlockShouldNotSendEventURL:(void (^)(RokuService *service))testBlock {
