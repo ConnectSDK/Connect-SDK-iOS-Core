@@ -594,7 +594,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                             // NB: the expectation should be fulfilled after the
                             // response is handled in DLNAService, for it to
                             // save the SID!
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDefaultAsyncTestTimeout / 10 * NSEC_PER_SEC)),
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDefaultAsyncTestTimeout / 2 * NSEC_PER_SEC)),
                                            dispatch_get_main_queue(), ^{
                                                [subscribeRequestSent fulfill];
                                            });
