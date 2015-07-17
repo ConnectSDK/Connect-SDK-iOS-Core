@@ -16,21 +16,31 @@
 
 @implementation RokuServiceTests
 
-- (void)testPlayVideoShouldSendNullEventURL {
+- (void)testPlayVideoShouldNotSendEventURL {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *videoInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"video/mp4"];
-    [self checkPlayMediaShouldSendNullEventURLWithMediaInfo:videoInfo];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
+        [service playMediaWithMediaInfo:videoInfo
+                             shouldLoop:NO
+                                success:nil
+                                failure:nil];
+    }];
 }
 
-- (void)testPlayAudioShouldSendNullEventURL {
+- (void)testPlayAudioShouldNotSendEventURL {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
-    MediaInfo *videoInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"audio/ogg"];
-    [self checkPlayMediaShouldSendNullEventURLWithMediaInfo:videoInfo];
+    MediaInfo *audioInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"audio/ogg"];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
+        [service playMediaWithMediaInfo:audioInfo
+                             shouldLoop:NO
+                                success:nil
+                                failure:nil];
+    }];
 }
 
 #pragma mark - Helpers
 
-- (void)checkPlayMediaShouldSendNullEventURLWithMediaInfo:(MediaInfo *)mediaInfo {
+- (void)checkPlayMediaBlockShouldNotSendEventURL:(void (^)(RokuService *service))testBlock {
     id serviceCommandDelegateMock = OCMProtocolMock(@protocol(ServiceCommandDelegate));
     RokuService *service = [RokuService new];
     service.serviceCommandDelegate = serviceCommandDelegateMock;
@@ -47,18 +57,15 @@
         NSURL *url = [inv objectArgumentAtIndex:2];
         NSURLComponents *components = [NSURLComponents componentsWithURL:url
                                                  resolvingAgainstBaseURL:NO];
-        NSURLQueryItem *eventURLQueryItem = [[components.queryItems filteredArrayUsingPredicate:
-                                              [NSPredicate predicateWithFormat:@"%K == %@", @"name", @"h"]] firstObject];
-        XCTAssertEqualObjects(eventURLQueryItem.value, @"(null)",
-                              @"The event URL should be null, because we don't support them now");
+        NSArray *eventURLQueryItems = [components.queryItems filteredArrayUsingPredicate:
+                                       [NSPredicate predicateWithFormat:@"%K == %@", @"name", @"h"]];
+        XCTAssertEqual(eventURLQueryItems.count, 0,
+                       @"The event URL should not be sent in the request");
 
         [commandSentExpectation fulfill];
     }];
 
-    [service playMediaWithMediaInfo:mediaInfo
-                         shouldLoop:NO
-                            success:nil
-                            failure:nil];
+    testBlock(service);
 
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
 }
