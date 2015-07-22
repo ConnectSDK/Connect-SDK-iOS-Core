@@ -1354,10 +1354,11 @@ static const NSInteger kValueNotFound = -1;
     return [DeviceServiceReachability reachabilityWithTargetURL:url];
 }
 
-/// Returns a subtype of a MIME type (the part after the slash).
+/// Returns a subtype of a MIME type (the part after the slash), or an empty
+/// string.
 - (NSString *)subtypeFromMimeType:(NSString *)mimeType {
     NSArray *components = [mimeType componentsSeparatedByString:@"/"];
-    return components[1];
+    return components.count >= 2 ? components[1] : @"";
 }
 
 @end

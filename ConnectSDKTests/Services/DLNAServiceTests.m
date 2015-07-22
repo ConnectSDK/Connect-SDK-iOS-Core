@@ -418,6 +418,10 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:@"http-get:*:smi/caption"];
 }
 
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainMimeTypeProtocolInfo {
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:@"http-get:*:text/srt:*"];
+}
+
 - (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainNullMimeTypeProtocolInfo {
     [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:@"http-get:*:(null):*"];
 }
@@ -433,6 +437,28 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainPVSubtitleAttributes {
     [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithoutSubtitle]
            shouldContainPVSubtitleAttributes:NO];
+}
+
+// TODO wrong mime type tests would not be here if we used a specialized
+// MIMEType class
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInPVSubtitleAttribute {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+           shouldContainPVSubtitleAttributes:YES
+                                withFileType:@""];
+}
+
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInSecCaptionInfo {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+                               shouldContain:YES
+                              secTagWithName:@"sec:CaptionInfo"
+                                 andFileType:@""];
+}
+
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInSecCaptionInfoEx {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+                               shouldContain:YES
+                              secTagWithName:@"sec:CaptionInfoEx"
+                                 andFileType:@""];
 }
 
 #pragma mark - Response Parsing Tests
@@ -1204,6 +1230,16 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
                              shouldContain:(BOOL)shouldContain
                             secTagWithName:(NSString *)tagName {
+    [self checkPlayVideoRequestWithMediaInfo:mediaInfo
+                               shouldContain:shouldContain
+                              secTagWithName:tagName
+                                 andFileType:@"srt"];
+}
+
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+                             shouldContain:(BOOL)shouldContain
+                            secTagWithName:(NSString *)tagName
+                               andFileType:(NSString *)fileType {
     [self checkPlayVideoWithSubtitles:mediaInfo
             DIDLRequestShouldPassTest:^(NSDictionary *didl) {
                 NSDictionary *captionInfo = didl[@"item"][tagName];
@@ -1214,7 +1250,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
                     XCTAssertEqualObjects(captionInfo[@"text"],
                                           mediaInfo.subtitleTrack.url.absoluteString);
-                    XCTAssertEqualObjects(captionInfo[@"sec:type"], @"srt");
+                    XCTAssertEqualObjects(captionInfo[@"sec:type"], fileType);
                 } else {
                     // NOTE: we don't check the "xmlns:sec" presence/absence,
                     // because it's not very important here
@@ -1225,6 +1261,14 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
 - (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
          shouldContainPVSubtitleAttributes:(BOOL)shouldContain {
+    [self checkPlayVideoRequestWithMediaInfo:mediaInfo
+           shouldContainPVSubtitleAttributes:shouldContain
+                                withFileType:@"srt"];
+}
+
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+         shouldContainPVSubtitleAttributes:(BOOL)shouldContain
+                              withFileType:(NSString *)fileType {
     [self checkPlayVideoWithSubtitles:mediaInfo
             DIDLRequestShouldPassTest:^(NSDictionary *didl) {
                 id resources = [didl valueForKeyPath:@"item.res"];
@@ -1238,7 +1282,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                     XCTAssertEqualObjects(res[@"xmlns:pv"], @"http://www.pv.com/pvns/");
                     XCTAssertEqualObjects(res[@"pv:subtitleFileUri"],
                                           mediaInfo.subtitleTrack.url.absoluteString);
-                    XCTAssertEqualObjects(res[@"pv:subtitleFileType"], @"srt");
+                    XCTAssertEqualObjects(res[@"pv:subtitleFileType"], fileType);
                 } else {
                     NSDictionary *res = resources;
                     XCTAssertNil(res[@"pv:subtitleFileUri"]);
@@ -1265,6 +1309,15 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
     MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
                                                  mimeType:sampleMimeType];
 
+    return mediaInfo;
+}
+
+- (MediaInfo *)mediaInfoWithSubtitleWithWrongMimeType {
+    MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
+    mediaInfo.subtitleTrack = [SubtitleTrack trackWithURL:[NSURL URLWithString:@"http://example.com/"]
+                                                 andBlock:^(SubtitleTrackBuilder *builder) {
+                                                     builder.mimeType = @"wrong!";
+                                                 }];
     return mediaInfo;
 }
 
