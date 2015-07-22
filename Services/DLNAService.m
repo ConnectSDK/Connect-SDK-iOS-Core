@@ -1022,32 +1022,28 @@ static const NSInteger kValueNotFound = -1;
                 NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
                 [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
 
-                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
-                    [writer writeAttribute:@"protocolInfo" value:@"http-get:*:smi/caption"];
-                    if (mediaInfo.subtitleTrack) {
+                if (mediaInfo.subtitleTrack) {
+                    [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                        [writer writeAttribute:@"protocolInfo" value:@"http-get:*:smi/caption"];
                         [writer writeCharacters:subtitleURL];
-                    }
-                }];
-                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
-                    NSString *attrValue = [NSString stringWithFormat:@"http-get:*:%@:*", mediaInfo.subtitleTrack.mimeType];
-                    [writer writeAttribute:@"protocolInfo" value:attrValue];
-                    if (mediaInfo.subtitleTrack) {
+                    }];
+                    [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                        NSString *attrValue = [NSString stringWithFormat:@"http-get:*:%@:*", mediaInfo.subtitleTrack.mimeType];
+                        [writer writeAttribute:@"protocolInfo" value:attrValue];
                         [writer writeCharacters:subtitleURL];
-                    }
-                }];
-                [@[@"CaptionInfo", @"CaptionInfoEx"] enumerateObjectsUsingBlock:
+                    }];
+                    [@[@"CaptionInfo", @"CaptionInfoEx"] enumerateObjectsUsingBlock:
                         ^(NSString *captionInfoTag, NSUInteger idx, BOOL *stop) {
                             [writer writeElement:captionInfoTag
                                    withNamespace:kSecSubtitleNamespace
                                 andContentsBlock:^(XMLWriter *writer) {
-                                    if (mediaInfo.subtitleTrack) {
-                                        [writer writeAttributeWithNamespace:kSecSubtitleNamespace
-                                                                  localName:@"type"
-                                                                      value:subtitleType];
-                                        [writer writeCharacters:subtitleURL];
-                                    }
+                                    [writer writeAttributeWithNamespace:kSecSubtitleNamespace
+                                                              localName:@"type"
+                                                                  value:subtitleType];
+                                    [writer writeCharacters:subtitleURL];
                                 }];
                         }];
+                }
             }];
         }];
 

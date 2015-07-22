@@ -410,22 +410,29 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)testPlayVideoWithSubtitlesRequestShouldContainPVSubtitleAttributes {
-    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitle]
+           shouldContainPVSubtitleAttributes:YES];
+}
 
-    [self checkPlayVideoWithSubtitles:mediaInfo
-            DIDLRequestShouldPassTest:^(NSDictionary *didl) {
-                NSArray *resources = didl[@"item"][@"res"];
-                NSPredicate *mimeTypePredicate = [NSPredicate predicateWithFormat:@"protocolInfo CONTAINS %@",
-                                                                                  mediaInfo.mimeType];
-                NSArray *mediaResource = [resources filteredArrayUsingPredicate:mimeTypePredicate];
-                XCTAssertEqual(mediaResource.count, 1);
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainSMICaptionProtocolInfo {
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:@"http-get:*:smi/caption"];
+}
 
-                NSDictionary *res = [mediaResource firstObject];
-                XCTAssertEqualObjects(res[@"xmlns:pv"], @"http://www.pv.com/pvns/");
-                XCTAssertEqualObjects(res[@"pv:subtitleFileUri"],
-                                      mediaInfo.subtitleTrack.url.absoluteString);
-                XCTAssertEqualObjects(res[@"pv:subtitleFileType"], @"srt");
-            }];
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainNullMimeTypeProtocolInfo {
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:@"http-get:*:(null):*"];
+}
+
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainSecCaptionInfo {
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:@"sec:CaptionInfo"];
+}
+
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainSecCaptionInfoEx {
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:@"sec:CaptionInfoEx"];
+}
+
+- (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainPVSubtitleAttributes {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithoutSubtitle]
+           shouldContainPVSubtitleAttributes:NO];
 }
 
 #pragma mark - Response Parsing Tests
@@ -1018,12 +1025,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                NSString *description = [item objectForKeyEndingWithString:@":description"][@"text"];
                                XCTAssertEqualObjects(description, sampleDescription, @"Description must match");
 
-                               NSArray *resources = item[@"res"];
-                               NSPredicate *mimeTypePredicate = [NSPredicate predicateWithFormat:@"protocolInfo CONTAINS %@",
-                                                                 sampleMimeType];
-                               NSArray *mediaResource = [resources filteredArrayUsingPredicate:mimeTypePredicate];
-                               XCTAssertEqual(mediaResource.count, 1);
-                               NSDictionary *res = [mediaResource firstObject];
+                               NSDictionary *res = item[@"res"];
                                XCTAssertEqualObjects(res[@"text"], sampleURL, @"res URL must match");
                                XCTAssertNotEqual([res[@"protocolInfo"] rangeOfString:sampleMimeType].location, NSNotFound, @"mimeType must be in protocolInfo");
 
@@ -1148,49 +1150,120 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)checkPlayVideoWithSubtitlesRequestShouldContainProtocolInfoWithAttributeValue:(NSString *)attributeValue {
-    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitle]
+                               shouldContain:YES
+              protocolInfoWithAttributeValue:attributeValue];
+}
 
+- (void)checkPlayVideoWithoutSubtitlesRequestShouldNotContainProtocolInfoWithAttributeValue:(NSString *)attributeValue {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithoutSubtitle]
+                               shouldContain:NO
+              protocolInfoWithAttributeValue:attributeValue];
+}
+
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+                             shouldContain:(BOOL)shouldContain
+            protocolInfoWithAttributeValue:(NSString *)attributeValue {
     [self checkPlayVideoWithSubtitles:mediaInfo
             DIDLRequestShouldPassTest:^(NSDictionary *didl) {
-        NSArray *resources = [didl valueForKeyPath:@"item.res"];
+                // TODO switch from the current XMLReader?
+                // we have to parse tags as either a dictionary or an array,
+                // depending on the number of tags with the same name in XML
 
-        NSPredicate *captionResPredicate = [NSPredicate predicateWithFormat:@"protocolInfo == %@",
-                                                                            attributeValue];
-        NSArray *captionResource = [resources filteredArrayUsingPredicate:captionResPredicate];
+                if (shouldContain) {
+                    // in this case we're expecting to have 2+ res tags
+                    NSArray *resources = [didl valueForKeyPath:@"item.res"];
+                    NSPredicate *attributePredicate = [NSPredicate predicateWithFormat:@"protocolInfo == %@",
+                                                                                       attributeValue];
+                    NSArray *filteredResources = [resources filteredArrayUsingPredicate:attributePredicate];
 
-        XCTAssertEqual(captionResource.count, 1);
-        XCTAssertEqualObjects(captionResource[0][@"text"],
-                              mediaInfo.subtitleTrack.url.absoluteString);
-    }];
+                    XCTAssertEqual(filteredResources.count, 1);
+                    XCTAssertEqualObjects(filteredResources[0][@"text"],
+                                          mediaInfo.subtitleTrack.url.absoluteString);
+                } else {
+                    // in this case we're expecting 1 res tag for media file only
+                    NSDictionary *resource = [didl valueForKeyPath:@"item.res"];
+                    XCTAssertNotEqualObjects(resource[@"protocolInfo"],
+                                             attributeValue);
+                }
+            }];
 }
 
 - (void)checkPlayVideoWithSubtitlesRequestShouldContainSecTagWithName:(NSString *)tagName {
-    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitle]
+                               shouldContain:YES
+                              secTagWithName:tagName];
+}
 
+- (void)checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:(NSString *)tagName {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithoutSubtitle]
+                               shouldContain:NO
+                              secTagWithName:tagName];
+}
+
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+                             shouldContain:(BOOL)shouldContain
+                            secTagWithName:(NSString *)tagName {
     [self checkPlayVideoWithSubtitles:mediaInfo
             DIDLRequestShouldPassTest:^(NSDictionary *didl) {
-                XCTAssertEqualObjects(didl[@"xmlns:sec"],
-                                      @"http://www.sec.co.kr/");
-
                 NSDictionary *captionInfo = didl[@"item"][tagName];
-                XCTAssertEqualObjects(captionInfo[@"text"],
-                                      mediaInfo.subtitleTrack.url.absoluteString);
-                XCTAssertEqualObjects(captionInfo[@"sec:type"], @"srt");
+
+                if (shouldContain) {
+                    XCTAssertEqualObjects(didl[@"xmlns:sec"],
+                                          @"http://www.sec.co.kr/");
+
+                    XCTAssertEqualObjects(captionInfo[@"text"],
+                                          mediaInfo.subtitleTrack.url.absoluteString);
+                    XCTAssertEqualObjects(captionInfo[@"sec:type"], @"srt");
+                } else {
+                    // NOTE: we don't check the "xmlns:sec" presence/absence,
+                    // because it's not very important here
+                    XCTAssertNil(captionInfo);
+                }
+            }];
+}
+
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+         shouldContainPVSubtitleAttributes:(BOOL)shouldContain {
+    [self checkPlayVideoWithSubtitles:mediaInfo
+            DIDLRequestShouldPassTest:^(NSDictionary *didl) {
+                id resources = [didl valueForKeyPath:@"item.res"];
+                if (shouldContain) {
+                    NSPredicate *mimeTypePredicate = [NSPredicate predicateWithFormat:@"protocolInfo CONTAINS %@",
+                                                                                      mediaInfo.mimeType];
+                    NSArray *mediaResource = [resources filteredArrayUsingPredicate:mimeTypePredicate];
+                    XCTAssertEqual(mediaResource.count, 1);
+
+                    NSDictionary *res = [mediaResource firstObject];
+                    XCTAssertEqualObjects(res[@"xmlns:pv"], @"http://www.pv.com/pvns/");
+                    XCTAssertEqualObjects(res[@"pv:subtitleFileUri"],
+                                          mediaInfo.subtitleTrack.url.absoluteString);
+                    XCTAssertEqualObjects(res[@"pv:subtitleFileType"], @"srt");
+                } else {
+                    NSDictionary *res = resources;
+                    XCTAssertNil(res[@"pv:subtitleFileUri"]);
+                    XCTAssertNil(res[@"pv:subtitleFileType"]);
+                }
             }];
 }
 
 - (MediaInfo *)mediaInfoWithSubtitle {
     NSURL *subtitleURL = [NSURL URLWithString:@"http://example.com/"];
-    NSString *sampleURL = kDefaultURL;
-    NSString *sampleMimeType = @"audio/ogg";
-
-    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
-                                                 mimeType:sampleMimeType];
+    MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
     SubtitleTrack *track = [SubtitleTrack trackWithURL:subtitleURL
                                               andBlock:^(SubtitleTrackBuilder *builder) {
                                                   builder.mimeType = @"text/srt";
                                               }];
     mediaInfo.subtitleTrack = track;
+
+    return mediaInfo;
+}
+
+- (MediaInfo *)mediaInfoWithoutSubtitle {
+    NSString *sampleURL = kDefaultURL;
+    NSString *sampleMimeType = @"audio/ogg";
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:sampleURL]
+                                                 mimeType:sampleMimeType];
 
     return mediaInfo;
 }
