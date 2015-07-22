@@ -28,6 +28,7 @@
 #import "NSDictionary+KeyPredicateSearch.h"
 #import "NSString+Common.h"
 #import "XMLWriter+ConvenienceMethods.h"
+#import "SubtitleTrack.h"
 
 NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
@@ -79,9 +80,10 @@ static const NSInteger kValueNotFound = -1;
         kMediaControlPlayStateSubscribe,
         kMediaControlMetadata,
         kMediaControlMetadataSubscribe,
+        kMediaPlayerSubtitleSRT,
         kPlayListControlNext,
         kPlayListControlPrevious,
-        kPlayListControlJumpTrack
+        kPlayListControlJumpTrack,
     ];
 
     capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
@@ -973,8 +975,11 @@ static const NSInteger kValueNotFound = -1;
     NSString *metadataXML = ({
         XMLWriter *writer = [XMLWriter new];
 
+        static NSString *const kSecSubtitleNamespace = @"http://www.sec.co.kr/";
+
         [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
         [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
+        [writer setPrefix:@"sec" namespaceURI:kSecSubtitleNamespace];
 
         [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
             [writer writeAttribute:@"xmlns" value:kDIDLLiteNamespace];
@@ -990,7 +995,21 @@ static const NSInteger kValueNotFound = -1;
                     [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
                 }
 
+                NSString *subtitleURL = mediaInfo.subtitleTrack.url.absoluteString;
+                NSString *subtitleType = [self subtypeFromMimeType:mediaInfo.subtitleTrack.mimeType];
+
                 [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                    if (mediaInfo.subtitleTrack) {
+                        static NSString *const kPVSubtitleNamespace = @"http://www.pv.com/pvns/";
+                        [writer setPrefix:@"pv" namespaceURI:kPVSubtitleNamespace];
+                        [writer writeAttributeWithNamespace:kPVSubtitleNamespace
+                                                  localName:@"subtitleFileUri"
+                                                      value:subtitleURL];
+                        [writer writeAttributeWithNamespace:kPVSubtitleNamespace
+                                                  localName:@"subtitleFileType"
+                                                      value:subtitleType];
+                    }
+
                     NSString *value = [NSString stringWithFormat:
                                        @"http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000",
                                        [mimeType orEmpty]];
@@ -1002,6 +1021,33 @@ static const NSInteger kValueNotFound = -1;
                 [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURLString];
                 NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
                 [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
+
+                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                    [writer writeAttribute:@"protocolInfo" value:@"http-get:*:smi/caption"];
+                    if (mediaInfo.subtitleTrack) {
+                        [writer writeCharacters:subtitleURL];
+                    }
+                }];
+                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                    NSString *attrValue = [NSString stringWithFormat:@"http-get:*:%@:*", mediaInfo.subtitleTrack.mimeType];
+                    [writer writeAttribute:@"protocolInfo" value:attrValue];
+                    if (mediaInfo.subtitleTrack) {
+                        [writer writeCharacters:subtitleURL];
+                    }
+                }];
+                [@[@"CaptionInfo", @"CaptionInfoEx"] enumerateObjectsUsingBlock:
+                        ^(NSString *captionInfoTag, NSUInteger idx, BOOL *stop) {
+                            [writer writeElement:captionInfoTag
+                                   withNamespace:kSecSubtitleNamespace
+                                andContentsBlock:^(XMLWriter *writer) {
+                                    if (mediaInfo.subtitleTrack) {
+                                        [writer writeAttributeWithNamespace:kSecSubtitleNamespace
+                                                                  localName:@"type"
+                                                                      value:subtitleType];
+                                        [writer writeCharacters:subtitleURL];
+                                    }
+                                }];
+                        }];
             }];
         }];
 
@@ -1310,6 +1356,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (DeviceServiceReachability *)createDeviceServiceReachabilityWithTargetURL:(NSURL *)url {
     return [DeviceServiceReachability reachabilityWithTargetURL:url];
+}
+
+/// Returns a subtype of a MIME type (the part after the slash).
+- (NSString *)subtypeFromMimeType:(NSString *)mimeType {
+    NSArray *components = [mimeType componentsSeparatedByString:@"/"];
+    return components[1];
 }
 
 @end
