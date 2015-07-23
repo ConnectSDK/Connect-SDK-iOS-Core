@@ -23,3 +23,4 @@
 #import "MediaPlayer.h"
 
 NSString *const kMediaPlayerSubtitleSRT = @"MediaPlayer.Subtitle.SRT";
+NSString *const kMediaPlayerSubtitleVTT = @"MediaPlayer.Subtitle.VTT";

@@ -40,6 +40,7 @@
 #define kMediaPlayerMetaDataMimeType @"MediaPlayer.MetaData.MimeType"
 
 extern NSString *const kMediaPlayerSubtitleSRT;
+extern NSString *const kMediaPlayerSubtitleVTT;
 
 
 #define kMediaPlayerCapabilities @[\
