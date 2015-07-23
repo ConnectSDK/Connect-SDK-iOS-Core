@@ -20,6 +20,8 @@
 
 #import "SubtitleTrack.h"
 
+#import "CommonMacros.h"
+
 NS_ASSUME_NONNULL_BEGIN
 @implementation SubtitleTrack
 
@@ -50,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithURL:(NSURL *)url
                  andBuilder:(nullable SubtitleTrackBuilder *)builder /*NS_DESIGNATED_INITIALIZER*/ {
+    _assert_state(url, @"nil URL is not permitted");
+
     self = [super init];
 
     _url = url;

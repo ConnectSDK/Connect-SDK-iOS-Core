@@ -43,6 +43,21 @@
                                  @"Default initializer is not permitted");
 }
 
+- (void)testTrackConstructorShouldNotAcceptNilURL {
+    NSURL *nilUrl = [NSURL URLWithString:nil];
+    XCTAssertThrowsSpecificNamed([SubtitleTrack trackWithURL:nilUrl],
+                                 NSException,
+                                 NSInternalInconsistencyException);
+}
+
+- (void)testTrackConstructorWithBuilderShouldNotAcceptNilURL {
+    NSURL *nilUrl = [NSURL URLWithString:nil];
+    XCTAssertThrowsSpecificNamed([SubtitleTrack trackWithURL:nilUrl
+                                                    andBlock:^(SubtitleTrackBuilder *_) {}],
+                                 NSException,
+                                 NSInternalInconsistencyException);
+}
+
 - (void)testTrackConstructorShouldSetURL {
     SubtitleTrack *track = [SubtitleTrack trackWithURL:self.url];
     XCTAssertEqualObjects(track.url, self.url);
