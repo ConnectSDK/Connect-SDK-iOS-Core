@@ -13,6 +13,10 @@ For more information about Connect SDK, visit the [main repository](https://gith
 ##Setup
 Unless you are doing very specialized work to extend the SDK, you should not need to make direct use of this repository. Instead, clone the [main repository](https://github.com/ConnectSDK/Connect-SDK-iOS), which includes this repository as a submodule.
 
+##Limitations/Caveats
+
+- Subtitles support (`SRT` format only): implemented in DLNA service. Since there is no official specification for them, subtitles may not work on all DLNA-compatible devices. This feature has been tested and works on LG WebOS and Netcast TVs.
+
 ##License
 Copyright (c) 2013-2015 LG Electronics.
 
