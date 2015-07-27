@@ -57,6 +57,9 @@ static NSString *const kRenderingControlEventURLKey = @"rndCtrEventURL";
 
 static NSString *const kIconURLMetadataKey = @"iconURL";
 
+static NSString *const kSecCaptionInfoTag = @"sec:CaptionInfo";
+static NSString *const kSecCaptionInfoExTag = @"sec:CaptionInfoEx";
+
 
 /// Tests for the @c DLNAService class.
 @interface DLNAServiceTests : XCTestCase
@@ -402,11 +405,11 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)testPlayVideoWithSubtitlesRequestShouldContainSecCaptionInfo {
-    [self checkPlayVideoWithSubtitlesRequestShouldContainSecTagWithName:@"sec:CaptionInfo"];
+    [self checkPlayVideoWithSubtitlesRequestShouldContainSecTagWithName:kSecCaptionInfoTag];
 }
 
 - (void)testPlayVideoWithSubtitlesRequestShouldContainSecCaptionInfoEx {
-    [self checkPlayVideoWithSubtitlesRequestShouldContainSecTagWithName:@"sec:CaptionInfoEx"];
+    [self checkPlayVideoWithSubtitlesRequestShouldContainSecTagWithName:kSecCaptionInfoExTag];
 }
 
 - (void)testPlayVideoWithSubtitlesRequestShouldContainPVSubtitleAttributes {
@@ -427,11 +430,11 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 }
 
 - (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainSecCaptionInfo {
-    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:@"sec:CaptionInfo"];
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:kSecCaptionInfoTag];
 }
 
 - (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainSecCaptionInfoEx {
-    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:@"sec:CaptionInfoEx"];
+    [self checkPlayVideoWithoutSubtitlesRequestShouldNotContainSecTagWithName:kSecCaptionInfoExTag];
 }
 
 - (void)testPlayVideoWithoutSubtitlesRequestShouldNotContainPVSubtitleAttributes {
@@ -439,26 +442,50 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
            shouldContainPVSubtitleAttributes:NO];
 }
 
+- (void)testPlayVideoWithSubtitlesWithoutMimeTypeShouldSendDefaultMimeTypeProtocolInfo {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithoutMimeType]
+                               shouldContain:YES
+              protocolInfoWithAttributeValue:@"http-get:*:text/srt:*"];
+}
+
+- (void)testPlayVideoWithSubtitlesWithoutMimeTypeShouldSendDefaultTypeInSecCaptionInfo {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithoutMimeType]
+shouldContainSecTagWithDefaultFileTypeAndName:kSecCaptionInfoTag];
+}
+
+- (void)testPlayVideoWithSubtitlesWithoutMimeTypeShouldSendDefaultTypeInSecCaptionInfoEx {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithoutMimeType]
+shouldContainSecTagWithDefaultFileTypeAndName:kSecCaptionInfoExTag];
+}
+
+- (void)testPlayVideoWithSubtitlesWithoutMimeTypeShouldSendDefaultTypeInPVSubtitleAttribute {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithoutMimeType]
+           shouldContainPVSubtitleAttributes:YES
+                                withFileType:@"srt"];
+}
+
 // TODO wrong mime type tests would not be here if we used a specialized
 // MIMEType class
-- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInPVSubtitleAttribute {
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendDefaultMimeTypeProtocolInfo {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+                               shouldContain:YES
+              protocolInfoWithAttributeValue:@"http-get:*:text/srt:*"];
+}
+
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendDefaultTypeInSecCaptionInfo {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+shouldContainSecTagWithDefaultFileTypeAndName:kSecCaptionInfoTag];
+}
+
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendDefaultTypeInSecCaptionInfoEx {
+    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
+shouldContainSecTagWithDefaultFileTypeAndName:kSecCaptionInfoExTag];
+}
+
+- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendDefaultTypeInPVSubtitleAttribute {
     [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
            shouldContainPVSubtitleAttributes:YES
-                                withFileType:@""];
-}
-
-- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInSecCaptionInfo {
-    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
-                               shouldContain:YES
-                              secTagWithName:@"sec:CaptionInfo"
-                                 andFileType:@""];
-}
-
-- (void)testPlayVideoWithSubtitlesWithWrongMimeTypeShouldSendEmptyTypeInSecCaptionInfoEx {
-    [self checkPlayVideoRequestWithMediaInfo:[self mediaInfoWithSubtitleWithWrongMimeType]
-                               shouldContain:YES
-                              secTagWithName:@"sec:CaptionInfoEx"
-                                 andFileType:@""];
+                                withFileType:@"srt"];
 }
 
 #pragma mark - Response Parsing Tests
@@ -1291,6 +1318,14 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
             }];
 }
 
+- (void)checkPlayVideoRequestWithMediaInfo:(MediaInfo *)mediaInfo
+shouldContainSecTagWithDefaultFileTypeAndName:(NSString *)name {
+    [self checkPlayVideoRequestWithMediaInfo:mediaInfo
+                               shouldContain:YES
+                              secTagWithName:name
+                                 andFileType:@"srt"];
+}
+
 - (MediaInfo *)mediaInfoWithSubtitle {
     NSURL *subtitleURL = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
@@ -1315,9 +1350,15 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (MediaInfo *)mediaInfoWithSubtitleWithWrongMimeType {
     MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
     mediaInfo.subtitleInfo = [SubtitleInfo infoWithURL:[NSURL URLWithString:@"http://example.com/"]
-                                               andBlock:^(SubtitleInfoBuilder *builder) {
-                                                   builder.mimeType = @"wrong!";
-                                               }];
+                                              andBlock:^(SubtitleInfoBuilder *builder) {
+                                                  builder.mimeType = @"wrong!";
+                                              }];
+    return mediaInfo;
+}
+
+- (MediaInfo *)mediaInfoWithSubtitleWithoutMimeType {
+    MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
+    mediaInfo.subtitleInfo = [SubtitleInfo infoWithURL:[NSURL URLWithString:@"http://example.com/"]];
     return mediaInfo;
 }
 

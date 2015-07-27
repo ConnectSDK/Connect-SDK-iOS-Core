@@ -44,6 +44,9 @@ static NSString *const kDIDLLiteNamespace = @"urn:schemas-upnp-org:metadata-1-0/
 static NSString *const kUPNPNamespace = @"urn:schemas-upnp-org:metadata-1-0/upnp/";
 static NSString *const kDCNamespace = @"http://purl.org/dc/elements/1.1/";
 
+static NSString *const kDefaultSubtitleMimeType = @"text/srt";
+static NSString *const kDefaultSubtitleSubtype = @"srt";
+
 static const NSInteger kValueNotFound = -1;
 
 
@@ -1270,11 +1273,15 @@ static const NSInteger kValueNotFound = -1;
     return [DeviceServiceReachability reachabilityWithTargetURL:url];
 }
 
-/// Returns a subtype of a MIME type (the part after the slash), or an empty
-/// string.
+- (BOOL)isValidMimeType:(NSString *)mimeType {
+    return [mimeType rangeOfString:@"/"].length > 0;
+}
+
+/// Returns a subtype of a MIME type (the part after the slash). The MIME type
+/// string must be valid.
 - (NSString *)subtypeFromMimeType:(NSString *)mimeType {
     NSArray *components = [mimeType componentsSeparatedByString:@"/"];
-    return components.count >= 2 ? components[1] : @"";
+    return components[1];
 }
 
 - (NSString *)playMediaMetadataXMLForMediaInfo:(MediaInfo *)mediaInfo
@@ -1321,7 +1328,14 @@ static const NSInteger kValueNotFound = -1;
             }
 
             NSString *subtitleURL = mediaInfo.subtitleInfo.url.absoluteString;
-            NSString *subtitleType = [self subtypeFromMimeType:mediaInfo.subtitleInfo.mimeType];
+            NSString *subtitleMimeType = mediaInfo.subtitleInfo.mimeType;
+            NSString *subtitleType;
+            if ([self isValidMimeType:subtitleMimeType]) {
+                subtitleType = [self subtypeFromMimeType:subtitleMimeType];
+            } else {
+                subtitleMimeType = kDefaultSubtitleMimeType;
+                subtitleType = kDefaultSubtitleSubtype;
+            }
 
             [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
                 if (mediaInfo.subtitleInfo) {
@@ -1344,7 +1358,7 @@ static const NSInteger kValueNotFound = -1;
 
             if (mediaInfo.subtitleInfo) {
                 [self writeSubtitleElementsForURL:subtitleURL
-                                         mimeType:mediaInfo.subtitleInfo.mimeType
+                                         mimeType:subtitleMimeType
                                           andType:subtitleType
                                          toWriter:writer];
             }
