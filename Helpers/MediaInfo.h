@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "ImageInfo.h"
 
-@class SubtitleTrack;
+@class SubtitleInfo;
 
 /*!
  * Normalized reference object for information about a media file to be sent to a device through the MediaPlayer capability. "Media file", in this context, refers to an audio or video resource.
@@ -47,7 +47,7 @@
 @property (nonatomic, strong) NSArray *images;
 
 /// Subtitle track for this media instance (optional).
-@property (nonatomic, strong) SubtitleTrack *subtitleTrack;
+@property (nonatomic, strong) SubtitleInfo *subtitleInfo;
 
 
 /**

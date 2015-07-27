@@ -28,7 +28,7 @@
 #import "NSDictionary+KeyPredicateSearch.h"
 #import "NSString+Common.h"
 #import "XMLWriter+ConvenienceMethods.h"
-#import "SubtitleTrack.h"
+#import "SubtitleInfo.h"
 
 NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
@@ -1320,11 +1320,11 @@ static const NSInteger kValueNotFound = -1;
                 [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
             }
 
-            NSString *subtitleURL = mediaInfo.subtitleTrack.url.absoluteString;
-            NSString *subtitleType = [self subtypeFromMimeType:mediaInfo.subtitleTrack.mimeType];
+            NSString *subtitleURL = mediaInfo.subtitleInfo.url.absoluteString;
+            NSString *subtitleType = [self subtypeFromMimeType:mediaInfo.subtitleInfo.mimeType];
 
             [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
-                if (mediaInfo.subtitleTrack) {
+                if (mediaInfo.subtitleInfo) {
                     [self writePVSubtitleAttributesForURL:subtitleURL
                                                   andType:subtitleType
                                                  toWriter:writer];
@@ -1342,9 +1342,9 @@ static const NSInteger kValueNotFound = -1;
             NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
             [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
 
-            if (mediaInfo.subtitleTrack) {
+            if (mediaInfo.subtitleInfo) {
                 [self writeSubtitleElementsForURL:subtitleURL
-                                         mimeType:mediaInfo.subtitleTrack.mimeType
+                                         mimeType:mediaInfo.subtitleInfo.mimeType
                                           andType:subtitleType
                                          toWriter:writer];
             }

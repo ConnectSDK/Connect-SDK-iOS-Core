@@ -1,5 +1,5 @@
 //
-//  SubtitleTrack.h
+//  SubtitleInfo.h
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 2015-07-14.
@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@class SubtitleTrackBuilder;
+@class SubtitleInfoBuilder;
 
 /**
  * Represents a subtitle track used for media playing.
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @note This class is immutable.
  */
-@interface SubtitleTrack : NSObject
+@interface SubtitleInfo : NSObject
 
 /// The subtitle track's URL.
 @property (nonatomic, readonly) NSURL *url;
@@ -47,27 +47,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /// Creates a new instance with the given @c url.
-+ (instancetype)trackWithURL:(NSURL *)url;
++ (instancetype)infoWithURL:(NSURL *)url;
 
 /// Creates a new instance with the given @c url and properties set in the
 /// @c builder object.
-+ (instancetype)trackWithURL:(NSURL *)url
-                    andBlock:(void (^)(SubtitleTrackBuilder *builder))block;
++ (instancetype)infoWithURL:(NSURL *)url
+                   andBlock:(void (^)(SubtitleInfoBuilder *builder))block;
 
 @end
 
 
 /**
- * Used to initialize a @c SubtitleTrack object in a convenient way. The
+ * Used to initialize a @c SubtitleInfo object in a convenient way. The
  * properties are writable at this point, and then become readonly in a final
  * object.
  *
  * @note You should not create this object manually. It is passed as a parameter
- * to <tt>+[SubtitleTrack trackWithURL:andBlock:]</tt> method.
+ * to <tt>+[SubtitleInfo infoWithURL:andBlock:]</tt> method.
  *
  * @see http://www.annema.me/the-builder-pattern-in-objective-c
  */
-@interface SubtitleTrackBuilder : NSObject
+@interface SubtitleInfoBuilder : NSObject
 
 /// The subtitle's mimeType.
 @property (nonatomic, nullable) NSString *mimeType;

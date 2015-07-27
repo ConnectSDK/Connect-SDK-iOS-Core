@@ -29,7 +29,7 @@
 #import "SSDPDiscoveryProvider_Private.h"
 #import "DLNAHTTPServer.h"
 #import "DeviceServiceReachability.h"
-#import "SubtitleTrack.h"
+#import "SubtitleInfo.h"
 
 static NSString *const kPlatformXbox = @"xbox";
 static NSString *const kPlatformSonos = @"sonos";
@@ -1205,7 +1205,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
                     XCTAssertEqual(filteredResources.count, 1);
                     XCTAssertEqualObjects(filteredResources[0][@"text"],
-                                          mediaInfo.subtitleTrack.url.absoluteString);
+                                          mediaInfo.subtitleInfo.url.absoluteString);
                 } else {
                     // in this case we're expecting 1 res tag for media file only
                     NSDictionary *resource = [didl valueForKeyPath:@"item.res"];
@@ -1249,7 +1249,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                                           @"http://www.sec.co.kr/");
 
                     XCTAssertEqualObjects(captionInfo[@"text"],
-                                          mediaInfo.subtitleTrack.url.absoluteString);
+                                          mediaInfo.subtitleInfo.url.absoluteString);
                     XCTAssertEqualObjects(captionInfo[@"sec:type"], fileType);
                 } else {
                     // NOTE: we don't check the "xmlns:sec" presence/absence,
@@ -1281,7 +1281,7 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
                     NSDictionary *res = [mediaResource firstObject];
                     XCTAssertEqualObjects(res[@"xmlns:pv"], @"http://www.pv.com/pvns/");
                     XCTAssertEqualObjects(res[@"pv:subtitleFileUri"],
-                                          mediaInfo.subtitleTrack.url.absoluteString);
+                                          mediaInfo.subtitleInfo.url.absoluteString);
                     XCTAssertEqualObjects(res[@"pv:subtitleFileType"], fileType);
                 } else {
                     NSDictionary *res = resources;
@@ -1294,11 +1294,11 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 - (MediaInfo *)mediaInfoWithSubtitle {
     NSURL *subtitleURL = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
-    SubtitleTrack *track = [SubtitleTrack trackWithURL:subtitleURL
-                                              andBlock:^(SubtitleTrackBuilder *builder) {
-                                                  builder.mimeType = @"text/srt";
-                                              }];
-    mediaInfo.subtitleTrack = track;
+    SubtitleInfo *info = [SubtitleInfo infoWithURL:subtitleURL
+                                          andBlock:^(SubtitleInfoBuilder *builder) {
+                                              builder.mimeType = @"text/srt";
+                                          }];
+    mediaInfo.subtitleInfo = info;
 
     return mediaInfo;
 }
@@ -1314,10 +1314,10 @@ static NSString *const kDefaultAlbumArtURL = @"http://example.com/media.png";
 
 - (MediaInfo *)mediaInfoWithSubtitleWithWrongMimeType {
     MediaInfo *mediaInfo = [self mediaInfoWithoutSubtitle];
-    mediaInfo.subtitleTrack = [SubtitleTrack trackWithURL:[NSURL URLWithString:@"http://example.com/"]
-                                                 andBlock:^(SubtitleTrackBuilder *builder) {
-                                                     builder.mimeType = @"wrong!";
-                                                 }];
+    mediaInfo.subtitleInfo = [SubtitleInfo infoWithURL:[NSURL URLWithString:@"http://example.com/"]
+                                               andBlock:^(SubtitleInfoBuilder *builder) {
+                                                   builder.mimeType = @"wrong!";
+                                               }];
     return mediaInfo;
 }
 

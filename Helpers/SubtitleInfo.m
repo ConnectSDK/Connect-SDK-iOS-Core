@@ -1,5 +1,5 @@
 //
-//  SubtitleTrack.m
+//  SubtitleInfo.m
 //  ConnectSDK
 //
 //  Created by Eugene Nikolskyi on 2015-07-14.
@@ -18,12 +18,12 @@
 //  limitations under the License.
 //
 
-#import "SubtitleTrack.h"
+#import "SubtitleInfo.h"
 
 #import "CommonMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation SubtitleTrack
+@implementation SubtitleInfo
 
 #pragma mark - Init
 
@@ -33,25 +33,25 @@ NS_ASSUME_NONNULL_BEGIN
                                  userInfo:nil];
 }
 
-+ (instancetype)trackWithURL:(NSURL *)url {
++ (instancetype)infoWithURL:(NSURL *)url {
     return [[self alloc] initWithURL:url];
 }
 
-+ (instancetype)trackWithURL:(NSURL *)url
-                    andBlock:(void (^)(SubtitleTrackBuilder *))block {
-    SubtitleTrackBuilder *builder = [SubtitleTrackBuilder new];
++ (instancetype)infoWithURL:(NSURL *)url
+                   andBlock:(void (^)(SubtitleInfoBuilder *builder))block {
+    SubtitleInfoBuilder *builder = [SubtitleInfoBuilder new];
     block(builder);
     return [[self alloc] initWithURL:url andBuilder:builder];
 }
 
 #pragma mark - Private Init
 
-- ( instancetype)initWithURL:(NSURL *)url {
+- (instancetype)initWithURL:(NSURL *)url {
     return [self initWithURL:url andBuilder:nil];
 }
 
 - (instancetype)initWithURL:(NSURL *)url
-                 andBuilder:(nullable SubtitleTrackBuilder *)builder /*NS_DESIGNATED_INITIALIZER*/ {
+                 andBuilder:(nullable SubtitleInfoBuilder *)builder /*NS_DESIGNATED_INITIALIZER*/ {
     _assert_state(url, @"nil URL is not permitted");
 
     self = [super init];
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@implementation SubtitleTrackBuilder
+@implementation SubtitleInfoBuilder
 
 @end
 NS_ASSUME_NONNULL_END

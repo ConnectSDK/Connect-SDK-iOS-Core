@@ -19,7 +19,7 @@
 //
 
 #import "MediaInfo.h"
-#import "SubtitleTrack.h"
+#import "SubtitleInfo.h"
 
 @interface MediaInfoTests : XCTestCase
 
@@ -27,22 +27,22 @@
 
 @implementation MediaInfoTests
 
-- (void)testClassShouldHaveSubtitleTrackProperty {
+- (void)testClassShouldHaveSubtitleInfoProperty {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:url
                                                  mimeType:@"image/png"];
 
-    SubtitleTrack *track = [SubtitleTrack trackWithURL:url];
-    mediaInfo.subtitleTrack = track;
+    SubtitleInfo *subtitleInfo = [SubtitleInfo infoWithURL:url];
+    mediaInfo.subtitleInfo = subtitleInfo;
 
-    XCTAssertEqualObjects(mediaInfo.subtitleTrack, track);
+    XCTAssertEqualObjects(mediaInfo.subtitleInfo, subtitleInfo);
 }
 
-- (void)testDefaultSubtitleTrackShouldBeNil {
+- (void)testDefaultSubtitleInfoShouldBeNil {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:url
                                                  mimeType:@"image/png"];
-    XCTAssertNil(mediaInfo.subtitleTrack);
+    XCTAssertNil(mediaInfo.subtitleInfo);
 }
 
 @end
