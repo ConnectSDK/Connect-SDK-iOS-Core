@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithURL:(NSURL *)url
                  andBuilder:(nullable SubtitleInfoBuilder *)builder /*NS_DESIGNATED_INITIALIZER*/ {
-    _assert_state(url, @"nil URL is not permitted");
+    _assert_state(nil != url, @"nil URL is not permitted");
 
     self = [super init];
 
