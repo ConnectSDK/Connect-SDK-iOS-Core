@@ -160,7 +160,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void) updateCapabilities
 {
-    NSArray *capabilities = [NSArray array];
+    NSArray *capabilities = @[kMediaPlayerSubtitleSRT];
 
     if ([DiscoveryManager sharedManager].pairingLevel == DeviceServicePairingLevelOn)
     {

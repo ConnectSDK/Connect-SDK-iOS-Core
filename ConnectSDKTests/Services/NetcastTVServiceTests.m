@@ -19,7 +19,9 @@
 //
 
 #import "NetcastTVService_Private.h"
+
 #import "CTXMLReader.h"
+#import "DiscoveryManager.h"
 
 #import "NSInvocation+ObjectGetter.h"
 
@@ -46,6 +48,16 @@ static NSString *const kClientCode = @"nop";
     self.service = nil;
     self.serviceCommandDelegateMock = nil;
     [super tearDown];
+}
+
+#pragma mark - General Tests
+
+- (void)testInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevelOn {
+    [self checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:DeviceServicePairingLevelOn];
+}
+
+- (void)testInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevelOff {
+    [self checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:DeviceServicePairingLevelOff];
 }
 
 #pragma mark - Request Generation Tests
@@ -203,6 +215,23 @@ static NSString *const kClientCode = @"nop";
                                  NSException,
                                  NSInternalInconsistencyException,
                                  @"Should throw exception because the code will disappear");
+}
+
+#pragma mark - Helpers
+
+- (void)checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:(DeviceServicePairingLevel)pairingLevel {
+    // the test looks ugly because of the implicit dependency on the
+    // singleton DiscoveryManager
+    // TODO remove the dependency
+
+    DiscoveryManager *discoveryManager = [DiscoveryManager sharedManager];
+    DeviceServicePairingLevel oldPairingLevel = discoveryManager.pairingLevel;
+
+    discoveryManager.pairingLevel = pairingLevel;
+    XCTAssertNotEqual([self.service.capabilities indexOfObject:kMediaPlayerSubtitleSRT],
+                      NSNotFound);
+
+    discoveryManager.pairingLevel = oldPairingLevel;
 }
 
 @end
