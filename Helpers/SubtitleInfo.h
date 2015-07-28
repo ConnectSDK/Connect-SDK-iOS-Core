@@ -30,6 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
  * Please use the parameterized initializers.
  *
  * @note This class is immutable.
+ *
+ * @note Different services support specific subtitles formats:
+ *
+ * - DLNA service supports @c SRT format only. Since there is no official
+ * specification for them, subtitles may not work on all DLNA-compatible devices.
+ *
+ * - Netcast service supports @c SRT format only, through DLNA.
+ *
+ * - Google Cast service supports @c WebVTT format only and has additional
+ * requirements: https://developers.google.com/cast/docs/ios_sender#cors-requirements
+ *
+ * - FireTV service supports @c WebVTT format only. Subtitles on Fire TV are
+ * hidden by default and should be displayed manually by the user.
  */
 @interface SubtitleInfo : NSObject
 
