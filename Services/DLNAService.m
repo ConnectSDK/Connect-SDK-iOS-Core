@@ -1297,8 +1297,10 @@ static const NSInteger kValueNotFound = -1;
     NSString *mediaFormat = mediaElements[1];
 
     if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0) {
-        *error = [ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError
-                                          andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc)"];
+        if (error) {
+            *error = [ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError
+                                              andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc)"];
+        }
 
         return nil;
     }
