@@ -28,6 +28,7 @@
 #import "NSDictionary+KeyPredicateSearch.h"
 #import "NSString+Common.h"
 #import "XMLWriter+ConvenienceMethods.h"
+#import "SubtitleInfo.h"
 
 NSString *const kDataFieldName = @"XMLData";
 #define kActionFieldName @"SOAPAction"
@@ -36,10 +37,15 @@ NSString *const kDataFieldName = @"XMLData";
 
 static NSString *const kAVTransportNamespace = @"urn:schemas-upnp-org:service:AVTransport:1";
 static NSString *const kRenderingControlNamespace = @"urn:schemas-upnp-org:service:RenderingControl:1";
+static NSString *const kSecSubtitleNamespace = @"http://www.sec.co.kr/";
+static NSString *const kPVSubtitleNamespace = @"http://www.pv.com/pvns/";
 
 static NSString *const kDIDLLiteNamespace = @"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/";
 static NSString *const kUPNPNamespace = @"urn:schemas-upnp-org:metadata-1-0/upnp/";
 static NSString *const kDCNamespace = @"http://purl.org/dc/elements/1.1/";
+
+static NSString *const kDefaultSubtitleMimeType = @"text/srt";
+static NSString *const kDefaultSubtitleSubtype = @"srt";
 
 static const NSInteger kValueNotFound = -1;
 
@@ -79,9 +85,10 @@ static const NSInteger kValueNotFound = -1;
         kMediaControlPlayStateSubscribe,
         kMediaControlMetadata,
         kMediaControlMetadataSubscribe,
+        kMediaPlayerSubtitleSRT,
         kPlayListControlNext,
         kPlayListControlPrevious,
-        kPlayListControlJumpTrack
+        kPlayListControlJumpTrack,
     ];
 
     capabilities = [capabilities arrayByAddingObjectsFromArray:kVolumeControlCapabilities];
@@ -948,71 +955,25 @@ static const NSInteger kValueNotFound = -1;
 
 - (void) playMediaWithMediaInfo:(MediaInfo *)mediaInfo shouldLoop:(BOOL)shouldLoop success:(MediaPlayerSuccessBlock)success failure:(FailureBlock)failure
 {
-    NSURL *iconURL;
-    if(mediaInfo.images){
-        ImageInfo *imageInfo = [mediaInfo.images firstObject];
-        iconURL = imageInfo.url;
-    }
-    
-    NSArray *mediaElements = [mediaInfo.mimeType componentsSeparatedByString:@"/"];
-    NSString *mediaType = mediaElements[0];
-    NSString *mediaFormat = mediaElements[1];
-    
-    if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0)
-    {
-        if (failure)
-            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc"]);
-        
+    NSError *error;
+    NSString *metadataXML = [self playMediaMetadataXMLForMediaInfo:mediaInfo
+                                                             error:&error];
+    if (error) {
+        if (failure) {
+            failure(error);
+        }
+
         return;
     }
-    
-    mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
-    NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
+
     NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
-
-    NSString *metadataXML = ({
-        XMLWriter *writer = [XMLWriter new];
-
-        [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
-        [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
-
-        [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
-            [writer writeAttribute:@"xmlns" value:kDIDLLiteNamespace];
-            [writer writeElement:@"item" withContentsBlock:^(XMLWriter *writer) {
-                [writer writeAttributes:@{@"id": @"0",
-                                          @"parentID": @"0",
-                                          @"restricted": @"0"}];
-
-                if (mediaInfo.title) {
-                    [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
-                }
-                if (mediaInfo.description) {
-                    [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
-                }
-
-                [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
-                    NSString *value = [NSString stringWithFormat:
-                                       @"http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000",
-                                       [mimeType orEmpty]];
-                    [writer writeAttribute:@"protocolInfo" value:value];
-                    [writer writeCharacters:mediaInfoURLString];
-                }];
-
-                NSString *iconURLString = iconURL.absoluteString ?: @"";
-                [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURLString];
-                NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
-                [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
-            }];
-        }];
-
-        [writer toString];
-    });
-
     NSString *setURLXML = [self commandXMLForCommandName:@"SetAVTransportURI"
                                         commandNamespace:kAVTransportNamespace
                                           andWriterBlock:^(XMLWriter *writer) {
-                                              [writer writeElement:@"CurrentURI" withContents:mediaInfoURLString];
-                                              [writer writeElement:@"CurrentURIMetaData" withContents:[metadataXML orEmpty]];
+                                              [writer writeElement:@"CurrentURI"
+                                                      withContents:mediaInfoURLString];
+                                              [writer writeElement:@"CurrentURIMetaData"
+                                                      withContents:[metadataXML orEmpty]];
                                           }];
     NSDictionary *setURLPayload = @{kActionFieldName : @"\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\"",
                                     kDataFieldName : setURLXML};
@@ -1310,6 +1271,140 @@ static const NSInteger kValueNotFound = -1;
 
 - (DeviceServiceReachability *)createDeviceServiceReachabilityWithTargetURL:(NSURL *)url {
     return [DeviceServiceReachability reachabilityWithTargetURL:url];
+}
+
+- (BOOL)isValidMimeType:(NSString *)mimeType {
+    return [mimeType rangeOfString:@"/"].length > 0;
+}
+
+/// Returns a subtype of a MIME type (the part after the slash). The MIME type
+/// string must be valid.
+- (NSString *)subtypeFromMimeType:(NSString *)mimeType {
+    NSArray *components = [mimeType componentsSeparatedByString:@"/"];
+    return components[1];
+}
+
+- (NSString *)playMediaMetadataXMLForMediaInfo:(MediaInfo *)mediaInfo
+                                         error:(out NSError **)error {
+    NSURL *iconURL;
+    if (mediaInfo.images) {
+        ImageInfo *imageInfo = [mediaInfo.images firstObject];
+        iconURL = imageInfo.url;
+    }
+
+    NSArray *mediaElements = [mediaInfo.mimeType componentsSeparatedByString:@"/"];
+    NSString *mediaType = mediaElements[0];
+    NSString *mediaFormat = mediaElements[1];
+
+    if (!mediaType || mediaType.length == 0 || !mediaFormat || mediaFormat.length == 0) {
+        *error = [ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError
+                                          andDetails:@"You must provide a valid mimeType (audio/*, video/*, etc)"];
+
+        return nil;
+    }
+
+    mediaFormat = [mediaFormat isEqualToString:@"mp3"] ? @"mpeg" : mediaFormat;
+    NSString *mimeType = [NSString stringWithFormat:@"%@/%@", mediaType, mediaFormat];
+    NSString *mediaInfoURLString = mediaInfo.url.absoluteString ?: @"";
+
+    XMLWriter *writer = [XMLWriter new];
+
+    [writer setPrefix:@"upnp" namespaceURI:kUPNPNamespace];
+    [writer setPrefix:@"dc" namespaceURI:kDCNamespace];
+    [writer setPrefix:@"sec" namespaceURI:kSecSubtitleNamespace];
+
+    [writer writeElement:@"DIDL-Lite" withContentsBlock:^(XMLWriter *writer) {
+        [writer writeAttribute:@"xmlns" value:kDIDLLiteNamespace];
+        [writer writeElement:@"item" withContentsBlock:^(XMLWriter *writer) {
+            [writer writeAttributes:@{@"id": @"0",
+                                      @"parentID": @"0",
+                                      @"restricted": @"0"}];
+
+            if (mediaInfo.title) {
+                [writer writeElement:@"title" withNamespace:kDCNamespace andContents:mediaInfo.title];
+            }
+            if (mediaInfo.description) {
+                [writer writeElement:@"description" withNamespace:kDCNamespace andContents:mediaInfo.description];
+            }
+
+            NSString *subtitleURL = mediaInfo.subtitleInfo.url.absoluteString;
+            NSString *subtitleMimeType = mediaInfo.subtitleInfo.mimeType;
+            NSString *subtitleType;
+            if ([self isValidMimeType:subtitleMimeType]) {
+                subtitleType = [self subtypeFromMimeType:subtitleMimeType];
+            } else {
+                subtitleMimeType = kDefaultSubtitleMimeType;
+                subtitleType = kDefaultSubtitleSubtype;
+            }
+
+            [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+                if (mediaInfo.subtitleInfo) {
+                    [self writePVSubtitleAttributesForURL:subtitleURL
+                                                  andType:subtitleType
+                                                 toWriter:writer];
+                }
+
+                NSString *value = [NSString stringWithFormat:
+                    @"http-get:*:%@:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;DLNA.ORG_FLAGS=01500000000000000000000000000000",
+                    [mimeType orEmpty]];
+                [writer writeAttribute:@"protocolInfo" value:value];
+                [writer writeCharacters:mediaInfoURLString];
+            }];
+
+            NSString *iconURLString = iconURL.absoluteString ?: @"";
+            [writer writeElement:@"albumArtURI" withNamespace:kUPNPNamespace andContents:iconURLString];
+            NSString *classItem = [NSString stringWithFormat:@"object.item.%@Item", [mediaType orEmpty]];
+            [writer writeElement:@"class" withNamespace:kUPNPNamespace andContents:classItem];
+
+            if (mediaInfo.subtitleInfo) {
+                [self writeSubtitleElementsForURL:subtitleURL
+                                         mimeType:subtitleMimeType
+                                          andType:subtitleType
+                                         toWriter:writer];
+            }
+        }];
+    }];
+
+    return [writer toString];
+}
+
+- (void)writePVSubtitleAttributesForURL:(NSString *)subtitleURL
+                                andType:(NSString *)subtitleType
+                               toWriter:(XMLWriter *)writer {
+    [writer setPrefix:@"pv" namespaceURI:kPVSubtitleNamespace];
+    [writer writeAttributeWithNamespace:kPVSubtitleNamespace
+                                              localName:@"subtitleFileUri"
+                                                  value:subtitleURL];
+    [writer writeAttributeWithNamespace:kPVSubtitleNamespace
+                                              localName:@"subtitleFileType"
+                                                  value:subtitleType];
+}
+
+- (void)writeSubtitleElementsForURL:(NSString *)subtitleURL
+                           mimeType:(NSString *)mimeType
+                            andType:(NSString *)subtitleType
+                           toWriter:(XMLWriter *)writer {
+    [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+        [writer writeAttribute:@"protocolInfo" value:@"http-get:*:smi/caption"];
+        [writer writeCharacters:subtitleURL];
+    }];
+    [writer writeElement:@"res" withContentsBlock:^(XMLWriter *writer) {
+        NSString *attrValue = [NSString stringWithFormat:@"http-get:*:%@:*",
+                                                         mimeType];
+        [writer writeAttribute:@"protocolInfo" value:attrValue];
+        [writer writeCharacters:subtitleURL];
+    }];
+    [@[@"CaptionInfo", @"CaptionInfoEx"] enumerateObjectsUsingBlock:
+        ^(NSString *captionInfoTag, NSUInteger idx, BOOL *stop) {
+            [writer writeElement:captionInfoTag
+                   withNamespace:kSecSubtitleNamespace
+                andContentsBlock:^(XMLWriter *writer) {
+                    [writer writeAttributeWithNamespace:kSecSubtitleNamespace
+                                              localName:@"type"
+                                                  value:subtitleType];
+                    [writer writeCharacters:subtitleURL];
+                }];
+        }];
 }
 
 @end
