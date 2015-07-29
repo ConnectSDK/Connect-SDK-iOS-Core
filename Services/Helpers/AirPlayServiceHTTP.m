@@ -593,44 +593,32 @@
 
 - (ServiceSubscription *) subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void) playNextWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void) playPreviousWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)jumpToTrackWithIndex:(NSInteger)index success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
                             failure:(FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Helpers
@@ -644,6 +632,15 @@
 - (void)stopKeepAliveTimer {
     [self.keepAlive stopTimer];
     self.keepAlive = nil;
+}
+
+- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
+
+    return nil;
 }
 
 @end

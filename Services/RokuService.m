@@ -351,14 +351,12 @@ static NSMutableArray *registeredApps = nil;
 
 - (void)launchBrowser:(NSURL *)target success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)launchHulu:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)launchNetflix:(NSString *)contentId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
@@ -429,30 +427,22 @@ static NSMutableArray *registeredApps = nil;
 
 - (void)getAppState:(LaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeAppState:(LaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - MediaPlayer
@@ -654,8 +644,7 @@ static NSMutableArray *registeredApps = nil;
 
 - (void)stopWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -670,52 +659,37 @@ static NSMutableArray *registeredApps = nil;
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getDurationWithSuccess:(MediaPositionSuccessBlock)success
                        failure:(FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
                             failure:(FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Key Control
@@ -822,10 +796,7 @@ static NSMutableArray *registeredApps = nil;
 
 - (ServiceSubscription *) subscribeTextInputStatusWithSuccess:(TextInputStatusInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        [ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil];
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Helper methods
@@ -885,6 +856,15 @@ static NSMutableArray *registeredApps = nil;
                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@"Could not find any apps on the TV."]);
         }
     } failure:failure];
+}
+
+- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
+
+    return nil;
 }
 
 @end
