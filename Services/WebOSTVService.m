@@ -1060,6 +1060,14 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
+- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success
+                       failure:(FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
+}
+
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
 {
     if (failure)
@@ -1072,6 +1080,14 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 
     return nil;
+}
+
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure

@@ -625,6 +625,14 @@
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
+}
+
 #pragma mark - Helpers
 
 - (void)startKeepAliveTimer {

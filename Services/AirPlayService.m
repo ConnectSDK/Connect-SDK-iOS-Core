@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "AirPlayService.h"
+#import "AirPlayService_Private.h"
 #import "ConnectError.h"
 
 
@@ -148,7 +148,7 @@ static AirPlayServiceMode airPlayServiceMode;
 - (AirPlayServiceHTTP *) httpService
 {
     if (!_httpService)
-        _httpService = [[AirPlayServiceHTTP alloc] initWithAirPlayService:self];
+        _httpService = [self createHTTPService];
 
     return _httpService;
 }
@@ -298,6 +298,11 @@ static AirPlayServiceMode airPlayServiceMode;
     return [self.mediaControl subscribePlayStateWithSuccess:success failure:failure];
 }
 
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    [self.mediaControl getMediaMetaDataWithSuccess:success failure:failure];
+}
+
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
    return [self.mediaControl subscribeMediaInfoWithSuccess:success failure:failure];
@@ -387,6 +392,12 @@ static AirPlayServiceMode airPlayServiceMode;
 {
     [self sendNotSupportedFailure:failure];
     return nil;
+}
+
+#pragma mark - Private
+
+- (AirPlayServiceHTTP *)createHTTPService {
+    return [[AirPlayServiceHTTP alloc] initWithAirPlayService:self];
 }
 
 @end

@@ -688,10 +688,26 @@ static NSMutableArray *registeredApps = nil;
     return nil;
 }
 
+- (void)getDurationWithSuccess:(MediaPositionSuccessBlock)success
+                       failure:(FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
+}
+
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
 {
     if (failure)
         failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+}
+
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    if (failure) {
+        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
+                                         andDetails:nil]);
+    }
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure

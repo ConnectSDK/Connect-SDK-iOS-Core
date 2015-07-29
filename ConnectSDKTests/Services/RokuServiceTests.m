@@ -21,61 +21,91 @@
 #import "RokuService_Private.h"
 
 #import "NSInvocation+ObjectGetter.h"
+#import "XCTestCase+TaskTests.h"
 
 @interface RokuServiceTests : XCTestCase
+
+@property (nonatomic, strong) RokuService *service;
+@property (nonatomic, strong) id /*<ServiceCommandDelegate>*/ serviceCommandDelegateMock;
 
 @end
 
 @implementation RokuServiceTests
 
+- (void)setUp {
+    [super setUp];
+
+    self.service = [RokuService new];
+    self.serviceCommandDelegateMock = OCMProtocolMock(@protocol(ServiceCommandDelegate));
+    self.service.serviceCommandDelegate = self.serviceCommandDelegateMock;
+}
+
+#pragma mark - Request Tests
+
 - (void)testPlayVideoShouldNotSendEventURL {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *videoInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"video/mp4"];
-    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
-        [service playMediaWithMediaInfo:videoInfo
-                             shouldLoop:NO
-                                success:nil
-                                failure:nil];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^{
+        [self.service playMediaWithMediaInfo:videoInfo
+                                  shouldLoop:NO
+                                     success:nil
+                                     failure:nil];
     }];
 }
 
 - (void)testPlayAudioShouldNotSendEventURL {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *audioInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"audio/ogg"];
-    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
-        [service playMediaWithMediaInfo:audioInfo
-                             shouldLoop:NO
-                                success:nil
-                                failure:nil];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^{
+        [self.service playMediaWithMediaInfo:audioInfo
+                                  shouldLoop:NO
+                                     success:nil
+                                     failure:nil];
     }];
 }
 
 - (void)testDisplayImageShouldNotSendEventURL {
     NSURL *url = [NSURL URLWithString:@"http://example.com/"];
     MediaInfo *imageInfo = [[MediaInfo alloc] initWithURL:url mimeType:@"image/png"];
-    [self checkPlayMediaBlockShouldNotSendEventURL:^(RokuService *service) {
-        [service displayImageWithMediaInfo:imageInfo
-                                   success:nil
-                                   failure:nil];
+    [self checkPlayMediaBlockShouldNotSendEventURL:^{
+        [self.service displayImageWithMediaInfo:imageInfo
+                                        success:nil
+                                        failure:nil];
     }];
+}
+
+#pragma mark - Unsupported Methods Tests
+
+- (void)testGetDurationShouldReturnNotSupportedError {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+        ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+            [self.service getDurationWithSuccess:^(NSTimeInterval _) {
+                    successVerifier(nil);
+                }
+                                         failure:failureVerifier];
+        }];
+}
+
+- (void)testGetMediaMetadataShouldReturnNotSupportedError {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+        ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+            [self.service getMediaMetaDataWithSuccess:successVerifier
+                                              failure:failureVerifier];
+        }];
 }
 
 #pragma mark - Helpers
 
-- (void)checkPlayMediaBlockShouldNotSendEventURL:(void (^)(RokuService *service))testBlock {
-    id serviceCommandDelegateMock = OCMProtocolMock(@protocol(ServiceCommandDelegate));
-    RokuService *service = [RokuService new];
-    service.serviceCommandDelegate = serviceCommandDelegateMock;
-
+- (void)checkPlayMediaBlockShouldNotSendEventURL:(void (^)())testBlock {
     id serviceDescriptionMock = OCMClassMock([ServiceDescription class]);
     [OCMStub([serviceDescriptionMock commandURL]) andReturn:[NSURL URLWithString:@"http://42"]];
-    service.serviceDescription = serviceDescriptionMock;
+    self.service.serviceDescription = serviceDescriptionMock;
 
     XCTestExpectation *commandSentExpectation = [self expectationWithDescription:@"command is sent"];
 
-    [OCMExpect([serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
-                                           withPayload:OCMOCK_ANY
-                                                 toURL:OCMOCK_NOTNIL]) andDo:^(NSInvocation *inv) {
+    [OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                                withPayload:OCMOCK_ANY
+                                                      toURL:OCMOCK_NOTNIL]) andDo:^(NSInvocation *inv) {
         NSURL *url = [inv objectArgumentAtIndex:2];
         NSURLComponents *components = [NSURLComponents componentsWithURL:url
                                                  resolvingAgainstBaseURL:NO];
@@ -87,7 +117,7 @@
         [commandSentExpectation fulfill];
     }];
 
-    testBlock(service);
+    testBlock();
 
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
 }

@@ -23,6 +23,7 @@
 
 #import "NSInvocation+ObjectGetter.h"
 #import "OCMStubRecorder+XCTestExpectation.h"
+#import "XCTestCase+TaskTests.h"
 
 /// Tests for the @c AirPlayServiceHTTP class.
 @interface AirPlayServiceHTTPTests : XCTestCase
@@ -130,6 +131,16 @@
 - (void)testGetPlayStateShouldReturnUnknownWhenResponseIsEmpty {
     [self checkGetPlayStateShouldReturnPlayState:MediaControlPlayStateUnknown
                                  forMockResponse:[NSDictionary dictionary]];
+}
+
+#pragma mark - Unsupported Methods Tests
+
+- (void)testGetMediaMetadataShouldReturnNotSupportedError {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+        ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+            [self.serviceHTTP getMediaMetaDataWithSuccess:successVerifier
+                                                  failure:failureVerifier];
+        }];
 }
 
 #pragma mark - Helpers
