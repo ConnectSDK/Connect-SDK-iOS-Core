@@ -23,7 +23,7 @@
 
 #import "NSInvocation+ObjectGetter.h"
 #import "OCMStubRecorder+XCTestExpectation.h"
-#import "XCTestCase+TaskTests.h"
+#import "XCTestCase+Common.h"
 
 /// Tests for the @c AirPlayServiceHTTP class.
 @interface AirPlayServiceHTTPTests : XCTestCase

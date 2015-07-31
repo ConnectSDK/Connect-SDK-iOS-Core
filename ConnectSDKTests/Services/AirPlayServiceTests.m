@@ -20,7 +20,7 @@
 
 #import "AirPlayService_Private.h"
 
-#import "XCTestCase+TaskTests.h"
+#import "XCTestCase+Common.h"
 
 @interface AirPlayServiceTests : XCTestCase
 

@@ -20,7 +20,7 @@
 
 #import "WebOSTVService.h"
 
-#import "XCTestCase+TaskTests.h"
+#import "XCTestCase+Common.h"
 
 static NSString *const kClientKey = @"clientKey";
 

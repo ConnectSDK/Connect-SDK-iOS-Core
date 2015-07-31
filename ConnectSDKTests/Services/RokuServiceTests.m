@@ -21,7 +21,7 @@
 #import "RokuService_Private.h"
 
 #import "NSInvocation+ObjectGetter.h"
-#import "XCTestCase+TaskTests.h"
+#import "XCTestCase+Common.h"
 
 @interface RokuServiceTests : XCTestCase
 
