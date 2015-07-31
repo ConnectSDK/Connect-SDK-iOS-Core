@@ -29,6 +29,8 @@
 
 #import "CTASIHTTPRequest.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 @interface AirPlayServiceHTTP () <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 
 @property (nonatomic, readonly) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -632,15 +634,6 @@
 - (void)stopKeepAliveTimer {
     [self.keepAlive stopTimer];
     self.keepAlive = nil;
-}
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

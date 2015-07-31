@@ -29,6 +29,7 @@
 #import "ServiceAsyncCommand.h"
 #import "CommonMacros.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
 #import "XMLWriter+ConvenienceMethods.h"
 
 #define kSmartShareName @"SmartShare™"
@@ -2244,17 +2245,6 @@ NSString *lgeUDAPRequestURI[8] = {
         [_subscribed removeObjectForKey:event];
 
     return subscription;
-}
-
-#pragma mark - Helpers
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

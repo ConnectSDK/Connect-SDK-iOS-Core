@@ -21,6 +21,7 @@
 #import "WebOSWebAppSession_Private.h"
 #import "ConnectError.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
 
 @implementation WebOSWebAppSession
 {
@@ -754,10 +755,7 @@
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Playlist Control

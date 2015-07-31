@@ -23,6 +23,8 @@
 #import "ConnectUtil.h"
 #import "MediaLaunchObject.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 @interface AirPlayWebAppSession () <ServiceCommandDelegate>
 {
     ServiceSubscription *_playStateSubscription;
@@ -557,17 +559,6 @@
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     return [self sendNotSupportedFailure:failure];
-}
-
-#pragma mark - Helpers
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

@@ -21,6 +21,7 @@
 #import "AirPlayService_Private.h"
 #import "ConnectError.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
 
 @interface AirPlayService () <UIWebViewDelegate, ServiceCommandDelegate, UIAlertViewDelegate>
 
@@ -94,12 +95,6 @@ static AirPlayServiceMode airPlayServiceMode;
     }
 
     [super setCapabilities:caps];
-}
-
-- (void) sendNotSupportedFailure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (BOOL) isConnectable
@@ -390,8 +385,7 @@ static AirPlayServiceMode airPlayServiceMode;
 
 - (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Private

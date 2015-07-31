@@ -25,6 +25,8 @@
 #import "DeviceServiceReachability.h"
 #import "DiscoveryManager.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 @interface RokuService () <ServiceCommandDelegate, DeviceServiceReachabilityDelegate>
 {
     DIALService *_dialService;
@@ -856,15 +858,6 @@ static NSMutableArray *registeredApps = nil;
                 failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError andDetails:@"Could not find any apps on the TV."]);
         }
     } failure:failure];
-}
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

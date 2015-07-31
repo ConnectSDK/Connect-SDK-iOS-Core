@@ -26,6 +26,7 @@
 #import "DLNAHTTPServer.h"
 
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "NSObject+FeatureNotSupported_Private.h"
 #import "NSString+Common.h"
 #import "XMLWriter+ConvenienceMethods.h"
 #import "SubtitleInfo.h"
@@ -1405,15 +1406,6 @@ static const NSInteger kValueNotFound = -1;
                     [writer writeCharacters:subtitleURL];
                 }];
         }];
-}
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

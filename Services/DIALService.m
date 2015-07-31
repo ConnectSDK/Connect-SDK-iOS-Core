@@ -24,6 +24,8 @@
 #import "DeviceServiceReachability.h"
 #import "CTGuid.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 static NSMutableArray *registeredApps = nil;
 
 @interface DIALService () <DeviceServiceReachabilityDelegate>
@@ -569,15 +571,6 @@ static NSMutableArray *registeredApps = nil;
     };
     command.callbackError = failure;
     [command send];
-}
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 @end

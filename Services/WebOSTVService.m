@@ -27,6 +27,8 @@
 #import "CTGuid.h"
 #import "CommonMacros.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
@@ -442,15 +444,6 @@
     externalInputInfo.rawData = [info copy];
 
     return externalInputInfo;
-}
-
-- (nullable ServiceSubscription *)sendNotSupportedFailure:(nullable FailureBlock)failure {
-    if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported
-                                         andDetails:nil]);
-    }
-
-    return nil;
 }
 
 #pragma mark - Launcher
