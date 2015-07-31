@@ -27,6 +27,8 @@
 #import "CTGuid.h"
 #import "CommonMacros.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
@@ -442,12 +444,6 @@
     externalInputInfo.rawData = [info copy];
 
     return externalInputInfo;
-}
-
-- (void) sendNotSupportedFailure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Launcher
@@ -1050,36 +1046,37 @@
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success
+                       failure:(FailureBlock)failure {
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    return [self sendNotSupportedFailure:failure];
+}
 
-    return nil;
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Playlist Control
@@ -1327,30 +1324,22 @@
 
 - (void)getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
@@ -1485,8 +1474,7 @@
 
 - (void)sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Mouse
@@ -1604,8 +1592,7 @@
 
 - (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Web App Launcher

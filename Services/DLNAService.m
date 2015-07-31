@@ -26,6 +26,7 @@
 #import "DLNAHTTPServer.h"
 
 #import "NSDictionary+KeyPredicateSearch.h"
+#import "NSObject+FeatureNotSupported_Private.h"
 #import "NSString+Common.h"
 #import "XMLWriter+ConvenienceMethods.h"
 #import "SubtitleInfo.h"
@@ -567,14 +568,12 @@ static const NSInteger kValueNotFound = -1;
 
 - (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure

@@ -29,6 +29,7 @@
 #import "ServiceAsyncCommand.h"
 #import "CommonMacros.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
 #import "XMLWriter+ConvenienceMethods.h"
 
 #define kSmartShareName @"SmartShare™"
@@ -947,14 +948,12 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)launchApplication:(NSString *)appId withParams:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)launchAppWithInfo:(AppInfo *)appInfo params:(NSDictionary *)params success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void) launchAppStore:(NSString *)appId success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
@@ -1119,16 +1118,12 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)getRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeRunningAppWithSuccess:(AppInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getAppState:(LaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
@@ -1160,10 +1155,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (ServiceSubscription *)subscribeAppState:(LaunchSession *)launchSession success:(AppStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (DLNAService *)dlnaService
@@ -1273,10 +1265,8 @@ NSString *lgeUDAPRequestURI[8] = {
          } failure:failure];
         return;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void) playMedia:(NSURL *)videoURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType shouldLoop:(BOOL)shouldLoop success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -1316,9 +1306,8 @@ NSString *lgeUDAPRequestURI[8] = {
          } failure:failure];
         return;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)closeMedia:(LaunchSession *)launchSession success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1328,9 +1317,8 @@ NSString *lgeUDAPRequestURI[8] = {
         [self.dlnaService closeMedia:launchSession success:success failure:failure];
         return;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Media Control
@@ -1381,8 +1369,7 @@ NSString *lgeUDAPRequestURI[8] = {
         return;
     }
 
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
@@ -1393,8 +1380,7 @@ NSString *lgeUDAPRequestURI[8] = {
         return;
     }
 
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void) getDurationWithSuccess:(MediaDurationSuccessBlock)success failure:(FailureBlock)failure
@@ -1405,8 +1391,7 @@ NSString *lgeUDAPRequestURI[8] = {
         return;
     }
 
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
@@ -1417,19 +1402,16 @@ NSString *lgeUDAPRequestURI[8] = {
         return;
     }
 
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribePlayStateWithSuccess:success failure:failure];
-    } else if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     }
 
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getMediaMetaDataWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1439,10 +1421,8 @@ NSString *lgeUDAPRequestURI[8] = {
         [self.dlnaService getMediaMetaDataWithSuccess:success failure:failure];
         return;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
+
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1452,11 +1432,8 @@ NSString *lgeUDAPRequestURI[8] = {
         ServiceSubscription *subscription = [self.dlnaService subscribeMediaInfoWithSuccess:success failure:failure];
         return subscription;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - TV
@@ -1590,30 +1567,22 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
@@ -1736,9 +1705,8 @@ NSString *lgeUDAPRequestURI[8] = {
         [self.dlnaService setVolume:volume success:success failure:failure];
         return;
     }
-    
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)setMute:(BOOL)mute success:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1768,22 +1736,18 @@ NSString *lgeUDAPRequestURI[8] = {
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribeVolumeWithSuccess:success failure:failure];
-    } else if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     }
-    
-    return nil;
+
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMuteWithSuccess:(MuteSuccessBlock)success failure:(FailureBlock)failure
 {
     if (self.dlnaService) {
         return [self.dlnaService subscribeMuteWithSuccess:success failure:failure];
-    } else if (failure) {
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
     }
-    
-    return nil;
+
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Key Control
@@ -2059,8 +2023,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - External Input Control
@@ -2126,14 +2089,12 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)getExternalInputListWithSuccess:(ExternalInputListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)setExternalInput:(ExternalInputInfo *)externalInputInfo success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Text Input Control

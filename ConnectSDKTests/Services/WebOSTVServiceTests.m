@@ -20,6 +20,8 @@
 
 #import "WebOSTVService.h"
 
+#import "XCTestCase+TaskTests.h"
+
 static NSString *const kClientKey = @"clientKey";
 
 /// Tests for the @c WebOSTVService class.
@@ -29,12 +31,34 @@ static NSString *const kClientKey = @"clientKey";
 
 @implementation WebOSTVServiceTests
 
+#pragma mark - Unsupported Methods Tests
+
+- (void)testGetDurationShouldReturnNotSupportedError {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+        ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+            WebOSTVService *service = [WebOSTVService new];
+            [service getDurationWithSuccess:^(NSTimeInterval _) {
+                    successVerifier(nil);
+                }
+                                    failure:failureVerifier];
+        }];
+}
+
+- (void)testGetMediaMetadataShouldReturnNotSupportedError {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+        ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+            WebOSTVService *service = [WebOSTVService new];
+            [service getMediaMetaDataWithSuccess:successVerifier
+                                         failure:failureVerifier];
+        }];
+}
+
+#pragma mark - ServiceConfig Setter Tests (Base <=> WebOS)
+
 /* The setter tests below test different cases of setting various service
  * config objects and whether those throw an exception when a client key from
  * @c WebOSTVServiceConfig would be lost.
  */
-
-#pragma mark - ServiceConfig Setter Tests (Base <=> WebOS)
 
 - (void)testSwitching_Base_To_WebOSWithoutKey_ServiceConfigShouldNotThrowException {
     ServiceConfig *config = [ServiceConfig new];
