@@ -19,9 +19,14 @@
 //
 
 #import "WebOSWebAppSession_Private.h"
-#import "ConnectError.h"
 
+#import "ConnectError.h"
+#import "SubtitleInfo.h"
+
+#import "NSMutableDictionary+NilSafe.h"
 #import "NSObject+FeatureNotSupported_Private.h"
+
+static NSString *const kSubtitleTrackIdentifier = @"";
 
 @implementation WebOSWebAppSession
 {
@@ -578,21 +583,24 @@
     }
     int requestIdNumber = [self getNextId];
     NSString *requestId = [NSString stringWithFormat:@"req%d", requestIdNumber];
-    
-    NSDictionary *message = @{
-                              @"contentType" : @"connectsdk.mediaCommand",
-                              @"mediaCommand" : @{
-                                      @"type" : @"playMedia",
-                                      @"mediaURL" : ensureString(mediaInfo.url.absoluteString),
-                                      @"iconURL" : ensureString(iconURL.absoluteString),
-                                      @"title" : ensureString(mediaInfo.title),
-                                      @"description" : ensureString(mediaInfo.description),
-                                      @"mimeType" : ensureString(mediaInfo.mimeType),
-                                      @"shouldLoop" : @(shouldLoop),
-                                      @"requestId" : requestId
-                                      }
-                              };
-    
+
+    NSMutableDictionary *const mediaCommand = [@{
+        @"type" : @"playMedia",
+        @"mediaURL" : ensureString(mediaInfo.url.absoluteString),
+        @"iconURL" : ensureString(iconURL.absoluteString),
+        @"title" : ensureString(mediaInfo.title),
+        @"description" : ensureString(mediaInfo.description),
+        @"mimeType" : ensureString(mediaInfo.mimeType),
+        @"shouldLoop" : @(shouldLoop),
+        @"requestId" : requestId,
+    } mutableCopy];
+    if (mediaInfo.subtitleInfo) {
+        mediaCommand[@"subtitles"] = [self subtitlesDictionaryFromSubtitleInfo:mediaInfo.subtitleInfo];
+    }
+
+    NSDictionary *message = @{@"contentType" : @"connectsdk.mediaCommand",
+                              @"mediaCommand" : mediaCommand};
+
     ServiceCommand *command = [ServiceCommand commandWithDelegate:nil target:nil payload:nil];
     command.callbackComplete = ^(id responseObject)
     {
@@ -821,6 +829,20 @@
 
 - (WebOSTVServiceSocketClient *)createSocketWithService:(WebOSTVService *)service {
     return [[WebOSTVServiceSocketClient alloc] initWithService:service];
+}
+
+- (nonnull NSDictionary *)subtitlesDictionaryFromSubtitleInfo:(nonnull SubtitleInfo *)subtitleInfo {
+    NSMutableDictionary *subtitleDict = [@{
+        @"id": kSubtitleTrackIdentifier,
+        @"source": subtitleInfo.url,
+    } mutableCopy];
+    [subtitleDict setNullableObject:subtitleInfo.language forKey:@"language"];
+    [subtitleDict setNullableObject:subtitleInfo.label forKey:@"label"];
+
+    return @{
+        @"tracks": @[[subtitleDict copy]],
+        @"enabled": kSubtitleTrackIdentifier,
+    };
 }
 
 @end
