@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSTVService.h"
+#import "WebOSTVService_Private.h"
 #import "ConnectError.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
@@ -196,12 +196,16 @@
 
     if (_serviceDescription && _serviceDescription.version)
     {
-        if ([_serviceDescription.version rangeOfString:@"4.0.0"].location == NSNotFound && [_serviceDescription.version rangeOfString:@"4.0.1"].location == NSNotFound)
+        const BOOL isVersion400 = [_serviceDescription.version rangeOfString:@"4.0.0"].location != NSNotFound;
+        const BOOL isVersion401 = [_serviceDescription.version rangeOfString:@"4.0.1"].location != NSNotFound;
+        const BOOL isLegacyVersion = isVersion400 || isVersion401;
+        if (!isLegacyVersion)
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kPlayListControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist,kMediaPlayerLoop]];
+            capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
@@ -218,7 +222,13 @@
 
                     kWebAppLauncherClose
             ]];
+
+            if (self.dlnaService) {
+                capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleSRT];
+            }
         }
+    } else {
+        capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
     }
 
     [self setCapabilities:capabilities];

@@ -18,9 +18,12 @@
 //  limitations under the License.
 //
 
-#import "WebOSTVService.h"
+#import "WebOSTVService_Private.h"
+
+#import "DiscoveryManager.h"
 
 #import "XCTestCase+Common.h"
+#import "DLNAService.h"
 
 static NSString *const kClientKey = @"clientKey";
 
@@ -30,6 +33,133 @@ static NSString *const kClientKey = @"clientKey";
 @end
 
 @implementation WebOSTVServiceTests
+
+#define CAPTEST(capability, version, pairingLevel, usingDLNA, shouldHave) ({\
+    [self checkShouldHave:shouldHave \
+       subtitleCapability:capability \
+               forVersion:version \
+         withPairingLevel:pairingLevel \
+             andUsingDLNA:usingDLNA]; \
+})
+
+/* Truth table for the capabilities:
+ * Version | Pairing | DLNA || VTT | SRT
+ * -------------------------------------
+ *   nil   |   off   |  NO  || YES |  NO
+ *   nil   |   off   | YES  || YES |  NO
+ *   nil   |    on   |  NO  || YES |  NO
+ *   nil   |    on   | YES  || YES |  NO
+ *  4.0.0  |   off   |  NO  ||  NO |  NO
+ *  4.0.0  |   off   | YES  ||  NO | YES
+ *  4.0.0  |    on   |  NO  ||  NO |  NO
+ *  4.0.0  |    on   | YES  ||  NO | YES
+ *  5.0.0  |   off   |  NO  || YES |  NO
+ *  5.0.0  |   off   | YES  || YES |  NO
+ *  5.0.0  |    on   |  NO  || YES |  NO
+ *  5.0.0  |    on   | YES  || YES |  NO
+ *
+ * — If only XCTest supported parameterized tests…
+ */
+
+#pragma mark - VTT Subtitles Capabilities Tests
+
+- (void)testShouldHaveVTTCapabilityForMissingVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, nil, DeviceServicePairingLevelOff, NO, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForMissingVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, nil, DeviceServicePairingLevelOff, YES, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForMissingVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, nil, DeviceServicePairingLevelOn, NO, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForMissingVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, nil, DeviceServicePairingLevelOn, YES, YES);
+}
+
+- (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOff, NO, NO);
+}
+
+- (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOff, YES, NO);
+}
+
+- (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOn, NO, NO);
+}
+
+- (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOn, YES, NO);
+}
+
+- (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOff, NO, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOff, YES, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOn, NO, YES);
+}
+
+- (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOn, YES, YES);
+}
+
+#pragma mark - SRT Subtitles Capabilities Tests
+
+- (void)testShouldNotHaveSRTCapabilityForMissingVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, nil, DeviceServicePairingLevelOff, NO, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForMissingVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, nil, DeviceServicePairingLevelOff, YES, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForMissingVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, nil, DeviceServicePairingLevelOn, NO, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForMissingVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, nil, DeviceServicePairingLevelOn, YES, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForLegacyVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOff, NO, NO);
+}
+
+- (void)testShouldHaveSRTCapabilityForLegacyVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOff, YES, YES);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForLegacyVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOn, NO, NO);
+}
+
+- (void)testShouldHaveSRTCapabilityForLegacyVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOn, YES, YES);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOffWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOff, NO, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOffWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOff, YES, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOnWithoutDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOn, NO, NO);
+}
+
+- (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOnWithDLNA {
+    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOn, YES, NO);
+}
 
 #pragma mark - Unsupported Methods Tests
 
@@ -154,6 +284,38 @@ static NSString *const kClientKey = @"clientKey";
                                  NSException,
                                  NSInternalInconsistencyException,
                                  @"Should throw exception because the key will disappear");
+}
+
+#pragma mark - Helpers
+
+- (void)checkShouldHave:(BOOL)shouldHave
+     subtitleCapability:(NSString *)subtitleCapability
+             forVersion:(NSString *)version
+       withPairingLevel:(DeviceServicePairingLevel)pairingLevel
+           andUsingDLNA:(BOOL)usingDLNA {
+    DiscoveryManager *discoveryManager = [DiscoveryManager sharedManager];
+    DeviceServicePairingLevel oldPairingLevel = discoveryManager.pairingLevel;
+    discoveryManager.pairingLevel = pairingLevel;
+
+    WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
+    id dlnaServiceStub = usingDLNA ? OCMClassMock([DLNAService class]) : nil;
+    OCMStub([service dlnaService]).andReturn(dlnaServiceStub);
+
+    if (version) {
+        id serviceDescriptionStub = OCMClassMock([ServiceDescription class]);
+        NSDictionary *headers = @{
+            @"Server": [NSString stringWithFormat:@"A/%@ x", version]};
+        OCMStub([serviceDescriptionStub locationResponseHeaders]).andReturn(
+            headers);
+        OCMStub([(ServiceDescription *) serviceDescriptionStub version]).andReturn(
+            version);
+        service.serviceDescription = serviceDescriptionStub;
+    }
+
+    XCTAssertEqual([service.capabilities containsObject:subtitleCapability],
+                   shouldHave);
+
+    discoveryManager.pairingLevel = oldPairingLevel;
 }
 
 @end
