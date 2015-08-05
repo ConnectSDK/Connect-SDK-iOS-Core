@@ -30,6 +30,9 @@
 
 static NSString *const kClientKey = @"clientKey";
 
+static NSString *const kRecentWebOSVersion = @"5.0.0";
+static NSString *const kLegacyWebOSVersion = @"4.0.0";
+
 /// Tests for the @c WebOSTVService class.
 @interface WebOSTVServiceTests : XCTestCase
 
@@ -83,35 +86,35 @@ static NSString *const kClientKey = @"clientKey";
 }
 
 - (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOffWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOff, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kLegacyWebOSVersion, DeviceServicePairingLevelOff, NO, NO);
 }
 
 - (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOffWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOff, YES, NO);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kLegacyWebOSVersion, DeviceServicePairingLevelOff, YES, NO);
 }
 
 - (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOnWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOn, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kLegacyWebOSVersion, DeviceServicePairingLevelOn, NO, NO);
 }
 
 - (void)testShouldNotHaveVTTCapabilityForLegacyVersionWithPairingLevelOnWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"4.0.0", DeviceServicePairingLevelOn, YES, NO);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kLegacyWebOSVersion, DeviceServicePairingLevelOn, YES, NO);
 }
 
 - (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOffWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOff, NO, YES);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kRecentWebOSVersion, DeviceServicePairingLevelOff, NO, YES);
 }
 
 - (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOffWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOff, YES, YES);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kRecentWebOSVersion, DeviceServicePairingLevelOff, YES, YES);
 }
 
 - (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOnWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOn, NO, YES);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kRecentWebOSVersion, DeviceServicePairingLevelOn, NO, YES);
 }
 
 - (void)testShouldHaveVTTCapabilityForRecentVersionWithPairingLevelOnWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleWebVTT, @"5.0.0", DeviceServicePairingLevelOn, YES, YES);
+    CAPTEST(kMediaPlayerSubtitleWebVTT, kRecentWebOSVersion, DeviceServicePairingLevelOn, YES, YES);
 }
 
 #pragma mark - SRT Subtitles Capabilities Tests
@@ -133,42 +136,42 @@ static NSString *const kClientKey = @"clientKey";
 }
 
 - (void)testShouldNotHaveSRTCapabilityForLegacyVersionWithPairingLevelOffWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOff, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kLegacyWebOSVersion, DeviceServicePairingLevelOff, NO, NO);
 }
 
 - (void)testShouldHaveSRTCapabilityForLegacyVersionWithPairingLevelOffWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOff, YES, YES);
+    CAPTEST(kMediaPlayerSubtitleSRT, kLegacyWebOSVersion, DeviceServicePairingLevelOff, YES, YES);
 }
 
 - (void)testShouldNotHaveSRTCapabilityForLegacyVersionWithPairingLevelOnWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOn, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kLegacyWebOSVersion, DeviceServicePairingLevelOn, NO, NO);
 }
 
 - (void)testShouldHaveSRTCapabilityForLegacyVersionWithPairingLevelOnWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"4.0.0", DeviceServicePairingLevelOn, YES, YES);
+    CAPTEST(kMediaPlayerSubtitleSRT, kLegacyWebOSVersion, DeviceServicePairingLevelOn, YES, YES);
 }
 
 - (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOffWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOff, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kRecentWebOSVersion, DeviceServicePairingLevelOff, NO, NO);
 }
 
 - (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOffWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOff, YES, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kRecentWebOSVersion, DeviceServicePairingLevelOff, YES, NO);
 }
 
 - (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOnWithoutDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOn, NO, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kRecentWebOSVersion, DeviceServicePairingLevelOn, NO, NO);
 }
 
 - (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOnWithDLNA {
-    CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOn, YES, NO);
+    CAPTEST(kMediaPlayerSubtitleSRT, kRecentWebOSVersion, DeviceServicePairingLevelOn, YES, NO);
 }
 
 #pragma mark - Subtitles Support Tests
 
 - (void)testPlayMediaWithSubtitlesShouldCallWebOSWebAppSessionForRecentVersion {
     WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
-    [self mockWebOSVersion:@"5.0.0" onService:service];
+    [self mockWebOSVersion:kRecentWebOSVersion onService:service];
 
     id webAppSessionMock = OCMClassMock([WebOSWebAppSession class]);
     OCMStub([service createWebAppSessionWithLaunchSession:OCMOCK_ANY
@@ -197,7 +200,7 @@ static NSString *const kClientKey = @"clientKey";
 
 - (void)testPlayMediaWithSubtitlesShouldCallDLNAServiceForLegacyVersion {
     WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
-    [self mockWebOSVersion:@"4.0.0" onService:service];
+    [self mockWebOSVersion:kLegacyWebOSVersion onService:service];
 
     id dlnaServiceMock = OCMClassMock([DLNAService class]);
     OCMStub([service dlnaService]).andReturn(dlnaServiceMock);
@@ -221,7 +224,7 @@ static NSString *const kClientKey = @"clientKey";
 
 - (void)testPlayMediaWithSubtitlesShouldSendMediaViewerOpenCommandForLegacyVersionWithoutDLNA {
     WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
-    [self mockWebOSVersion:@"4.0.0" onService:service];
+    [self mockWebOSVersion:kLegacyWebOSVersion onService:service];
 
     OCMStub([service dlnaService]).andReturn(nil);
 
