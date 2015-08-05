@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSTVService.h"
+#import "WebOSTVService_Private.h"
 #import "ConnectError.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
@@ -88,6 +88,10 @@
     return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
             (WebOSTVServiceConfig *)self.serviceConfig :
             nil);
+}
+
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self.socket;
 }
 
 #pragma mark - Inherited methods
@@ -196,12 +200,16 @@
 
     if (_serviceDescription && _serviceDescription.version)
     {
-        if ([_serviceDescription.version rangeOfString:@"4.0.0"].location == NSNotFound && [_serviceDescription.version rangeOfString:@"4.0.1"].location == NSNotFound)
+        const BOOL isVersion400 = [_serviceDescription.version rangeOfString:@"4.0.0"].location != NSNotFound;
+        const BOOL isVersion401 = [_serviceDescription.version rangeOfString:@"4.0.1"].location != NSNotFound;
+        const BOOL isLegacyVersion = isVersion400 || isVersion401;
+        if (!isLegacyVersion)
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kPlayListControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist,kMediaPlayerLoop]];
+            capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
@@ -218,7 +226,13 @@
 
                     kWebAppLauncherClose
             ]];
+
+            if (self.dlnaService) {
+                capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleSRT];
+            }
         }
+    } else {
+        capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
     }
 
     [self setCapabilities:capabilities];
@@ -959,7 +973,7 @@
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.socket target:URL payload:params];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:URL payload:params];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         LaunchSession *launchSession = [LaunchSession launchSessionForAppId:[responseObject objectForKey:@"id"]];
@@ -2007,7 +2021,8 @@
 
     if (!webAppSession)
     {
-        webAppSession = [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:self];
+        webAppSession = [self createWebAppSessionWithLaunchSession:launchSession
+                                                        andService:self];
         _webAppSessions[launchSession.appId] = webAppSession;
     }
 
@@ -2306,6 +2321,13 @@
     };
     command.callbackError = failure;
     [command send];
+}
+
+#pragma mark - Helpers
+
+- (WebOSWebAppSession *)createWebAppSessionWithLaunchSession:(LaunchSession *)launchSession
+                                                  andService:(WebOSTVService *)service {
+    return [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:service];
 }
 
 @end
