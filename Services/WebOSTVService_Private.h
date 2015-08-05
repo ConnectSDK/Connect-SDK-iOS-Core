@@ -22,6 +22,11 @@
 
 @interface WebOSTVService ()
 
+@property (nonatomic, strong) id<ServiceCommandDelegate> serviceCommandDelegate;
+
 - (DeviceService *)dlnaService;
+
+- (WebOSWebAppSession *)createWebAppSessionWithLaunchSession:(LaunchSession *)launchSession
+                                                  andService:(WebOSTVService *)service;
 
 @end

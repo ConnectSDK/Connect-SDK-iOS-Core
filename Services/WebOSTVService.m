@@ -90,6 +90,10 @@
             nil);
 }
 
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self.socket;
+}
+
 #pragma mark - Inherited methods
 
 - (void) setServiceConfig:(ServiceConfig *)serviceConfig
@@ -969,7 +973,7 @@
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.socket target:URL payload:params];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:URL payload:params];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         LaunchSession *launchSession = [LaunchSession launchSessionForAppId:[responseObject objectForKey:@"id"]];
@@ -2017,7 +2021,8 @@
 
     if (!webAppSession)
     {
-        webAppSession = [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:self];
+        webAppSession = [self createWebAppSessionWithLaunchSession:launchSession
+                                                        andService:self];
         _webAppSessions[launchSession.appId] = webAppSession;
     }
 
@@ -2316,6 +2321,13 @@
     };
     command.callbackError = failure;
     [command send];
+}
+
+#pragma mark - Helpers
+
+- (WebOSWebAppSession *)createWebAppSessionWithLaunchSession:(LaunchSession *)launchSession
+                                                  andService:(WebOSTVService *)service {
+    return [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:service];
 }
 
 @end

@@ -21,9 +21,12 @@
 #import "WebOSTVService_Private.h"
 
 #import "DiscoveryManager.h"
-
-#import "XCTestCase+Common.h"
 #import "DLNAService.h"
+#import "SubtitleInfo.h"
+#import "WebOSWebAppSession.h"
+
+#import "NSInvocation+ObjectGetter.h"
+#import "XCTestCase+Common.h"
 
 static NSString *const kClientKey = @"clientKey";
 
@@ -159,6 +162,98 @@ static NSString *const kClientKey = @"clientKey";
 
 - (void)testShouldNotHaveSRTCapabilityForRecentVersionWithPairingLevelOnWithDLNA {
     CAPTEST(kMediaPlayerSubtitleSRT, @"5.0.0", DeviceServicePairingLevelOn, YES, NO);
+}
+
+#pragma mark - Subtitles Support Tests
+
+- (void)testPlayMediaWithSubtitlesShouldCallWebOSWebAppSessionForRecentVersion {
+    WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
+    [self mockWebOSVersion:@"5.0.0" onService:service];
+
+    id webAppSessionMock = OCMClassMock([WebOSWebAppSession class]);
+    OCMStub([service createWebAppSessionWithLaunchSession:OCMOCK_ANY
+                                               andService:OCMOCK_ANY]).andReturn(webAppSessionMock);
+    [OCMStub([webAppSessionMock joinWithSuccess:OCMOCK_ANY failure:OCMOCK_ANY]) andDo:^(NSInvocation *invocation) {
+        SuccessBlock joinSuccess = [invocation objectArgumentAtIndex:0];
+        joinSuccess(webAppSessionMock);
+    }];
+    OCMStub([webAppSessionMock mediaPlayer]).andReturn(webAppSessionMock);
+
+    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+    MediaPlayerSuccessBlock success = ^(MediaLaunchObject *mediaLaunchObject) {};
+    FailureBlock failure = ^(NSError *error) {};
+
+    OCMExpect([webAppSessionMock playMediaWithMediaInfo:mediaInfo
+                                             shouldLoop:NO
+                                                success:success
+                                                failure:failure]);
+    [service playMediaWithMediaInfo:mediaInfo
+                         shouldLoop:NO
+                            success:success
+                            failure:failure];
+
+    OCMVerifyAll(webAppSessionMock);
+}
+
+- (void)testPlayMediaWithSubtitlesShouldCallDLNAServiceForLegacyVersion {
+    WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
+    [self mockWebOSVersion:@"4.0.0" onService:service];
+
+    id dlnaServiceMock = OCMClassMock([DLNAService class]);
+    OCMStub([service dlnaService]).andReturn(dlnaServiceMock);
+    OCMStub([dlnaServiceMock mediaPlayer]).andReturn(dlnaServiceMock);
+
+    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+    MediaPlayerSuccessBlock success = ^(MediaLaunchObject *mediaLaunchObject) {};
+    FailureBlock failure = ^(NSError *error) {};
+
+    OCMExpect([dlnaServiceMock playMediaWithMediaInfo:mediaInfo
+                                           shouldLoop:NO
+                                              success:success
+                                              failure:failure]);
+    [service playMediaWithMediaInfo:mediaInfo
+                         shouldLoop:NO
+                            success:success
+                            failure:failure];
+
+    OCMVerifyAll(dlnaServiceMock);
+}
+
+- (void)testPlayMediaWithSubtitlesShouldSendMediaViewerOpenCommandForLegacyVersionWithoutDLNA {
+    WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
+    [self mockWebOSVersion:@"4.0.0" onService:service];
+
+    OCMStub([service dlnaService]).andReturn(nil);
+
+    MediaInfo *mediaInfo = [self mediaInfoWithSubtitle];
+
+    id serviceCommandDelegateMock = OCMProtocolMock(@protocol(ServiceCommandDelegate));
+    service.serviceCommandDelegate = serviceCommandDelegateMock;
+    OCMExpect([serviceCommandDelegateMock sendCommand:OCMOCK_NOTNIL
+                                          withPayload:[OCMArg checkWithBlock:(^BOOL(NSDictionary *payload) {
+                                              NSDictionary *expectedPayload = @{
+                                                  @"target": mediaInfo.url.absoluteString,
+                                                  @"mimeType": mediaInfo.mimeType,
+                                                  @"loop": @"false",
+                                                  @"title": @"",
+                                                  @"description": @"",
+                                                  @"iconSrc": @"",
+                                              };
+                                              XCTAssertEqualObjects(expectedPayload, payload);
+                                              return YES;
+                                          })]
+                                                toURL:[OCMArg checkWithBlock:^BOOL(NSURL *url) {
+                                                    XCTAssertEqualObjects(@"ssap://media.viewer/open",
+                                                                          url.absoluteString);
+                                                    return YES;
+                                                }]]);
+
+    [service playMediaWithMediaInfo:mediaInfo
+                         shouldLoop:NO
+                            success:nil
+                            failure:nil];
+
+    OCMVerifyAll(serviceCommandDelegateMock);
 }
 
 #pragma mark - Unsupported Methods Tests
@@ -300,7 +395,16 @@ static NSString *const kClientKey = @"clientKey";
     WebOSTVService *service = OCMPartialMock([WebOSTVService new]);
     id dlnaServiceStub = usingDLNA ? OCMClassMock([DLNAService class]) : nil;
     OCMStub([service dlnaService]).andReturn(dlnaServiceStub);
+    [self mockWebOSVersion:version onService:service];
 
+    XCTAssertEqual([service.capabilities containsObject:subtitleCapability],
+                   shouldHave);
+
+    discoveryManager.pairingLevel = oldPairingLevel;
+}
+
+- (void)mockWebOSVersion:(NSString *)version
+               onService:(WebOSTVService *)service {
     if (version) {
         id serviceDescriptionStub = OCMClassMock([ServiceDescription class]);
         NSDictionary *headers = @{
@@ -311,11 +415,20 @@ static NSString *const kClientKey = @"clientKey";
             version);
         service.serviceDescription = serviceDescriptionStub;
     }
+}
 
-    XCTAssertEqual([service.capabilities containsObject:subtitleCapability],
-                   shouldHave);
+- (MediaInfo *)mediaInfoWithSubtitle {
+    NSURL *subtitleURL = [NSURL URLWithString:@"http://example.com/"];
+    SubtitleInfo *subtitleInfo = [SubtitleInfo infoWithURL:subtitleURL
+                                                  andBlock:^(SubtitleInfoBuilder *builder) {
+                                                      builder.language = @"en";
+                                                      builder.label = @"test";
+                                                  }];
+    MediaInfo *mediaInfo = [[MediaInfo alloc] initWithURL:[NSURL URLWithString:@"http://url"]
+                                                 mimeType:@"video/mp4"];
+    mediaInfo.subtitleInfo = subtitleInfo;
 
-    discoveryManager.pairingLevel = oldPairingLevel;
+    return mediaInfo;
 }
 
 @end
