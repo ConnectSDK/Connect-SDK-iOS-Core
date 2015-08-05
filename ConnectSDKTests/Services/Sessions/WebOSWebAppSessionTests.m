@@ -88,12 +88,12 @@
     }];
 }
 
-- (void)testPlayVideoWithSubtitlesShouldContainSubtitleSource {
+- (void)testPlayVideoWithSubtitlesShouldContainSubtitleSourceAsString {
     MediaInfo *const mediaInfo = [self mediaInfoWithSubtitle];
     [self checkPlayVideoWithSubtitles:mediaInfo
     shouldContainSubtitlesPassingTest:^(NSDictionary *subtitles) {
         NSDictionary *track = subtitles[@"tracks"][0];
-        XCTAssertEqualObjects(track[@"source"], mediaInfo.subtitleInfo.url);
+        XCTAssertEqualObjects(track[@"source"], mediaInfo.subtitleInfo.url.absoluteString);
     }];
 }
 

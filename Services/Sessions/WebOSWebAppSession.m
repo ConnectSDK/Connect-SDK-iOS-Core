@@ -834,7 +834,7 @@ static NSString *const kSubtitleTrackIdentifier = @"";
 - (nonnull NSDictionary *)subtitlesDictionaryFromSubtitleInfo:(nonnull SubtitleInfo *)subtitleInfo {
     NSMutableDictionary *subtitleDict = [@{
         @"id": kSubtitleTrackIdentifier,
-        @"source": subtitleInfo.url,
+        @"source": subtitleInfo.url.absoluteString,
     } mutableCopy];
     [subtitleDict setNullableObject:subtitleInfo.language forKey:@"language"];
     [subtitleDict setNullableObject:subtitleInfo.label forKey:@"label"];
