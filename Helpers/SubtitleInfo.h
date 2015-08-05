@@ -43,6 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * - FireTV service supports @c WebVTT format only. Subtitles on Fire TV are
  * hidden by default and should be displayed manually by the user.
+ *
+ * - WebOS service supports @c WebVTT format only. Server providing subtitles
+ * should support CORS headers, similarly to Cast service's requirements.
  */
 @interface SubtitleInfo : NSObject
 
