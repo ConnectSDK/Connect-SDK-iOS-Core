@@ -26,7 +26,7 @@
 #import "NSMutableDictionary+NilSafe.h"
 #import "NSObject+FeatureNotSupported_Private.h"
 
-static NSString *const kSubtitleTrackIdentifier = @"";
+static NSString *const kSubtitleTrackIdentifier = @"0";
 
 @implementation WebOSWebAppSession
 {
