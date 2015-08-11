@@ -174,8 +174,6 @@ NSString *lgeUDAPRequestURI[8] = {
                 kMediaControlPlay,
                 kMediaControlPause,
                 kMediaControlStop,
-                kMediaControlRewind,
-                kMediaControlFastForward,
                 kMediaControlPlayState,
                 kMediaControlPosition,
                 kMediaControlDuration,
@@ -225,8 +223,6 @@ NSString *lgeUDAPRequestURI[8] = {
                 kMediaControlPlay,
                 kMediaControlPause,
                 kMediaControlStop,
-                kMediaControlRewind,
-                kMediaControlFastForward,
                 kMediaPlayerMetaDataTitle,
                 kMediaPlayerMetaDataMimeType,
 
@@ -1221,7 +1217,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (CapabilityPriorityLevel)mediaPlayerPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CapabilityPriorityLevelHigh;
 }
 
 - (void)displayImage:(NSURL *)imageURL iconURL:(NSURL *)iconURL title:(NSString *)title description:(NSString *)description mimeType:(NSString *)mimeType success:(MediaPlayerDisplaySuccessBlock)success failure:(FailureBlock)failure
@@ -1278,7 +1274,7 @@ NSString *lgeUDAPRequestURI[8] = {
     [mediaInfo addImage:imageInfo];
     
     [self playMediaWithMediaInfo:mediaInfo shouldLoop:shouldLoop success:^(MediaLaunchObject *mediaLanchObject) {
-        success(mediaLanchObject.session,mediaLanchObject.mediaControl);
+        success(mediaLanchObject.session,self.mediaControl);
     } failure:failure];
 }
 
@@ -1300,9 +1296,10 @@ NSString *lgeUDAPRequestURI[8] = {
          {
              launchObject.session.appId = kSmartShareName;
              launchObject.session.name = kSmartShareName;
-             
-             if (success)
+             launchObject.mediaControl = self.mediaControl;
+             if (success){
                  success(launchObject);
+             }
          } failure:failure];
         return;
     }
@@ -1333,7 +1330,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (CapabilityPriorityLevel)mediaControlPriority
 {
-    return CapabilityPriorityLevelNormal;
+    return CapabilityPriorityLevelHigh;
 }
 
 - (void)playWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -1353,12 +1350,12 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void)rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeRewind success:success failure:failure];
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self sendKeyCode:NetcastTVKeyCodeFastForward success:success failure:failure];
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
