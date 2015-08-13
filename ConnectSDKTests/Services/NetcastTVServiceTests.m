@@ -217,6 +217,54 @@ static NSString *const kClientCode = @"nop";
                                  @"Should throw exception because the code will disappear");
 }
 
+- (void)testMediaPlayerPriorityShouldReturnHigh {
+    XCTAssertEqual([self.service mediaPlayerPriority], CapabilityPriorityLevelHigh,@"media player priority should be CapabilityPriorityLevelHigh");
+}
+
+- (void)testMediaControlPriorityShouldReturnHigh {
+    XCTAssertEqual([self.service mediaControlPriority], CapabilityPriorityLevelHigh,@"Media control priority should be CapabilityPriorityLevelHigh");
+}
+
+- (void)testRewindShouldReturnFailureBlock {
+
+    [self.service rewindWithSuccess:^(id responseObject) {
+        XCTFail(@"success?");
+    } failure:^(NSError *error) {
+        XCTAssertNotNil(error);
+    }];
+}
+
+- (void)testFastForwardShouldReturnFailureBlock {
+    
+    [self.service fastForwardWithSuccess:^(id responseObject) {
+        XCTFail(@"success?");
+    } failure:^(NSError *error) {
+        XCTAssertNotNil(error);
+    }];
+}
+
+- (void)testShouldHaveFollowingCapabilities {
+    NSSet *expectedCapabilities = [NSSet setWithObjects:
+                                   kMediaPlayerDisplayImage,
+                                   kMediaPlayerPlayVideo,
+                                   kMediaPlayerPlayAudio,
+                                   kMediaPlayerClose,
+                                   kMediaPlayerMetaDataTitle,
+                                   kMediaPlayerMetaDataDescription,
+                                   kMediaPlayerMetaDataThumbnail,
+                                   kMediaPlayerMetaDataMimeType,
+                                   kMediaPlayerSubtitleSRT,
+                                   kMediaControlPlay,
+                                   kMediaControlPause,
+                                   kMediaControlStop,
+                                   kLauncherYouTube,
+                                   kLauncherYouTubeParams,
+                                   nil];
+    NSSet *actualCapabilities = [NSSet setWithArray:self.service.capabilities];
+    XCTAssertEqualObjects(expectedCapabilities, actualCapabilities,
+                          @"Netcast capabilities are incorrect");
+}
+
 #pragma mark - Helpers
 
 - (void)checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:(DeviceServicePairingLevel)pairingLevel {
