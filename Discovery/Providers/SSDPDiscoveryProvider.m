@@ -18,11 +18,11 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #import "SSDPDiscoveryProvider_Private.h"
 #import "ServiceDescription.h"
 #import "CTXMLReader.h"
-#import "DeviceService.h"
+//#import "DeviceService.h"
 #import "CommonMacros.h"
 
 #import <sys/utsname.h>
@@ -411,7 +411,10 @@ static double searchAttemptsBeforeKill = 6.0;
         ServiceDescription *newService = [service copy];
         newService.serviceId = serviceId;
 
-        dispatch_on_main(^{ [self.delegate discoveryProvider:self didFindService:newService]; });
+//        dispatch_on_main(
+        dispatch_async(dispatch_get_main_queue(),
+                         ^{ [self.delegate discoveryProvider:self didFindService:newService]; }
+                         );
     }];
 }
 
@@ -423,7 +426,9 @@ static double searchAttemptsBeforeKill = 6.0;
         ServiceDescription *newService = [service copy];
         newService.serviceId = serviceId;
 
-        dispatch_on_main(^{ [self.delegate discoveryProvider:self didLoseService:newService]; });
+//        dispatch_on_main(
+        dispatch_async(dispatch_get_main_queue(),
+                ^{ [self.delegate discoveryProvider:self didLoseService:newService]; });
     }];
 }
 
@@ -587,8 +592,9 @@ containingRequiredServices:requiredServices];
 
     return [NSString stringWithFormat:
             @"%@/%@ %@ ConnectSDK/%@",
-            [UIDevice currentDevice].systemName,
-            [UIDevice currentDevice].systemVersion,
+            @"OS X", @"10.10.10.10",
+//            [UIDevice currentDevice].systemName,
+//            [UIDevice currentDevice].systemVersion,
             token,
             CONNECT_SDK_VERSION];
 }
