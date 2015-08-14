@@ -19,11 +19,10 @@
 //
 
 #import "NetcastTVService_Private.h"
-
 #import "CTXMLReader.h"
 #import "DiscoveryManager.h"
-
 #import "NSInvocation+ObjectGetter.h"
+#import "XCTestCase+Common.h"
 
 static NSString *const kClientCode = @"nop";
 
@@ -226,21 +225,19 @@ static NSString *const kClientCode = @"nop";
 }
 
 - (void)testRewindShouldReturnFailureBlock {
-
-    [self.service rewindWithSuccess:^(id responseObject) {
-        XCTFail(@"success?");
-    } failure:^(NSError *error) {
-        XCTAssertNotNil(error);
-    }];
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+     ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+         [self.service rewindWithSuccess:successVerifier
+                                               failure:failureVerifier];
+     }];
 }
 
 - (void)testFastForwardShouldReturnFailureBlock {
-    
-    [self.service fastForwardWithSuccess:^(id responseObject) {
-        XCTFail(@"success?");
-    } failure:^(NSError *error) {
-        XCTAssertNotNil(error);
-    }];
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+     ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+         [self.service fastForwardWithSuccess:successVerifier
+                                 failure:failureVerifier];
+     }];
 }
 
 - (void)testShouldHaveFollowingCapabilities {
@@ -263,6 +260,12 @@ static NSString *const kClientCode = @"nop";
     NSSet *actualCapabilities = [NSSet setWithArray:self.service.capabilities];
     XCTAssertEqualObjects(expectedCapabilities, actualCapabilities,
                           @"Netcast capabilities are incorrect");
+}
+
+- (void)testNetcastShouldNotHaveSpecificCapabipilities{
+    NSSet *currentCapabilities = [NSSet setWithArray:self.service.capabilities];
+    XCTAssertFalse([currentCapabilities containsObject:kMediaControlRewind]);
+    XCTAssertFalse([currentCapabilities containsObject:kMediaControlFastForward]);
 }
 
 #pragma mark - Helpers
