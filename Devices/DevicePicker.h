@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #import "DevicePickerDelegate.h"
 #import "DiscoveryManagerDelegate.h"
 #import "ConnectableDevice.h"
@@ -32,7 +32,7 @@
  *
  * You should not attempt to instantiate the DevicePicker on your own. Instead, get the reference from the DeviceManager with [[DeviceManager sharedManager] devicePicker];
  */
-@interface DevicePicker : NSObject <DiscoveryManagerDelegate, UIPopoverControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate>
+@interface DevicePicker : NSObject <DiscoveryManagerDelegate>
 
 /*! Delegate that receives selected/cancelled messages. */
 @property (nonatomic, weak) id<DevicePickerDelegate> delegate;

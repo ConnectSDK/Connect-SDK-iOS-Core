@@ -20,7 +20,7 @@
 
 #define kConnectSDKNetcastTVServiceId @"Netcast TV"
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #import "DeviceService.h"
 #import "Launcher.h"
 #import "NetcastTVServiceConfig.h"

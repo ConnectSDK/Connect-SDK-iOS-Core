@@ -20,7 +20,7 @@
 
 #define kConnectSDKWebOSTVServiceId @"webOS TV"
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #import "DeviceService.h"
 #import "Launcher.h"
 #import "WebOSTVServiceConfig.h"

@@ -158,8 +158,8 @@
 {
     if (!_reconnectOnWake)
     {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+//        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+//        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     }
 
     _connected = NO;
@@ -201,8 +201,8 @@
 
 - (void) dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 #pragma mark - Hello & Registration
@@ -211,14 +211,14 @@
 {
     NSDictionary *infoDic = [[NSBundle mainBundle] infoDictionary];
 
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    CGFloat screenScale = [[UIScreen mainScreen] scale];
+    CGRect screenBounds = CGRectMake(0, 0, 640, 480);//[[UIScreen mainScreen] bounds];
+    CGFloat screenScale = 2;//[[UIScreen mainScreen] scale];
     CGSize screenSize = CGSizeMake(screenBounds.size.width * screenScale, screenBounds.size.height * screenScale);
     NSString *screenResolution = [NSString stringWithFormat:@"%dx%d", (int)screenSize.width, (int)screenSize.height];
 
     NSDictionary *payload = @{
             @"sdkVersion" : CONNECT_SDK_VERSION,
-            @"deviceModel" : ensureString([[UIDevice currentDevice] model]),
+            @"deviceModel" : @"Mac",//ensureString([[UIDevice currentDevice] model]),
             @"OSVersion" : ensureString([infoDic objectForKey:@"DTPlatformVersion"]),
             @"resolution" : screenResolution,
             @"appId" : ensureString([infoDic objectForKey:@"CFBundleIdentifier"]),
@@ -299,8 +299,8 @@
         
         if ([DeviceService shouldDisconnectOnBackground])
         {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         }
 
 //        if ([self.delegate respondsToSelector:@selector(deviceServicePairingSuccess:)])

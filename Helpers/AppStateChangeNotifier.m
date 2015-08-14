@@ -20,7 +20,7 @@
 
 #import "AppStateChangeNotifier.h"
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 
 #import "DispatchQueueBlockRunner.h"
 
@@ -50,6 +50,7 @@
         queue.maxConcurrentOperationCount = 1;
         queue.name = [NSString stringWithFormat:@"%@ notification queue", self];
 
+        /*
         self.backgroundObserverHandle = ({
             [[self center] addObserverForName:UIApplicationDidEnterBackgroundNotification
                                        object:[UIApplication sharedApplication]
@@ -69,6 +70,7 @@
                                         self.didForegroundBlock];
                                    }];
         });
+         */
     }
 }
 

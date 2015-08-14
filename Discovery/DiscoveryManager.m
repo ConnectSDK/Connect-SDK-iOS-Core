@@ -51,7 +51,7 @@
     BOOL _shouldResumeSearch;
     BOOL _searching;
     
-    DevicePicker *_currentPicker;
+//    DevicePicker *_currentPicker;
 
     NSTimer *_ssidTimer;
     NSString *_currentSSID;
@@ -244,18 +244,28 @@
 
 - (void) startSSIDTimer
 {
+    /*
     _ssidTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(detectSSIDChange) userInfo:nil repeats:YES];
     [_ssidTimer fire];
+     */
 }
 
 - (void) stopSSIDTimer
 {
+    /*
     [_ssidTimer invalidate];
     _ssidTimer = nil;
+     */
 }
 
 - (void) detectSSIDChange
 {
+    // FIXME implement for OS X
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:@"not implemented"
+                                 userInfo:nil];
+
+    /*
     NSArray *interfaces = (__bridge_transfer id) CNCopySupportedInterfaces();
 
     __block NSString *ssidName;
@@ -288,6 +298,7 @@
 
         _currentSSID = ssidName;
     }
+     */
 }
 
 - (void) purgeDeviceList
@@ -299,8 +310,8 @@
         if (self.delegate)
             [self.delegate discoveryManager:self didLoseDevice:device];
 
-        if (self.devicePicker)
-            [self.devicePicker discoveryManager:self didLoseDevice:device];
+//        if (self.devicePicker)
+//            [self.devicePicker discoveryManager:self didLoseDevice:device];
     }];
     
     [_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *provider, NSUInteger idx, BOOL *stop) {
@@ -401,8 +412,8 @@
     if (self.delegate)
         [self.delegate discoveryManager:self didFindDevice:device];
 
-    if (_currentPicker)
-        [_currentPicker discoveryManager:self didFindDevice:device];
+//    if (_currentPicker)
+//        [_currentPicker discoveryManager:self didFindDevice:device];
 }
 
 - (void) handleDeviceUpdate:(ConnectableDevice *)device
@@ -417,8 +428,8 @@
                 if (self.delegate)
                     [self.delegate discoveryManager:self didUpdateDevice:device];
 
-                if (_currentPicker)
-                    [_currentPicker discoveryManager:self didUpdateDevice:device];
+//                if (_currentPicker)
+//                    [_currentPicker discoveryManager:self didUpdateDevice:device];
             } else
             {
                 [self handleDeviceAdd:device];
@@ -437,8 +448,8 @@
     if (self.delegate)
         [self.delegate discoveryManager:self didLoseDevice:device];
 
-    if (_currentPicker)
-        [_currentPicker discoveryManager:self didLoseDevice:device];
+//    if (_currentPicker)
+//        [_currentPicker discoveryManager:self didLoseDevice:device];
 }
 
 - (void)setPairingLevel:(DeviceServicePairingLevel)pairingLevel
@@ -700,7 +711,7 @@
 }
 
 #pragma mark - Device Picker creation
-
+/*
 - (DevicePicker *) devicePicker
 {
     if (_currentPicker == nil)
@@ -715,7 +726,7 @@
     
     return _currentPicker;
 }
-
+*/
 #pragma mark - ServiceConfigDelegate
 
 - (void)serviceConfigUpdate:(ServiceConfig *)serviceConfig

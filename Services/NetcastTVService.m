@@ -45,7 +45,7 @@ typedef enum {
     LGE_APPTOAPP_DATA_REQUEST
 } LGE_REQUEST_TYPE;
 
-@interface NetcastTVService() <ServiceCommandDelegate, UIAlertViewDelegate, DeviceServiceReachabilityDelegate>
+@interface NetcastTVService() <ServiceCommandDelegate, /*UIAlertViewDelegate,*/ DeviceServiceReachabilityDelegate>
 {
     NSOperationQueue *_commandQueue;
     BOOL _mouseVisible;
@@ -54,7 +54,7 @@ typedef enum {
     NSString *_keyboardString;
 
     // TODO: pull pairing timer from WebOSTVService
-    UIAlertView *_pairingAlert;
+//    UIAlertView *_pairingAlert;
 
     NSMutableDictionary *_subscribed;
     NSURL *_commandURL;
@@ -269,8 +269,8 @@ NSString *lgeUDAPRequestURI[8] = {
 {
     [self.commandQueue cancelAllOperations];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 
 }
 
@@ -351,6 +351,7 @@ NSString *lgeUDAPRequestURI[8] = {
 
 - (void) showPairingDialog
 {
+    /*
     NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Title" value:@"Pairing with device" table:@"ConnectSDK"];
     NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
     NSString *ok = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_OK" value:@"OK" table:@"ConnectSDK"];
@@ -359,8 +360,9 @@ NSString *lgeUDAPRequestURI[8] = {
     _pairingAlert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
     _pairingAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
     [_pairingAlert show];
+     */
 }
-
+/*
 - (void)willPresentAlertView:(UIAlertView *)alertView
 {
     [alertView textFieldAtIndex:0].keyboardType = UIKeyboardTypeNumberPad;
@@ -376,7 +378,7 @@ NSString *lgeUDAPRequestURI[8] = {
         [self pairWithData:pairingCode];
     }
 }
-
+*/
 - (void) dismissPairingWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
     NSString *targetPath = [self.commandURL.absoluteString stringByAppendingPathComponent:lgeUDAPRequestURI[LGE_PAIRING_REQUEST]];
@@ -403,8 +405,8 @@ NSString *lgeUDAPRequestURI[8] = {
 
     if (!_reconnectOnWake)
     {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+//        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+//        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     }
 
     self.connected = NO;
@@ -545,8 +547,8 @@ NSString *lgeUDAPRequestURI[8] = {
 
         if ([DeviceService shouldDisconnectOnBackground])
         {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         }
 
         [self startSubscriptionServer];

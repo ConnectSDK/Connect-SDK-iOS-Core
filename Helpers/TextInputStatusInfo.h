@@ -19,14 +19,30 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSInteger, KeyboardType) {
+    KeyboardTypeDefault,                // Default type for the current input method.
+//    UIKeyboardTypeASCIICapable,           // Displays a keyboard which can enter ASCII characters, non-ASCII keyboards remain active
+//    UIKeyboardTypeNumbersAndPunctuation,  // Numbers and assorted punctuation.
+    KeyboardTypeURL,                    // A type optimized for URL entry (shows . / .com prominently).
+    KeyboardTypeNumberPad,              // A number pad (0-9). Suitable for PIN entry.
+//    KeyboardTypePhonePad,               // A phone pad (1-9, *, 0, #, with letters under the numbers).
+    KeyboardTypeNamePhonePad,           // A type optimized for entering a person's name or phone number.
+    KeyboardTypeEmailAddress,           // A type optimized for multiple email address entry (shows space @ . prominently).
+//    UIKeyboardTypeDecimalPad NS_ENUM_AVAILABLE_IOS(4_1),   // A number pad with a decimal point.
+//    UIKeyboardTypeTwitter NS_ENUM_AVAILABLE_IOS(5_0),      // A type optimized for twitter text entry (easy access to @ #)
+//    UIKeyboardTypeWebSearch NS_ENUM_AVAILABLE_IOS(7_0),    // A default keyboard type with URL-oriented addition (shows space . prominently).
+
+//    UIKeyboardTypeAlphabet = UIKeyboardTypeASCIICapable, // Deprecated
+
+};
 
 /*! Normalized reference object for information about a text input event. */
 @interface TextInputStatusInfo : NSObject
 
 /*! Type of keyboard that should be displayed to the user. */
-@property (nonatomic) UIKeyboardType keyboardType;
+@property (nonatomic) KeyboardType keyboardType;
 
 /*! Whether the keyboard is/should be visible to the user. */
 @property (nonatomic) BOOL isVisible;

@@ -454,8 +454,8 @@
             dispatch_on_main(^{ [self.delegate connectableDevice:self service:service pairingRequiredOfType:pairingType withData:pairingData]; });
         else
         {
-            if (pairingType == DeviceServicePairingTypeAirPlayMirroring)
-                [(UIAlertView *)pairingData show];
+//            if (pairingType == DeviceServicePairingTypeAirPlayMirroring)
+//                [(UIAlertView *)pairingData show];
         }
     }
 }

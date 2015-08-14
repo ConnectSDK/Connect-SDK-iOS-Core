@@ -22,6 +22,11 @@
 #import "DiscoveryProvider.h"
 #import "DiscoveryManager.h"
 
+@interface DevicePicker () <UIPopoverControllerDelegate, UITableViewDataSource,
+        UITableViewDelegate, UIActionSheetDelegate>
+
+@end
+
 @implementation DevicePicker
 {
     NSArray *_generatedDeviceList;

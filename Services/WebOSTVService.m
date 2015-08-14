@@ -32,7 +32,7 @@
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
-@interface WebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate>
+@interface WebOSTVService () </*UIAlertViewDelegate,*/ WebOSTVServiceSocketClientDelegate>
 {
     NSArray *_permissions;
 
@@ -40,13 +40,13 @@
     NSMutableDictionary *_appToAppIdMappings;
 
     NSTimer *_pairingTimer;
-    UIAlertView *_pairingAlert;
+//    UIAlertView *_pairingAlert;
 
     NSMutableArray *_keyboardQueue;
     BOOL _keyboardQueueProcessing;
 
     BOOL _mouseInit;
-    UIAlertView *_pinAlertView;
+//    UIAlertView *_pinAlertView;
 }
 
 @end
@@ -300,6 +300,7 @@
 
 -(void) showAlert
 {
+    /*
     NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Title" value:@"Pairing with device" table:@"ConnectSDK"];
     NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request" value:@"Please confirm the connection on your device" table:@"ConnectSDK"];
     NSString *ok = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_OK" value:@"OK" table:@"ConnectSDK"];
@@ -311,8 +312,10 @@
         _pairingAlert.message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request_Pin" value:@"Please enter the pin code" table:@"ConnectSDK"];
     }
     dispatch_on_main(^{ [_pairingAlert show]; });
+     */
 }
 
+#if TARGET_OS_IPHONE
 -(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if(alertView == _pairingAlert){
@@ -325,9 +328,11 @@
             }
     }
 }
+#endif
 
 -(void) showAlertWithTitle:(NSString *)title andMessage:(NSString *)message
 {
+    /*
     NSString *alertTitle = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Title" value:title table:@"ConnectSDK"];
     NSString *alertMessage = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_Request" value:message table:@"ConnectSDK"];
     NSString *ok = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_Pair_OK" value:@"OK" table:@"ConnectSDK"];
@@ -335,12 +340,15 @@
         _pinAlertView = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:nil otherButtonTitles:ok, nil];
     }
     dispatch_on_main(^{ [_pinAlertView show]; });
+*/
 }
 
 -(void)dismissPinAlertView{
+    /*
     if (_pinAlertView && _pinAlertView.isVisible){
         [_pinAlertView dismissWithClickedButtonIndex:0 animated:NO];
     }
+     */
 }
 
 #pragma mark - WebOSTVServiceSocketClientDelegate
@@ -352,8 +360,10 @@
 
 - (void) socket:(WebOSTVServiceSocketClient *)socket registrationFailed:(NSError *)error
 {
+#if TARGET_OS_IPHONE
     if (_pairingAlert && _pairingAlert.isVisible)
         dispatch_on_main(^{ [_pairingAlert dismissWithClickedButtonIndex:0 animated:NO]; });
+#endif
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(deviceService:pairingFailedWithError:)])
         dispatch_on_main(^{ [self.delegate deviceService:self pairingFailedWithError:error]; });
@@ -365,8 +375,10 @@
 {
     [_pairingTimer invalidate];
 
+#if TARGET_OS_IPHONE
     if (_pairingAlert && _pairingAlert.visible)
         dispatch_on_main(^{ [_pairingAlert dismissWithClickedButtonIndex:1 animated:YES]; });
+#endif
 
     if ([self.delegate respondsToSelector:@selector(deviceServicePairingSuccess:)])
         dispatch_on_main(^{ [self.delegate deviceServicePairingSuccess:self]; });
@@ -377,8 +389,10 @@
 
 - (void) socket:(WebOSTVServiceSocketClient *)socket didFailWithError:(NSError *)error
 {
+#if TARGET_OS_IPHONE
     if (_pairingAlert && _pairingAlert.visible)
         dispatch_on_main(^{ [_pairingAlert dismissWithClickedButtonIndex:0 animated:YES]; });
+#endif
 
     if ([self.delegate respondsToSelector:@selector(deviceService:didFailConnectWithError:)])
         dispatch_on_main(^{ [self.delegate deviceService:self didFailConnectWithError:error]; });
@@ -2164,16 +2178,16 @@
         BOOL isVisible = [[[responseObject objectForKey:@"currentWidget"] objectForKey:@"focus"] boolValue];
         NSString *type = [[responseObject objectForKey:@"currentWidget"] objectForKey:@"contentType"];
 
-        UIKeyboardType keyboardType = UIKeyboardTypeDefault;
+        KeyboardType keyboardType = KeyboardTypeDefault;
 
         if ([type isEqualToString:@"url"])
-            keyboardType = UIKeyboardTypeURL;
+            keyboardType = KeyboardTypeURL;
         else if ([type isEqualToString:@"number"])
-            keyboardType = UIKeyboardTypeNumberPad;
+            keyboardType = KeyboardTypeNumberPad;
         else if ([type isEqualToString:@"phonenumber"])
-            keyboardType = UIKeyboardTypeNamePhonePad;
+            keyboardType = KeyboardTypeNamePhonePad;
         else if ([type isEqualToString:@"email"])
-            keyboardType = UIKeyboardTypeEmailAddress;
+            keyboardType = KeyboardTypeEmailAddress;
 
         TextInputStatusInfo *keyboardInfo = [[TextInputStatusInfo alloc] init];
         keyboardInfo.isVisible = isVisible;
@@ -2270,6 +2284,7 @@
         if (imageName == nil)
             imageName = [[[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"] objectForKey:@"CFBundlePrimaryIcon"] objectForKey:@"CFBundleIconFiles"] firstObject];
 
+        /*
         UIImage *appIcon = [UIImage imageNamed:imageName];
         NSString *dataString;
 
@@ -2281,6 +2296,7 @@
             [toastParams setObject:dataString forKey:@"iconData"];
             [toastParams setObject:@"png" forKey:@"iconExtension"];
         }
+         */
     }
 
     ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.socket target:[NSURL URLWithString:@"ssap://system.notifications/createToast"] payload:toastParams];
