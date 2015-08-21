@@ -67,7 +67,10 @@
 #pragma clang diagnostic pop
 }
 
-- (void)testBlockShouldNotBeRunSynchronously {
+- (void)ignored_testBlockShouldNotBeRunSynchronously {
+    /* NB: this test is ignored for now, because it sometimes fails on CI
+     servers, occasionally running the block synchronously in all iterations. */
+
     /* to verify the block is not called synchronously, it shouldn't increment a
      value, that is checked after scheduling the block. however, GCD doesn't
      promise that the block won't run immediately, which actually happens and
