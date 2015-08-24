@@ -401,7 +401,7 @@ static NSMutableArray *registeredApps = nil;
     NSURL *targetURL = [self.serviceDescription.commandURL URLByAppendingPathComponent:@"query"];
     targetURL = [targetURL URLByAppendingPathComponent:@"apps"];
 
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:nil];
     command.HTTPMethod = @"GET";
     command.callbackComplete = ^(NSString *responseObject)
     {
@@ -410,7 +410,14 @@ static NSMutableArray *registeredApps = nil;
 
         if (!xmlError)
         {
-            NSArray *apps = [[appListDictionary objectForKey:@"apps"] objectForKey:@"app"];
+            NSArray *apps;
+            id appsObject = [appListDictionary valueForKeyPath:@"apps.app"];
+            if ([appsObject isKindOfClass:[NSDictionary class]]) {
+                apps = @[appsObject];
+            } else if ([appsObject isKindOfClass:[NSArray class]]) {
+                apps = appsObject;
+            }
+
             NSMutableArray *appList = [NSMutableArray new];
 
             [apps enumerateObjectsUsingBlock:^(NSDictionary *appInfoDictionary, NSUInteger idx, BOOL *stop)
