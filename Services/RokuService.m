@@ -408,8 +408,7 @@ static NSMutableArray *registeredApps = nil;
         NSError *xmlError;
         NSDictionary *appListDictionary = [CTXMLReader dictionaryForXMLString:responseObject error:&xmlError];
 
-        if (!xmlError)
-        {
+        if (appListDictionary) {
             NSArray *apps;
             id appsObject = [appListDictionary valueForKeyPath:@"apps.app"];
             if ([appsObject isKindOfClass:[NSDictionary class]]) {
@@ -428,6 +427,13 @@ static NSMutableArray *registeredApps = nil;
 
             if (success)
                 success([NSArray arrayWithArray:appList]);
+        } else {
+            if (failure) {
+                NSString *details = [NSString stringWithFormat:
+                    @"Couldn't parse apps XML (%@)", xmlError.localizedDescription];
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError
+                                                 andDetails:details]);
+            }
         }
     };
     command.callbackError = failure;

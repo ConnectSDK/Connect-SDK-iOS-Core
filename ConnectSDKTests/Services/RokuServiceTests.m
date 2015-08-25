@@ -20,6 +20,8 @@
 
 #import "RokuService_Private.h"
 
+#import "ConnectError.h"
+
 #import "NSInvocation+ObjectGetter.h"
 #import "XCTestCase+Common.h"
 
@@ -94,6 +96,24 @@
     [self checkGetAppListShouldReturnApps:@[] forXMLString:appsXML];
 }
 
+- (void)testGetAppListWrongXMLShouldReturnExmptyList {
+    NSString *appsXML = @"<noappshere />";
+    [self checkGetAppListShouldReturnApps:@[] forXMLString:appsXML];
+}
+
+- (void)testGetAppListInvalidXMLShouldCallFailure {
+    NSString *appsXML = @"&oops;";
+    [self checkGetAppListShouldReturnApps:nil
+                          orErrorWithCode:ConnectStatusCodeTvError
+                             forXMLString:appsXML];
+}
+
+- (void)testGetAppListNilXMLShouldCallFailure {
+    [self checkGetAppListShouldReturnApps:nil
+                          orErrorWithCode:ConnectStatusCodeTvError
+                             forXMLString:nil];
+}
+
 #pragma mark - Unsupported Methods Tests
 
 - (void)testGetDurationShouldReturnNotSupportedError {
@@ -144,6 +164,14 @@
 
 - (void)checkGetAppListShouldReturnApps:(NSArray *)apps
                            forXMLString:(NSString *)xmlString {
+    [self checkGetAppListShouldReturnApps:apps
+                          orErrorWithCode:0
+                             forXMLString:xmlString];
+}
+
+- (void)checkGetAppListShouldReturnApps:(NSArray *)apps
+                        orErrorWithCode:(ConnectStatusCode)errorCode
+                           forXMLString:(NSString *)xmlString {
     [OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_ANY
                                                 withPayload:OCMOCK_ANY
                                                       toURL:OCMOCK_ANY]) andDo:^(NSInvocation *invocation) {
@@ -153,11 +181,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
     [self.service getAppListWithSuccess:^(NSArray *appList) {
-            XCTAssertEqualObjects(appList, apps);
-
-            [expectation fulfill];
+            if (apps) {
+                XCTAssertEqualObjects(appList, apps);
+                [expectation fulfill];
+            }
         }
-                                failure:nil];
+                                failure:^(NSError *error) {
+                                    if (!apps) {
+                                        XCTAssertEqual(error.code, errorCode);
+                                        [expectation fulfill];
+                                    }
+                                }];
 
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
 }
