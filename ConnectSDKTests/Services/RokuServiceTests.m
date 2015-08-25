@@ -20,6 +20,8 @@
 
 #import "RokuService_Private.h"
 
+#import "ConnectError.h"
+
 #import "NSInvocation+ObjectGetter.h"
 #import "XCTestCase+Common.h"
 
@@ -74,6 +76,44 @@
     }];
 }
 
+#pragma mark - GetAppList Response Tests
+
+- (void)testGetAppListShouldAcceptMultipleApps {
+    NSString *appsXML = @"<apps><app id=\"X\" type=\"menu\" version=\"0.1\">The App</app><app id=\"Y\" type=\"menu\" version=\"1.1\">YApp</app></apps>";
+    AppInfo *app0 = [AppInfo appInfoForId:@"X"]; app0.name = @"The App";
+    AppInfo *app1 = [AppInfo appInfoForId:@"Y"]; app1.name = @"YApp";
+    [self checkGetAppListShouldReturnApps:@[app0, app1] forXMLString:appsXML];
+}
+
+- (void)testGetAppListShouldAcceptOneApp {
+    NSString *appsXML = @"<apps><app id=\"X\" type=\"menu\" version=\"0.1\">The App</app></apps>";
+    AppInfo *app = [AppInfo appInfoForId:@"X"]; app.name = @"The App";
+    [self checkGetAppListShouldReturnApps:@[app] forXMLString:appsXML];
+}
+
+- (void)testGetAppListShouldAcceptZeroApps {
+    NSString *appsXML = @"<apps></apps>";
+    [self checkGetAppListShouldReturnApps:@[] forXMLString:appsXML];
+}
+
+- (void)testGetAppListWrongXMLShouldReturnExmptyList {
+    NSString *appsXML = @"<noappshere />";
+    [self checkGetAppListShouldReturnApps:@[] forXMLString:appsXML];
+}
+
+- (void)testGetAppListInvalidXMLShouldCallFailure {
+    NSString *appsXML = @"&oops;";
+    [self checkGetAppListShouldReturnApps:nil
+                          orErrorWithCode:ConnectStatusCodeTvError
+                             forXMLString:appsXML];
+}
+
+- (void)testGetAppListNilXMLShouldCallFailure {
+    [self checkGetAppListShouldReturnApps:nil
+                          orErrorWithCode:ConnectStatusCodeTvError
+                             forXMLString:nil];
+}
+
 #pragma mark - Unsupported Methods Tests
 
 - (void)testGetDurationShouldReturnNotSupportedError {
@@ -118,6 +158,40 @@
     }];
 
     testBlock();
+
+    [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
+}
+
+- (void)checkGetAppListShouldReturnApps:(NSArray *)apps
+                           forXMLString:(NSString *)xmlString {
+    [self checkGetAppListShouldReturnApps:apps
+                          orErrorWithCode:0
+                             forXMLString:xmlString];
+}
+
+- (void)checkGetAppListShouldReturnApps:(NSArray *)apps
+                        orErrorWithCode:(ConnectStatusCode)errorCode
+                           forXMLString:(NSString *)xmlString {
+    [OCMExpect([self.serviceCommandDelegateMock sendCommand:OCMOCK_ANY
+                                                withPayload:OCMOCK_ANY
+                                                      toURL:OCMOCK_ANY]) andDo:^(NSInvocation *invocation) {
+        ServiceCommand *command = [invocation objectArgumentAtIndex:0];
+        command.callbackComplete(xmlString);
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@""];
+    [self.service getAppListWithSuccess:^(NSArray *appList) {
+            if (apps) {
+                XCTAssertEqualObjects(appList, apps);
+                [expectation fulfill];
+            }
+        }
+                                failure:^(NSError *error) {
+                                    if (!apps) {
+                                        XCTAssertEqual(error.code, errorCode);
+                                        [expectation fulfill];
+                                    }
+                                }];
 
     [self waitForExpectationsWithTimeout:kDefaultAsyncTestTimeout handler:nil];
 }

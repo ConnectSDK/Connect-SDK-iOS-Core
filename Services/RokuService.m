@@ -401,16 +401,22 @@ static NSMutableArray *registeredApps = nil;
     NSURL *targetURL = [self.serviceDescription.commandURL URLByAppendingPathComponent:@"query"];
     targetURL = [targetURL URLByAppendingPathComponent:@"apps"];
 
-    ServiceCommand *command = [ServiceCommand commandWithDelegate:self target:targetURL payload:nil];
+    ServiceCommand *command = [ServiceCommand commandWithDelegate:self.serviceCommandDelegate target:targetURL payload:nil];
     command.HTTPMethod = @"GET";
     command.callbackComplete = ^(NSString *responseObject)
     {
         NSError *xmlError;
         NSDictionary *appListDictionary = [CTXMLReader dictionaryForXMLString:responseObject error:&xmlError];
 
-        if (!xmlError)
-        {
-            NSArray *apps = [[appListDictionary objectForKey:@"apps"] objectForKey:@"app"];
+        if (appListDictionary) {
+            NSArray *apps;
+            id appsObject = [appListDictionary valueForKeyPath:@"apps.app"];
+            if ([appsObject isKindOfClass:[NSDictionary class]]) {
+                apps = @[appsObject];
+            } else if ([appsObject isKindOfClass:[NSArray class]]) {
+                apps = appsObject;
+            }
+
             NSMutableArray *appList = [NSMutableArray new];
 
             [apps enumerateObjectsUsingBlock:^(NSDictionary *appInfoDictionary, NSUInteger idx, BOOL *stop)
@@ -421,6 +427,13 @@ static NSMutableArray *registeredApps = nil;
 
             if (success)
                 success([NSArray arrayWithArray:appList]);
+        } else {
+            if (failure) {
+                NSString *details = [NSString stringWithFormat:
+                    @"Couldn't parse apps XML (%@)", xmlError.localizedDescription];
+                failure([ConnectError generateErrorWithCode:ConnectStatusCodeTvError
+                                                 andDetails:details]);
+            }
         }
     };
     command.callbackError = failure;
