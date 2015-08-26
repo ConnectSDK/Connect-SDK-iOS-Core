@@ -1100,18 +1100,12 @@ static const NSInteger kValueNotFound = -1;
                                                      atChannel:@"Master"
                                                     inResponse:responseObject];
 
-        if (masterVolume == kValueNotFound)
-        {
-            if (failure)
-                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find volume in subscription response"]);
-        } else
-        {
-            if (success)
-                success((float) masterVolume / 100.0f);
+        if ((masterVolume != kValueNotFound) && success) {
+            success((float) masterVolume / 100.0f);
         }
     };
 
-    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_renderingControlEventURL payload:nil callId:-1];
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self.serviceCommandDelegate target:_renderingControlEventURL payload:nil callId:-1];
     [subscription addSuccess:successBlock];
     [subscription addFailure:failure];
     [subscription subscribe];
@@ -1178,18 +1172,12 @@ static const NSInteger kValueNotFound = -1;
                                                    atChannel:@"Master"
                                                   inResponse:responseObject];
 
-        if (masterMute == kValueNotFound)
-        {
-            if (failure)
-                failure([ConnectError generateErrorWithCode:ConnectStatusCodeError andDetails:@"Could not find mute in subscription response"]);
-        } else
-        {
-            if (success)
-                success((BOOL) masterMute);
+        if ((masterMute != kValueNotFound) && success) {
+            success((BOOL) masterMute);
         }
     };
 
-    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self target:_renderingControlEventURL payload:nil callId:-1];
+    ServiceSubscription *subscription = [ServiceSubscription subscriptionWithDelegate:self.serviceCommandDelegate target:_renderingControlEventURL payload:nil callId:-1];
     [subscription addSuccess:successBlock];
     [subscription addFailure:failure];
     [subscription subscribe];
