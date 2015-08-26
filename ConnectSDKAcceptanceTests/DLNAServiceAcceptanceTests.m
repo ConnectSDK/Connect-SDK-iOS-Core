@@ -23,6 +23,7 @@
 #import "SSDPDiscoveryProvider.h"
 
 #import "EXPMatchers+matchRegex.h"
+#import "OCMStubRecorder+SpectaAsync.h"
 
 #pragma mark - Environment-specific constants
 
@@ -34,7 +35,9 @@ static NSString *const kExpectedIPAddressRegex = @"192\\.168\\.1\\.\\d{1,3}";
 SpecBegin(DLNAService)
 
 describe(@"ConnectSDK", ^{
-    it(@"should discover Sonos device in the network", ^{
+    __block ConnectableDevice *device;
+
+    beforeEach(^{
         // the official way to access DiscoveryManager is through the singleton,
         // but that's no good for tests
         DiscoveryManager *manager = [DiscoveryManager new];
@@ -52,27 +55,59 @@ describe(@"ConnectSDK", ^{
 
         // wait for a matching device
         waitUntil(^(DoneCallback done) {
-            void (^deviceVerifier)(ConnectableDevice *) = ^void(ConnectableDevice *device) {
-                expect(device.address).matchRegex(kExpectedIPAddressRegex);
-                expect(device.id).notTo.beNil();
-                expect([device serviceWithName:kConnectSDKDLNAServiceId]).notTo.beNil();
-            };
-
             OCMStub([delegateStub discoveryManager:manager
-                                     didFindDevice:
-                     [OCMArg checkWithBlock:^BOOL(ConnectableDevice *device) {
-                if ([kExpectedDeviceName isEqualToString:device.friendlyName]) {
-                    deviceVerifier(device);
-                    done();
-                }
+                                     didFindDevice:[OCMArg checkWithBlock:^BOOL(ConnectableDevice *dev) {
+                                         if ([kExpectedDeviceName isEqualToString:dev.friendlyName]) {
+                                             device = dev;
+                                             done();
+                                         }
 
-                return YES;
+                                         return YES;
             }]]);
 
             [manager startDiscovery];
         });
 
         [manager stopDiscovery];
+    });
+
+    it(@"should discover Sonos device in the network", ^{
+        expect(device.address).matchRegex(kExpectedIPAddressRegex);
+        expect(device.id).notTo.beNil();
+        expect([device serviceWithName:kConnectSDKDLNAServiceId]).notTo.beNil();
+    });
+
+    it(@"should not send wrong volume error when mute changes", ^{
+        id deviceDelegateStub = OCMProtocolMock(@protocol(ConnectableDeviceDelegate));
+        device.delegate = deviceDelegateStub;
+
+        waitUntil(^(DoneCallback done) {
+            [OCMStub([deviceDelegateStub connectableDeviceReady:device])
+                andDoneWaiting:done];
+
+            [device connect];
+        });
+
+        waitUntil(^(DoneCallback done) {
+            [device.volumeControl subscribeVolumeWithSuccess:nil
+                                                     failure:^(NSError *error) {
+                                                         failure(@"should not send volume error %@", error);
+                                                         done();
+                                                     }];
+
+            [device.volumeControl getMuteWithSuccess:^(BOOL mute) {
+                    [device.volumeControl setMute:!mute
+                                          success:^(id _) {
+                                              dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC),
+                                                             dispatch_get_main_queue(),
+                                                             ^{
+                                                                 done();
+                                                             });
+                                          }
+                                          failure:nil];
+                }
+                                             failure:nil];
+        });
     });
 });
 

@@ -650,6 +650,54 @@ shouldContainSecTagWithDefaultFileTypeAndName:kSecCaptionInfoExTag];
                           @"The album art URL is incorrect");
 }
 
+#pragma mark - Subscription Tests
+
+- (void)testSubscribeVolumeShouldIgnoreMuteEvent {
+    // getVolume
+    OCMStub([self.serviceCommandDelegateMock sendCommand:OCMOCK_ANY
+                                             withPayload:OCMOCK_ANY
+                                                   toURL:OCMOCK_ANY]);
+
+    [[OCMExpect([self.serviceCommandDelegateMock sendSubscription:OCMOCK_ANY
+                                                             type:ServiceSubscriptionTypeSubscribe
+                                                          payload:OCMOCK_ANY
+                                                            toURL:OCMOCK_ANY
+                                                           withId:0]) ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+        ServiceSubscription *subscription = [invocation objectArgumentAtIndex:0];
+        SuccessBlock block = subscription.successCalls[0];
+        block(@{@"Event": @{@"InstanceID": @{@"Mute": @{@"channel": @"Master", @"val": @0}}}});
+    }];
+
+    [self.service subscribeVolumeWithSuccess:nil
+                                     failure:^(NSError *error) {
+                                         XCTFail(@"%@", error);
+                                     }];
+    OCMVerifyAll(self.serviceCommandDelegateMock);
+}
+
+- (void)testSubscribeMuteShouldIgnoreVolumeEvent {
+    // getMute
+    OCMStub([self.serviceCommandDelegateMock sendCommand:OCMOCK_ANY
+                                             withPayload:OCMOCK_ANY
+                                                   toURL:OCMOCK_ANY]);
+
+    [[OCMExpect([self.serviceCommandDelegateMock sendSubscription:OCMOCK_ANY
+                                                             type:ServiceSubscriptionTypeSubscribe
+                                                          payload:OCMOCK_ANY
+                                                            toURL:OCMOCK_ANY
+                                                           withId:0]) ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+        ServiceSubscription *subscription = [invocation objectArgumentAtIndex:0];
+        SuccessBlock block = subscription.successCalls[0];
+        block(@{@"Event": @{@"InstanceID": @{@"Volume": @{@"channel": @"Master", @"val": @0}}}});
+    }];
+
+    [self.service subscribeMuteWithSuccess:nil
+                                   failure:^(NSError *error) {
+                                       XCTFail(@"%@", error);
+                                   }];
+    OCMVerifyAll(self.serviceCommandDelegateMock);
+}
+
 #pragma mark - Disconnect Tests
 
 /// Tests that @c -disconnect shuts down the http server.
