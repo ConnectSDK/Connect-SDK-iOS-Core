@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "WebOSTVService.h"
+#import "WebOSTVService_Private.h"
 #import "ConnectError.h"
 #import "DiscoveryManager.h"
 #import "ServiceAsyncCommand.h"
@@ -26,6 +26,8 @@
 #import "WebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
 #import "CommonMacros.h"
+
+#import "NSObject+FeatureNotSupported_Private.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
@@ -86,6 +88,10 @@
     return ([self.serviceConfig isKindOfClass:[WebOSTVServiceConfig class]] ?
             (WebOSTVServiceConfig *)self.serviceConfig :
             nil);
+}
+
+- (id<ServiceCommandDelegate>)serviceCommandDelegate {
+    return _serviceCommandDelegate ?: self.socket;
 }
 
 #pragma mark - Inherited methods
@@ -194,12 +200,16 @@
 
     if (_serviceDescription && _serviceDescription.version)
     {
-        if ([_serviceDescription.version rangeOfString:@"4.0.0"].location == NSNotFound && [_serviceDescription.version rangeOfString:@"4.0.1"].location == NSNotFound)
+        const BOOL isVersion400 = [_serviceDescription.version rangeOfString:@"4.0.0"].location != NSNotFound;
+        const BOOL isVersion401 = [_serviceDescription.version rangeOfString:@"4.0.1"].location != NSNotFound;
+        const BOOL isLegacyVersion = isVersion400 || isVersion401;
+        if (!isLegacyVersion)
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:kWebAppLauncherCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kMediaControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:kPlayListControlCapabilities];
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[kMediaPlayerPlayPlaylist,kMediaPlayerLoop]];
+            capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
         } else
         {
             capabilities = [capabilities arrayByAddingObjectsFromArray:@[
@@ -216,7 +226,13 @@
 
                     kWebAppLauncherClose
             ]];
+
+            if (self.dlnaService) {
+                capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleSRT];
+            }
         }
+    } else {
+        capabilities = [capabilities arrayByAddingObject:kMediaPlayerSubtitleWebVTT];
     }
 
     [self setCapabilities:capabilities];
@@ -442,12 +458,6 @@
     externalInputInfo.rawData = [info copy];
 
     return externalInputInfo;
-}
-
-- (void) sendNotSupportedFailure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 #pragma mark - Launcher
@@ -963,7 +973,7 @@
 {
     NSURL *URL = [NSURL URLWithString:@"ssap://media.viewer/open"];
 
-    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.socket target:URL payload:params];
+    ServiceCommand *command = [[ServiceCommand alloc] initWithDelegate:self.serviceCommandDelegate target:URL payload:params];
     command.callbackComplete = ^(NSDictionary *responseObject)
     {
         LaunchSession *launchSession = [LaunchSession launchSessionForAppId:[responseObject objectForKey:@"id"]];
@@ -1050,36 +1060,37 @@
 
 - (void)seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
+}
+
+- (void)getDurationWithSuccess:(MediaDurationSuccessBlock)success
+                       failure:(FailureBlock)failure {
+    [self sendNotSupportedFailure:failure];
 }
 
 - (void)getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    return [self sendNotSupportedFailure:failure];
+}
 
-    return nil;
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-    
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Playlist Control
@@ -1327,30 +1338,22 @@
 
 - (void)getProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramInfoWithSuccess:(ProgramInfoSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)getProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 - (ServiceSubscription *)subscribeProgramListWithSuccess:(ProgramListSuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void)get3DEnabledWithSuccess:(TV3DEnabledSuccessBlock)success failure:(FailureBlock)failure
@@ -1485,8 +1488,7 @@
 
 - (void)sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Mouse
@@ -1604,8 +1606,7 @@
 
 - (void) powerOnWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
+    [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Web App Launcher
@@ -2020,7 +2021,8 @@
 
     if (!webAppSession)
     {
-        webAppSession = [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:self];
+        webAppSession = [self createWebAppSessionWithLaunchSession:launchSession
+                                                        andService:self];
         _webAppSessions[launchSession.appId] = webAppSession;
     }
 
@@ -2319,6 +2321,13 @@
     };
     command.callbackError = failure;
     [command send];
+}
+
+#pragma mark - Helpers
+
+- (WebOSWebAppSession *)createWebAppSessionWithLaunchSession:(LaunchSession *)launchSession
+                                                  andService:(WebOSTVService *)service {
+    return [[WebOSWebAppSession alloc] initWithLaunchSession:launchSession service:service];
 }
 
 @end

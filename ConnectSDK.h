@@ -45,6 +45,7 @@
 #import "MediaPlayer.h"
 #import "MouseControl.h"
 #import "PowerControl.h"
+#import "SubtitleInfo.h"
 #import "ToastControl.h"
 #import "TVControl.h"
 #import "VolumeControl.h"

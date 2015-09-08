@@ -20,8 +20,9 @@
 
 #import "NetcastTVService_Private.h"
 #import "CTXMLReader.h"
-
+#import "DiscoveryManager.h"
 #import "NSInvocation+ObjectGetter.h"
+#import "XCTestCase+Common.h"
 
 static NSString *const kClientCode = @"nop";
 
@@ -46,6 +47,16 @@ static NSString *const kClientCode = @"nop";
     self.service = nil;
     self.serviceCommandDelegateMock = nil;
     [super tearDown];
+}
+
+#pragma mark - General Tests
+
+- (void)testInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevelOn {
+    [self checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:DeviceServicePairingLevelOn];
+}
+
+- (void)testInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevelOff {
+    [self checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:DeviceServicePairingLevelOff];
 }
 
 #pragma mark - Request Generation Tests
@@ -203,6 +214,75 @@ static NSString *const kClientCode = @"nop";
                                  NSException,
                                  NSInternalInconsistencyException,
                                  @"Should throw exception because the code will disappear");
+}
+
+- (void)testMediaPlayerPriorityShouldReturnHigh {
+    XCTAssertEqual([self.service mediaPlayerPriority], CapabilityPriorityLevelHigh,@"media player priority should be CapabilityPriorityLevelHigh");
+}
+
+- (void)testMediaControlPriorityShouldReturnHigh {
+    XCTAssertEqual([self.service mediaControlPriority], CapabilityPriorityLevelHigh,@"Media control priority should be CapabilityPriorityLevelHigh");
+}
+
+- (void)testRewindShouldReturnFailureBlock {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+     ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+         [self.service rewindWithSuccess:successVerifier
+                                               failure:failureVerifier];
+     }];
+}
+
+- (void)testFastForwardShouldReturnFailureBlock {
+    [self checkOperationShouldReturnNotSupportedErrorUsingBlock:
+     ^(SuccessBlock successVerifier, FailureBlock failureVerifier) {
+         [self.service fastForwardWithSuccess:successVerifier
+                                 failure:failureVerifier];
+     }];
+}
+
+- (void)testShouldHaveFollowingCapabilities {
+    NSSet *expectedCapabilities = [NSSet setWithObjects:
+                                   kMediaPlayerDisplayImage,
+                                   kMediaPlayerPlayVideo,
+                                   kMediaPlayerPlayAudio,
+                                   kMediaPlayerClose,
+                                   kMediaPlayerMetaDataTitle,
+                                   kMediaPlayerMetaDataDescription,
+                                   kMediaPlayerMetaDataThumbnail,
+                                   kMediaPlayerMetaDataMimeType,
+                                   kMediaPlayerSubtitleSRT,
+                                   kMediaControlPlay,
+                                   kMediaControlPause,
+                                   kMediaControlStop,
+                                   kLauncherYouTube,
+                                   kLauncherYouTubeParams,
+                                   nil];
+    NSSet *actualCapabilities = [NSSet setWithArray:self.service.capabilities];
+    XCTAssertEqualObjects(expectedCapabilities, actualCapabilities,
+                          @"Netcast capabilities are incorrect");
+}
+
+- (void)testNetcastShouldNotHaveSpecificCapabipilities{
+    NSSet *currentCapabilities = [NSSet setWithArray:self.service.capabilities];
+    XCTAssertFalse([currentCapabilities containsObject:kMediaControlRewind]);
+    XCTAssertFalse([currentCapabilities containsObject:kMediaControlFastForward]);
+}
+
+#pragma mark - Helpers
+
+- (void)checkInstanceShouldHaveSubtitleSRTCapabilityWithPairingLevel:(DeviceServicePairingLevel)pairingLevel {
+    // the test looks ugly because of the implicit dependency on the
+    // singleton DiscoveryManager
+    // TODO remove the dependency
+
+    DiscoveryManager *discoveryManager = [DiscoveryManager sharedManager];
+    DeviceServicePairingLevel oldPairingLevel = discoveryManager.pairingLevel;
+
+    discoveryManager.pairingLevel = pairingLevel;
+    XCTAssertNotEqual([self.service.capabilities indexOfObject:kMediaPlayerSubtitleSRT],
+                      NSNotFound);
+
+    discoveryManager.pairingLevel = oldPairingLevel;
 }
 
 @end

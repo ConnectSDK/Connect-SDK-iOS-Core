@@ -19,8 +19,8 @@
 //
 
 #import "WebAppSession.h"
-#import "ConnectError.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
 
 @implementation WebAppSession
 
@@ -57,12 +57,6 @@
     return self;
 }
 
-- (void) sendNotSupportedFailure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
-}
-
 #pragma mark - ServiceCommandDelegate methods
 
 - (int)sendCommand:(ServiceCommand *)comm withPayload:(id)payload toURL:(NSURL *)URL
@@ -84,9 +78,7 @@
 
 - (ServiceSubscription *) subscribeWebAppStatus:(WebAppStatusBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void) connectWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
@@ -128,8 +120,7 @@
 
 - (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
 {
-   [self sendNotSupportedFailure:failure];
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Media Player
@@ -182,7 +173,6 @@
 }
 
 #pragma mark - MediaControl
-#pragma mark MediaControl required methods
 
 - (id <MediaControl>)mediaControl
 {
@@ -259,8 +249,6 @@
         [self sendNotSupportedFailure:failure];
 }
 
-#pragma mark MediaControl optional methods
-
 - (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure
 {
     [self sendNotSupportedFailure:failure];
@@ -283,9 +271,7 @@
 
 - (ServiceSubscription *)subscribePlayStateWithSuccess:(MediaPlayStateSuccessBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
-
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 - (void) getPositionWithSuccess:(MediaPositionSuccessBlock)success failure:(FailureBlock)failure
@@ -293,10 +279,14 @@
     [self sendNotSupportedFailure:failure];
 }
 
+- (void)getMediaMetaDataWithSuccess:(SuccessBlock)success
+                            failure:(FailureBlock)failure {
+    [self sendNotSupportedFailure:failure];
+}
+
 - (ServiceSubscription *)subscribeMediaInfoWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
 
 #pragma mark - Playlist Control

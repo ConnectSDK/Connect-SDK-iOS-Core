@@ -26,6 +26,8 @@
 #import "ConnectUtil.h"
 #import "AirPlayService.h"
 
+#import "NSObject+FeatureNotSupported_Private.h"
+
 /*credit : http://stackoverflow.com/questions/30040055/uiviewcontroller-displayed-sideways-on-airplay-screen-when-launched-from-landsca/30355853#30355853
  
  Added to AirPlayServiceWindow interface to override isKeyWindow method & AirPlayServiceViewController to override shouldAutorotate method to fix issue where web app is dsiplayed sideways when launched in landscape.
@@ -78,12 +80,6 @@
     }
 
     return self;
-}
-
-- (void) sendNotSupportedFailure:(FailureBlock)failure
-{
-    if (failure)
-        failure([ConnectError generateErrorWithCode:ConnectStatusCodeNotSupported andDetails:nil]);
 }
 
 - (void) connect
@@ -458,10 +454,8 @@
 
 - (ServiceSubscription *)subscribeIsWebAppPinned:(NSString*)webAppId success:(WebAppPinStatusBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
-    return nil;
+    return [self sendNotSupportedFailure:failure];
 }
-
 
 #pragma mark - UIWebViewDelegate
 

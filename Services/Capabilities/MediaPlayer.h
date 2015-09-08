@@ -33,10 +33,15 @@
 #define kMediaPlayerPlayPlaylist @"MediaPlayer.Play.Playlist"
 #define kMediaPlayerLoop @"MediaPlayer.Loop"
 #define kMediaPlayerClose @"MediaPlayer.Close"
+
 #define kMediaPlayerMetaDataTitle @"MediaPlayer.MetaData.Title"
 #define kMediaPlayerMetaDataDescription @"MediaPlayer.MetaData.Description"
 #define kMediaPlayerMetaDataThumbnail @"MediaPlayer.MetaData.Thumbnail"
 #define kMediaPlayerMetaDataMimeType @"MediaPlayer.MetaData.MimeType"
+
+extern NSString *const kMediaPlayerSubtitleSRT;
+extern NSString *const kMediaPlayerSubtitleWebVTT;
+
 
 #define kMediaPlayerCapabilities @[\
     kMediaPlayerDisplayImage,\

@@ -94,7 +94,6 @@ typedef void (^ MediaDurationSuccessBlock)(NSTimeInterval duration);
 - (void) rewindWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
 - (void) fastForwardWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
 
-@optional
 - (void) seek:(NSTimeInterval)position success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 #pragma mark Play info
