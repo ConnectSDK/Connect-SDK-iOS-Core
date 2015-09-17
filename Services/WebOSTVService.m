@@ -26,7 +26,7 @@
 #import "WebOSTVServiceSocketClient.h"
 #import "CTGuid.h"
 #import "CommonMacros.h"
-
+#import "NSMutableDictionary+NilSafe.h"
 #import "NSObject+FeatureNotSupported_Private.h"
 
 #define kKeyboardEnter @"\x1b ENTER \x1b"
@@ -1327,9 +1327,23 @@
 
 - (void)setChannel:(ChannelInfo *)channelInfo success:(SuccessBlock)success failure:(FailureBlock)failure
 {
+    if (!channelInfo)
+    {
+        if (failure)
+            failure([ConnectError generateErrorWithCode:ConnectStatusCodeArgumentError andDetails:@"channelInfo cannot be empty"]);
+        return;
+    }
     NSURL *URL = [NSURL URLWithString:@"ssap://tv/openChannel"];
-    NSDictionary *payload = @{ @"channelId" : channelInfo.id};
 
+    NSMutableDictionary *payload = [NSMutableDictionary dictionary];
+    if(channelInfo.id){
+        [payload setNullableObject:channelInfo.id forKey:@"channelId"];
+    }
+    
+    if(channelInfo.number){
+        [payload setNullableObject:channelInfo.number forKey:@"channelNumber"];
+    }
+    
     ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
     command.callbackComplete = success;
     command.callbackError = failure;
