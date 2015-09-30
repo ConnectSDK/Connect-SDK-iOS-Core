@@ -1737,45 +1737,20 @@
 
     WebOSWebAppSession *webAppSession = _webAppSessions[launchSession.appId];
 
-    if (webAppSession && webAppSession.connected)
-    {
-        // This is a hack to enable closing of bridged web apps that we didn't open
-        NSDictionary *closeCommand = @{
-                @"contentType" : @"connectsdk.serviceCommand",
-                @"serviceCommand" : @{
-                        @"type" : @"close"
-                }
-        };
-
-        [webAppSession sendJSON:closeCommand success:^(id responseObject)
-        {
-            [webAppSession disconnectFromWebApp];
-
-            if (success)
-                success(responseObject);
-        } failure:^(NSError *closeError)
-        {
-            [webAppSession disconnectFromWebApp];
-
-            if (failure)
-                failure(closeError);
-        }];
-    } else
-    {
-        if (webAppSession)
-            [webAppSession disconnectFromWebApp];
-
-        NSURL *URL = [NSURL URLWithString:@"ssap://webapp/closeWebApp"];
-
-        NSMutableDictionary *payload = [NSMutableDictionary new];
-        if (launchSession.appId) [payload setValue:launchSession.appId forKey:@"webAppId"];
-        if (launchSession.sessionId) [payload setValue:launchSession.sessionId forKey:@"sessionId"];
-
-        ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
-        command.callbackComplete = success;
-        command.callbackError = failure;
-        [command send];
+    if (webAppSession){
+        [webAppSession disconnectFromWebApp];
     }
+    
+    NSURL *URL = [NSURL URLWithString:@"ssap://webapp/closeWebApp"];
+    
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    if (launchSession.appId) [payload setValue:launchSession.appId forKey:@"webAppId"];
+    if (launchSession.sessionId) [payload setValue:launchSession.sessionId forKey:@"sessionId"];
+    
+    ServiceCommand *command = [ServiceAsyncCommand commandWithDelegate:self.socket target:URL payload:payload];
+    command.callbackComplete = success;
+    command.callbackError = failure;
+    [command send];
 }
 
 - (void)joinWebApp:(LaunchSession *)webAppLaunchSession success:(WebAppLaunchSuccessBlock)success failure:(FailureBlock)failure
