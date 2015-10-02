@@ -166,17 +166,26 @@
 
 - (void)sendData:(NSData *)aData toAddress:(NSString *)anAddress andPort:(NSUInteger)aPort;
 {
-	if (0 == _socket)
+	if (0 == _socket) {
 		[self open];
+	}
 	
-	if (_socket <= 0)
+	if (_socket <= 0) {
 		[self raiseError];
+		return;
+	}
 	
 	struct sockaddr_in theSocketAddress;
 	
 	memset((char *) &theSocketAddress, 0, sizeof(theSocketAddress));
 	theSocketAddress.sin_family = AF_INET;
 	theSocketAddress.sin_port = htons(aPort);
+
+	int set = 1;
+	int success = setsockopt(_socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+	if (success != 0) {
+		return;
+	}
 
 	inet_aton([anAddress UTF8String], &theSocketAddress.sin_addr);
 
