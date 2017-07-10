@@ -50,7 +50,9 @@
 {
 	if (nil == _workQueue)
 	{
-		_workQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        @synchronized (self) {
+            _workQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        }
 	}
 	return _workQueue;
 }
@@ -59,7 +61,9 @@
 {
 	if (nil == _delegateQueue)
 	{
-		_delegateQueue = dispatch_get_main_queue();
+        @synchronized (self) {
+            _delegateQueue = dispatch_get_main_queue();
+        }
 	}
 	return _delegateQueue;
 }
