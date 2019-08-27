@@ -141,9 +141,12 @@
 	_socket = theSocketDescriptor;
 	dispatch_source_set_event_handler(_dispatchSource,
 		^{
+			if (!self->_dispatchSource)
+				return;
+
 			struct sockaddr_in theIncomingAddr;
 			memset(&theIncomingAddr, 0, sizeof(theIncomingAddr));
-			size_t theDataSize = dispatch_source_get_data(_dispatchSource);
+			size_t theDataSize = dispatch_source_get_data(self->_dispatchSource);
 			char theBuffer[theDataSize + 1];
 			int theReceiveBytesCount = 0;
 			socklen_t theAddressSize = sizeof(theIncomingAddr);
@@ -159,9 +162,13 @@
 			NSString *thePath = [[NSString alloc] initWithBytes:theCAddrBuffer
 				length:strlen(theCAddrBuffer) encoding:NSUTF8StringEncoding];
 			NSData * theReceivedData = [NSData dataWithBytes:theBuffer length:theDataSize];
-            
+
 			[self didReceiveData:theReceivedData fromAddress:thePath];
-			
+		});
+
+	dispatch_source_set_cancel_handler(_dispatchSource,
+		^{
+			close(self->_socket);
 		});
 	
 	dispatch_resume(_dispatchSource);
