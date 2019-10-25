@@ -1167,7 +1167,15 @@
 
     command.callbackComplete = (^(NSDictionary *responseDic)
     {
-        int fromString = [[responseDic objectForKey:@"volume"] intValue];
+        int fromString = 0;
+        if ([responseDic objectForKey:@"volume"])
+        {
+            fromString = [[responseDic objectForKey:@"volume"] intValue];
+        }
+        else
+        {
+            fromString = [[[responseDic objectForKey:@"volumeStatus"] objectForKey:@"volume"] intValue];
+        }
         float volVal = fromString / 100.0;
 
         if (success)
@@ -1231,7 +1239,15 @@
 
     ServiceSubscription *subscription = [self.socket addSubscribe:URL payload:nil success:^(NSDictionary *responseObject)
     {
-        float volumeValue = [[responseObject valueForKey:@"volume"] floatValue] / 100.0;
+        float volumeValue = 0;
+        if ([responseObject valueForKey:@"volume"])
+        {
+            volumeValue = [[responseObject valueForKey:@"volume"] floatValue] / 100.0;
+        }
+        else
+        {
+            volumeValue = [[[responseObject valueForKey:@"volumeStatus"] valueForKey:@"volume"] floatValue] / 100.0;
+        }
 
         if (success)
             success(volumeValue);
