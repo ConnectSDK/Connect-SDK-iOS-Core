@@ -95,16 +95,16 @@ static double searchAttemptsBeforeKill = 6.0;
 - (void) stopDiscovery
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
-
+    
+    if (_refreshTimer)
+        [_refreshTimer invalidate];
+    
     if (_searchSocket)
         [_searchSocket close];
 
     if (_multicastSocket)
         [_multicastSocket close];
 
-    if (_refreshTimer)
-        [_refreshTimer invalidate];
-    
     _foundServices = [NSMutableDictionary new];
     _helloDevices = [NSMutableDictionary new];
     [_locationLoadQueue cancelAllOperations];
