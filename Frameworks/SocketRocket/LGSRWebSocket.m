@@ -38,11 +38,9 @@
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define lgsr_dispatch_retain(x)
 #define lgsr_dispatch_release(x)
-#define maybe_bridge(x) ((__bridge void *) x)
 #else
 #define lgsr_dispatch_retain(x) dispatch_retain(x)
 #define lgsr_dispatch_release(x) dispatch_release(x)
-#define maybe_bridge(x) (x)
 #endif
 
 #if !__has_feature(objc_arc) 
@@ -202,8 +200,6 @@ typedef void (^data_callback)(LGSRWebSocket *webSocket,  NSData *data);
 - (void)_closeWithProtocolError:(NSString *)message;
 - (void)_failWithError:(NSError *)error;
 
-- (void)_disconnect;
-
 - (void)_readFrameNew;
 - (void)_readFrameContinue;
 
@@ -223,7 +219,6 @@ typedef void (^data_callback)(LGSRWebSocket *webSocket,  NSData *data);
 - (void)_LGSR_commonInit;
 
 - (void)_initializeStreams;
-- (void)_connect;
 
 - (size_t) encodeLength:(unsigned char *) buf :(size_t)length; //newly added for connectSDKPorting
 - (NSString *) getPublicKeyAsBase64:(SecKeyRef) publicKey ; //newly added for ConnectSDkPorting
@@ -281,6 +276,7 @@ typedef void (^data_callback)(LGSRWebSocket *webSocket,  NSData *data);
     
     BOOL _sentClose;
     BOOL _didFail;
+    BOOL _cleanupScheduled;
     int _closeCode;
     
     BOOL _isPumping;
@@ -357,8 +353,8 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
     
     // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
-    
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, (__bridge void *)(_workQueue), NULL);
+
     _delegateDispatchQueue = dispatch_get_main_queue();
     lgsr_dispatch_retain(_delegateDispatchQueue);
     
@@ -383,7 +379,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)assertOnWorkQueue;
 {
-    assert(dispatch_get_specific((__bridge void *)self) == maybe_bridge(_workQueue));
+    assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue);
 }
 
 - (void)dealloc
@@ -394,8 +390,11 @@ static __strong NSData *CRLFCRLF;
     [_inputStream close];
     [_outputStream close];
     
-    lgsr_dispatch_release(_workQueue);
-    _workQueue = NULL;
+    if (_workQueue)
+    {
+        lgsr_dispatch_release(_workQueue);
+        _workQueue = NULL;
+    }
     
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
@@ -427,7 +426,7 @@ static __strong NSData *CRLFCRLF;
 
     _selfRetain = self;
     
-    [self _connect];
+    [self openConnection];
 }
 
 // Calls block on delegate queue
@@ -607,7 +606,7 @@ static __strong NSData *CRLFCRLF;
     _outputStream.delegate = self;
 }
 
-- (void)_connect;
+- (void)openConnection;
 {
     if (!_scheduledRunloops.count) {
         [self scheduleInRunLoop:[NSRunLoop LGSR_networkRunLoop] forMode:NSDefaultRunLoopMode];
@@ -654,7 +653,7 @@ static __strong NSData *CRLFCRLF;
         LGSRFastLog(@"Closing with code %d reason %@", code, reason);
         
         if (wasConnecting) {
-            [self _disconnect];
+            [self closeConnection];
             return;
         }
 
@@ -690,7 +689,7 @@ static __strong NSData *CRLFCRLF;
     [self _performDelegateBlock:^{
         [self closeWithCode:LGSRStatusCodeProtocolError reason:message];
         dispatch_async(_workQueue, ^{
-            [self _disconnect];
+            [self closeConnection];
         });
     }];
 }
@@ -707,11 +706,11 @@ static __strong NSData *CRLFCRLF;
             }];
 
             self.readyState = LGSR_CLOSED;
-            _selfRetain = nil;
 
             LGSRFastLog(@"Failing with error %@", error.localizedDescription);
             
-            [self _disconnect];
+            [self closeConnection];
+            [self _scheduleCleanup];
         }
     });
 }
@@ -844,11 +843,11 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         [self closeWithCode:1000 reason:nil];
     }
     dispatch_async(_workQueue, ^{
-        [self _disconnect];
+        [self closeConnection];
     });
 }
 
-- (void)_disconnect;
+- (void)closeConnection;
 {
     [self assertOnWorkQueue];
     LGSRFastLog(@"Trying to disconnect");
@@ -875,7 +874,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             if (str == nil && frameData) {
                 [self closeWithCode:LGSRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
                 dispatch_async(_workQueue, ^{
-                    [self _disconnect];
+                    [self closeConnection];
                 });
 
                 return;
@@ -1097,7 +1096,7 @@ static const uint8_t LGSRPayloadLenMask   = 0x7F;
         }
         
         _outputBufferOffset += bytesWritten;
-        
+
         if (_outputBufferOffset > 4096 && _outputBufferOffset > (_outputBuffer.length >> 1)) {
             _outputBuffer = [[NSMutableData alloc] initWithBytes:(char *)_outputBuffer.bytes + _outputBufferOffset length:_outputBuffer.length - _outputBufferOffset];
             _outputBufferOffset = 0;
@@ -1110,13 +1109,13 @@ static const uint8_t LGSRPayloadLenMask   = 0x7F;
          _inputStream.streamStatus != NSStreamStatusClosed) &&
         !_sentClose) {
         _sentClose = YES;
-            
-        [_outputStream close];
-        [_inputStream close];
-        
-        
-        for (NSArray *runLoop in [_scheduledRunloops copy]) {
-            [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
+        @synchronized(self) {
+            [_outputStream close];
+            [_inputStream close];
+
+            for (NSArray *runLoop in [_scheduledRunloops copy]) {
+                [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
+            }
         }
         
         if (!_failed) {
@@ -1127,8 +1126,42 @@ static const uint8_t LGSRPayloadLenMask   = 0x7F;
             }];
         }
         
-        _selfRetain = nil;
+        [self _scheduleCleanup];
     }
+}
+
+- (void)_scheduleCleanup
+{
+    @synchronized(self) {
+        if (_cleanupScheduled) {
+            return;
+        }
+
+        _cleanupScheduled = YES;
+
+        // Cleanup NSStream delegate's in the same RunLoop used by the streams themselves:
+        // This way we'll prevent race conditions between handleEvent and SRWebsocket's dealloc
+        NSTimer *timer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(_cleanupSelfReference:) userInfo:nil repeats:NO];
+        [[NSRunLoop LGSR_networkRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+    }
+}
+
+- (void)_cleanupSelfReference:(NSTimer *)timer
+{
+    @synchronized(self) {
+        // Nuke NSStream delegate's
+        _inputStream.delegate = nil;
+        _outputStream.delegate = nil;
+
+        // Remove the streams, right now, from the networkRunLoop
+        [_inputStream close];
+        [_outputStream close];
+    }
+
+    // Cleanup selfRetain in the same GCD queue as usual
+    dispatch_async(_workQueue, ^{
+        _selfRetain = nil;
+    });
 }
 
 - (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback;
@@ -1195,7 +1228,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
     if (self.readyState >= LGSR_CLOSING) {
         dispatch_async(_workQueue, ^{
             _closeCode = LGSRStatusCodeNormal;
-            [self _disconnect];
+            [self closeConnection];
         });
         return didWork;
     }
@@ -1270,7 +1303,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
                     if (valid_utf8_size == -1) {
                         [self closeWithCode:LGSRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
                         dispatch_async(_workQueue, ^{
-                            [self _disconnect];
+                            [self closeConnection];
                         });
                         return didWork;
                     } else {
@@ -1395,6 +1428,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
+    __weak typeof(self) weakSelf = self;
     NSMutableArray *certs;
     if ([_urlRequest LGSR_SSLPinnedCertificates] == nil && _sslData == nil && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
         
@@ -1419,7 +1453,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
                 SecKeyRef publicKey =SecCertificateCopyPublicKey((cert));
                 
                 NSString *certficatePublicKeyString = nil;
-                certficatePublicKeyString = [self getPublicKeyAsBase64:(publicKey)];
+                certficatePublicKeyString = [weakSelf getPublicKeyAsBase64:(publicKey)];
                 if(certficatePublicKeyString == nil)
                 {
                     _ipublicKeyvalue =-1;
@@ -1677,20 +1711,27 @@ static const size_t LGSRFrameHeaderOverhead = 32;
         }
         _sslData = certs;
         
-        [self _performDelegateBlock:^{
-            if ([self.delegate respondsToSelector:@selector(webSocket:didGetCertificates:)]) {
-                [self.delegate webSocket:self didGetCertificates:_sslData];
+        [weakSelf _performDelegateBlock:^{
+            if ([weakSelf.delegate respondsToSelector:@selector(webSocket:didGetCertificates:)]) {
+                [weakSelf.delegate webSocket:weakSelf didGetCertificates:_sslData];
             }
         }];
         
         if (!_pinnedCertFound || _icertificateValidity== -1 || _ipublicKeyvalue== -1) {
             NSLog(@"*************TV CERTIFICATE FAILURE ****************");
             dispatch_async(_workQueue, ^{
-                [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
+                [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
             });
             return;
         }
     }
+    dispatch_async(_workQueue, ^{
+        [weakSelf safeHandleEvent:eventCode stream:aStream];
+    });
+}
+
+- (void)safeHandleEvent:(NSStreamEvent)eventCode stream:(NSStream *)aStream
+{
 
     dispatch_async(_workQueue, ^{
         switch (eventCode) {
@@ -1727,7 +1768,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
                 } else {
                     if (self.readyState != LGSR_CLOSED) {
                         self.readyState = LGSR_CLOSED;
-                        _selfRetain = nil;
+                        [self _scheduleCleanup];
                     }
 
                     if (!_sentClose && !_failed) {
