@@ -641,6 +641,7 @@ static __strong NSData *CRLFCRLF;
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 {
     //assert(code);
+    [self _scheduleCleanup];
     dispatch_async(_workQueue, ^{
         if (self.readyState == LGSR_CLOSING || self.readyState == LGSR_CLOSED) {
             return;
