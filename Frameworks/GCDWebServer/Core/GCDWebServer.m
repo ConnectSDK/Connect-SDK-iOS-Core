@@ -74,9 +74,9 @@ GCDWebServerLoggingLevel GCDWebServerLogLevel = kGCDWebServerLoggingLevel_Info;
 #endif
 #elif defined(__GCDWEBSERVER_LOGGING_FACILITY_COCOALUMBERJACK__)
 #if DEBUG
-int GCDWebServerLogLevel = LOG_LEVEL_DEBUG;
+int GCDWebServerLogLevel = DDLogLevelDebug;
 #else
-int GCDWebServerLogLevel = LOG_LEVEL_INFO;
+int GCDWebServerLogLevel = DDLogLevelInfo;
 #endif
 #endif
 
