@@ -153,21 +153,19 @@
 			struct sockaddr_in theIncomingAddr;
 			memset(&theIncomingAddr, 0, sizeof(theIncomingAddr));
 			size_t theDataSize = dispatch_source_get_data(strongSelf->_dispatchSource);
-			char theBuffer[theDataSize + 1];
-			int theReceiveBytesCount = 0;
+			size_t maxDataSize = 65535;
+			char theBuffer[maxDataSize];
+			int theReceiveBytes = 0;
 			socklen_t theAddressSize = sizeof(theIncomingAddr);
-			while (theReceiveBytesCount < theDataSize)
-			{
-				theReceiveBytesCount += recvfrom(theSocketDescriptor, theBuffer,
-					sizeof(theBuffer), 0, (struct sockaddr*)&theIncomingAddr, &theAddressSize);
-			}
+			theReceiveBytes = recvfrom(theSocketDescriptor, theBuffer,
+				sizeof(theBuffer), 0, (struct sockaddr*)&theIncomingAddr, &theAddressSize);
 			char theCAddrBuffer[SOCK_MAXADDRLEN];
 			memset(theCAddrBuffer, 0, SOCK_MAXADDRLEN);
 			inet_ntop(theIncomingAddr.sin_family, &theIncomingAddr.sin_addr, theCAddrBuffer, SOCK_MAXADDRLEN);
 
 			NSString *thePath = [[NSString alloc] initWithBytes:theCAddrBuffer
 				length:strlen(theCAddrBuffer) encoding:NSUTF8StringEncoding];
-			NSData * theReceivedData = [NSData dataWithBytes:theBuffer length:theDataSize];
+			NSData * theReceivedData = [NSData dataWithBytes:theBuffer length:theReceiveBytes];
 
 			[strongSelf didReceiveData:theReceivedData fromAddress:thePath];
 		});
