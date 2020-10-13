@@ -154,11 +154,11 @@
 			memset(&theIncomingAddr, 0, sizeof(theIncomingAddr));
 			size_t theDataSize = dispatch_source_get_data(strongSelf->_dispatchSource);
 			size_t maxDataSize = 65535;
-			char theBuffer[maxDataSize];
+			void *theBuffer = malloc(maxDataSize);
 			int theReceiveBytes = 0;
 			socklen_t theAddressSize = sizeof(theIncomingAddr);
 			theReceiveBytes = recvfrom(theSocketDescriptor, theBuffer,
-				sizeof(theBuffer), 0, (struct sockaddr*)&theIncomingAddr, &theAddressSize);
+				maxDataSize, 0, (struct sockaddr*)&theIncomingAddr, &theAddressSize);
 			char theCAddrBuffer[SOCK_MAXADDRLEN];
 			memset(theCAddrBuffer, 0, SOCK_MAXADDRLEN);
 			inet_ntop(theIncomingAddr.sin_family, &theIncomingAddr.sin_addr, theCAddrBuffer, SOCK_MAXADDRLEN);
@@ -167,6 +167,7 @@
 				length:strlen(theCAddrBuffer) encoding:NSUTF8StringEncoding];
 			NSData * theReceivedData = [NSData dataWithBytes:theBuffer length:theReceiveBytes];
 
+			free(theBuffer);
 			[strongSelf didReceiveData:theReceivedData fromAddress:thePath];
 		});
 
