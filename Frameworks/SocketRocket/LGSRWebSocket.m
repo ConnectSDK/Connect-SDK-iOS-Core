@@ -1718,7 +1718,7 @@ static const size_t LGSRFrameHeaderOverhead = 32;
             }
         }];
         
-        if (!_pinnedCertFound || _icertificateValidity== -1 || _ipublicKeyvalue== -1) {
+        if (!_pinnedCertFound || (certs && (_icertificateValidity== -1 || _ipublicKeyvalue== -1))) {
             NSLog(@"*************TV CERTIFICATE FAILURE ****************");
             dispatch_async(_workQueue, ^{
                 [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
