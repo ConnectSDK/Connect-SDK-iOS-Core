@@ -502,6 +502,7 @@
 /// Resumes all discovery providers and the SSID change timer.
 - (void)resumeDiscovery {
     // moved from -hAppDidBecomeActive:
+    [self purgeDeviceList];
     [self startSSIDTimer];
 
     if (_shouldResumeSearch)
