@@ -332,6 +332,10 @@ static double searchAttemptsBeforeKill = 6.0;
                             //Check that this is what is wanted
                             foundService.UUID = theUUID;
                             foundService.type =  theType;
+                            if ([location componentsSeparatedByString:@":"].count < 2){
+                                CFRelease(theHTTPMessage);
+                                return;
+                            }
                             foundService.address = [[location componentsSeparatedByString:@":"][1] stringByReplacingOccurrencesOfString:@"//" withString:@""];
                             foundService.port = 3001;
                             isNew = YES;
