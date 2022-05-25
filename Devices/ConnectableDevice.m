@@ -896,4 +896,62 @@
     return foundWebAppLauncher;
 }
 
+- (id<ScreenMirroringControl>)screenMirroringControl
+{
+    __block id<ScreenMirroringControl> foundScreenMirroring;
+
+    [_services enumerateKeysAndObjectsUsingBlock:^(id key, id service, BOOL *stop)
+    {
+        if (![service respondsToSelector:@selector(screenMirroringControl)])
+            return;
+
+        id<ScreenMirroringControl> screenMirroring = [service screenMirroringControl];
+
+        if (screenMirroring)
+        {
+            if (foundScreenMirroring)
+            {
+                if (screenMirroring.screenMirroringControlPriority > foundScreenMirroring.screenMirroringControlPriority)
+                {
+                    foundScreenMirroring = screenMirroring;
+                }
+            } else
+            {
+                foundScreenMirroring = screenMirroring;
+            }
+        }
+    }];
+
+    return foundScreenMirroring;
+}
+
+- (id<RemoteCameraControl>)remoteCameraControl
+{
+    __block id<RemoteCameraControl> foundRemoteCamera;
+
+    [_services enumerateKeysAndObjectsUsingBlock:^(id key, id service, BOOL *stop)
+    {
+        if (![service respondsToSelector:@selector(remoteCameraControl)])
+            return;
+
+        id<RemoteCameraControl> remoteCamera = [service remoteCameraControl];
+
+        if (remoteCamera)
+        {
+            if (foundRemoteCamera)
+            {
+                if (remoteCamera.remoteCameraControlPriority > foundRemoteCamera.remoteCameraControlPriority)
+                {
+                    foundRemoteCamera = remoteCamera;
+                }
+            } else
+            {
+                foundRemoteCamera = remoteCamera;
+            }
+        }
+    }];
+
+    return foundRemoteCamera;
+}
+
 @end
