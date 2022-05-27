@@ -46,6 +46,7 @@ NSString *const kRCKeyRotation = @"rotation";
 @interface RemoteCameraService () <ConnectionManagerDelegate, LGCastCameraApiDelegate>
 
 @property ConnectionManager *connectionManager;
+@property BOOL isRunning;
 
 @property CameraParameter *cameraParameter;
 @property CameraSourceCapability *sourceCapability;
@@ -75,6 +76,7 @@ NSString *const kRCKeyRotation = @"rotation";
     _isRunning = NO;
     _connectionManager = ConnectionManager.sharedInstance;
     _connectionManager.delegate = self;
+    [[LGCastCameraApi shared] setDelegate:self];
     
     return self;
 }
@@ -82,26 +84,28 @@ NSString *const kRCKeyRotation = @"rotation";
 - (UIView *)startRemoteCamera:(ConnectableDevice *)device settings:(nullable NSDictionary<NSString *, id> *)settings {
     [Log infoLGCast:@"startRemoteCamera"];
     
-    UIView *previewView = [[LGCastCameraApi shared] createCameraPreviewView:nil];
-    _isRunning = YES;
-    
-    if (settings != nil) {
-        if (settings[kRemoteCameraSettingsMicMute] != nil) {
-            bool isMicMute = [settings[kRemoteCameraSettingsMicMute] boolValue];
-            [[LGCastCameraApi shared] muteMicrophone:isMicMute];
+    UIView *previewView;
+    if (self.isRunning == NO) {
+        self.isRunning = YES;
+        previewView = [[LGCastCameraApi shared] createCameraPreviewView:nil];
+
+        if (settings != nil) {
+            if (settings[kRemoteCameraSettingsMicMute] != nil) {
+                bool isMicMute = [settings[kRemoteCameraSettingsMicMute] boolValue];
+                [[LGCastCameraApi shared] muteMicrophone:isMicMute];
+            }
+            
+            if (settings[kRemoteCameraSettingsLensFacing] != nil ) {
+                int lensFacing = [settings[kRemoteCameraSettingsLensFacing] intValue];
+                [[LGCastCameraApi shared] changeCameraPosition:lensFacing];
+            }
         }
         
-        if (settings[kRemoteCameraSettingsLensFacing] != nil ) {
-            int lensFacing = [settings[kRemoteCameraSettingsLensFacing] intValue];
-            [[LGCastCameraApi shared] changeCameraPosition:lensFacing];
-        }
-    }
-    
-    [self updateCameraParameter];
-    [_connectionManager openConnection:kServiceTypeRemoteCamera device:device];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidStart:)]) {
-        [_delegate remoteCameraDidStart:YES];
+        [self updateCameraParameter];
+        [_connectionManager openConnection:kServiceTypeRemoteCamera device:device];
+        [self sendStartEvent:YES];
+    } else {
+        [self sendStartEvent:NO];
     }
     
     return previewView;
@@ -110,13 +114,13 @@ NSString *const kRCKeyRotation = @"rotation";
 - (void)stopRemoteCamera {
     [Log infoLGCast:@"stopRemoteCamera"];
     
-    _isRunning = NO;
-    
-    [[LGCastCameraApi shared] stopRemoteCamera];
-    [_connectionManager closeConnection];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidStop:)]) {
-        [_delegate remoteCameraDidStop:YES];
+    if (self.isRunning == YES) {
+        self.isRunning = NO;
+        [[LGCastCameraApi shared] stopRemoteCamera];
+        [_connectionManager closeConnection];
+        [self sendStopEvent:YES];
+    } else {
+        [self sendStopEvent:NO];
     }
 }
 
@@ -168,17 +172,15 @@ NSString *const kRCKeyRotation = @"rotation";
 - (void)onPairingRejected {
     [Log infoLGCast:@"onPairingRejected"];
     
-    [self stopRemoteCamera];
+    self.isRunning = NO;
+    [self sendStartEvent:NO];
 }
 
 - (void)onConnectionFailed:(NSString *)message {
     [Log infoLGCast:@"onConnectionFailed"];
     
-    [self stopRemoteCamera];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraErrorDidOccur:)]) {
-        [_delegate remoteCameraErrorDidOccur:RemoteCameraErrorConnectionClosed];
-    }
+    self.isRunning = NO;
+    [self sendStartEvent:NO];
 }
 
 - (void)onConnectionCompleted:(NSDictionary *)values {
@@ -195,10 +197,7 @@ NSString *const kRCKeyRotation = @"rotation";
     
     [_connectionManager setSourceDeviceInfo:[_sourceCapability toNSDictionary]
                                  deviceInfo:[mobileCapability toNSDictionary]];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidPair)]) {
-        [_delegate remoteCameraDidPair];
-    }
+    [self sendPairEvent];
 }
 
 - (void)onReceivePlayCommand:(NSDictionary *)values {
@@ -227,16 +226,11 @@ NSString *const kRCKeyRotation = @"rotation";
     settings.audioPort = audioPort;
     
     [[LGCastCameraApi shared] startRemoteCamera:settings];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidPlay)]) {
-        [_delegate remoteCameraDidPlay];
-    }
+    [self sendPlayEvent];
 }
 
 - (void)onReceiveStopCommand:(NSDictionary *)values {
     [Log infoLGCast:@"onReceiveStopCommand"];
-    
-    _isRunning = NO;
     
     [[LGCastCameraApi shared] stopRemoteCamera];
 }
@@ -266,10 +260,7 @@ NSString *const kRCKeyRotation = @"rotation";
         
         result = [[LGCastCameraApi shared] setCameraPropertiesWithProperty:LGCastCameraPropertyBrightness value:brightness];
         response = [_cameraParameter toNSDictionaryBritnessResult:result brightness:brightness];
-        
-        if (result && _delegate && [_delegate respondsToSelector:@selector(remoteCameraDidChange:)]) {
-            [_delegate remoteCameraDidChange:RemoteCameraPropertyBrightness];
-        }
+        [self sendChangeEvent:RemoteCameraPropertyBrightness];
     }
     
     if (cameraObj[kRCKeyWhiteBalance]) {
@@ -278,9 +269,7 @@ NSString *const kRCKeyRotation = @"rotation";
         result = [[LGCastCameraApi shared] setCameraPropertiesWithProperty:LGCastCameraPropertyWhitebalance value:whiteBalance];
         response = [_cameraParameter toNSDictionaryWhiteBalanceResult:result whiteBalance:whiteBalance];
         
-        if (result && _delegate && [_delegate respondsToSelector:@selector(remoteCameraDidChange:)]) {
-            [_delegate remoteCameraDidChange:RemoteCameraPropertyWhiteBalance];
-        }
+        [self sendChangeEvent:RemoteCameraPropertyWhiteBalance];
     }
     
     if (cameraObj[kRCKeyAutoWhiteBalance]) {
@@ -336,20 +325,21 @@ NSString *const kRCKeyRotation = @"rotation";
             break;
     }
     
-    _isRunning = NO;
-    
+    self.isRunning = NO;
     [[LGCastCameraApi shared] stopRemoteCamera];
     [_connectionManager closeConnection];
     
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraErrorDidOccur:)]) {
-        [_delegate remoteCameraErrorDidOccur:controlError];
-    }
+    [self sendErrorEvent:controlError];
 }
 
 // MARK: LGCastCameraApiDelegate
 
 - (void)lgcastCameraDidChangeWithProperty:(LGCastCameraProperty)property {
     [Log infoLGCast:@"lgcastCameraDidChangeWithProperty"];
+    
+    if (!self.isRunning) {
+        return;
+    }
     
     if (property == LGCastCameraPropertyRotation) {
         [self updateCameraParameter];
@@ -370,18 +360,57 @@ NSString *const kRCKeyRotation = @"rotation";
                 break;
         }
 
-        if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidChange:)]) {
-            [_delegate remoteCameraDidChange:type];
-        }
+        [self sendChangeEvent:type];
     }
 }
 
 - (void)lgcastCameraDidPlay {
     [Log infoLGCast:@"lgcastCameraDidPlay"];
+    
+    [self sendPlayEvent];
 }
 
 - (void)lgcastCameraErrorDidOccurWithError:(LGCastCameraError)error {
     [Log errorLGCast:[NSString stringWithFormat:@"lgcastCameraErrorDidOccurWithError %ld", (long)error]];
+    
+    self.isRunning = NO;
+    [self sendErrorEvent:error];
+}
+
+- (void)sendPairEvent {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidPair)]) {
+        [_delegate remoteCameraDidPair];
+    }
+}
+
+- (void)sendStartEvent:(BOOL)result {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidStart:)]) {
+        [_delegate remoteCameraDidStart:result];
+    }
+}
+
+- (void)sendStopEvent:(BOOL)result {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidStop:)]) {
+        [_delegate remoteCameraDidStop:result];
+    }
+}
+
+- (void)sendPlayEvent {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidPlay)]) {
+        [_delegate remoteCameraDidPlay];
+    }
+}
+
+- (void)sendChangeEvent:(RemoteCameraProperty)property {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraDidChange:)]) {
+        [_delegate remoteCameraDidChange:property];
+    }
+}
+
+- (void)sendErrorEvent:(RemoteCameraError)error {
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteCameraErrorDidOccur:)]) {
+        [_delegate remoteCameraErrorDidOccur:error];
+    }
 }
 
 @end

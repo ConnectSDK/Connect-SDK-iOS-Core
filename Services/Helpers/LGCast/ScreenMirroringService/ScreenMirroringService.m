@@ -73,16 +73,25 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
 - (void)startMirroring:(ConnectableDevice *)device settings:(nullable NSDictionary<NSString *,id> *)settings {
     [Log infoLGCast:@"startMirroring"];
     
-    self.isRunning = YES;
-    [_connectionManager openConnection:kServiceTypeScreenMirroring device:device];
+    if (self.isRunning == NO) {
+        self.isRunning = YES;
+        [_connectionManager openConnection:kServiceTypeScreenMirroring device:device];
+    } else {
+        [self sendStartEvent:NO];
+    }
 }
 
 - (void)stopMirroring {
     [Log infoLGCast:@"stopMirroring"];
     
-    self.isRunning = NO;
-    [[LGCastMirroringApi shared] stopMirroring];
-    [_connectionManager closeConnection];
+    if (self.isRunning == YES) {
+        self.isRunning = NO;
+        [[LGCastMirroringApi shared] stopMirroring];
+        [_connectionManager closeConnection];
+        [self sendStopEvent:YES];
+    } else {
+        [self sendStopEvent:NO];
+    }
 }
 
 - (void)pushSampleBuffer:(CMSampleBufferRef)sampleBuffer with:(RPSampleBufferType)sampleBufferType {
@@ -106,17 +115,15 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
 - (void)onPairingRejected {
     [Log infoLGCast:@"onPairingRejected"];
     
-    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringDidStart:)]){
-        [_delegate screenMirroringDidStart:NO];
-    }
+    self.isRunning = NO;
+    [self sendStartEvent:NO];
 }
 
 - (void)onConnectionFailed:(NSString *)message {
     [Log errorLGCast:[NSString stringWithFormat:@"onConnectionFailed %@", message]];
     
-    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringDidStart:)]){
-        [_delegate screenMirroringDidStart:NO];
-    }
+    self.isRunning = NO;
+    [self sendStartEvent:NO];
 }
 
 - (void)onConnectionCompleted:(NSDictionary *)values {
@@ -213,7 +220,6 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
         
         [self updateCapability:[_sourceCapability toNSDictionaryVideoSize]];
     }
-    
 }
 
 - (void)onError:(ConnectionError)error message:(NSString *)message {
@@ -241,29 +247,23 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
             break;
     }
     
+    self.isRunning = NO;
     [[LGCastMirroringApi shared] stopMirroring];
     
-    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringErrorDidOccur:)]){
-        [_delegate screenMirroringErrorDidOccur:controlError];
-    }
+    [self sendErrorEvent:controlError];
 }
 
 // MARK: LGCastMirroringApiDelegate
 
 - (void)lgcastMirroringDidStartWithResult:(BOOL)result {
     [Log infoLGCast:@"lgcastMirroringDidStartWithResult"];
-    
-    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringDidStart:)]){
-        [_delegate screenMirroringDidStart:result];
+    if (result) {
+        [self sendStartEvent:YES];
     }
 }
 
 - (void)lgcastMirroringDidStopWithResult:(BOOL)result {
     [Log infoLGCast:@"lgcastMirroringDidStopWithResult"];
-    
-    if (_delegate && [_delegate respondsToSelector:@selector(screenMirroringDidStop:)]) {
-        [_delegate screenMirroringDidStop:result];
-    }
 }
 
 - (void)lgcastMirroringErrorDidOccurWithError:(enum LGCastMirroringError)error {
@@ -288,9 +288,8 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
             break;
     }
 
-    if([_delegate respondsToSelector:@selector(screenMirroringErrorDidOccur:)]){
-        [_delegate screenMirroringErrorDidOccur:errorType];
-    }
+    self.isRunning = NO;
+    [self sendErrorEvent:error];
 }
 
 - (void)lgcastMirroringUpdateEventWithEvent:(enum LGCastMirroringEvent)event info:(LGCastMirroringInfo *)info {
@@ -315,6 +314,24 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
     }
     
     [_connectionManager sendSetParameter:capability ignoreResult:YES];
+}
+
+- (void)sendStartEvent:(BOOL)result {
+    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringDidStart:)]){
+        [_delegate screenMirroringDidStart:result];
+    }
+}
+
+- (void)sendStopEvent:(BOOL)result {
+    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringDidStop:)]){
+        [_delegate screenMirroringDidStop:result];
+    }
+}
+
+- (void)sendErrorEvent:(ScreenMirroringError)error {
+    if(_delegate != nil && [_delegate respondsToSelector:@selector(screenMirroringErrorDidOccur:)]){
+        [_delegate screenMirroringErrorDidOccur:error];
+    }
 }
 
 @end

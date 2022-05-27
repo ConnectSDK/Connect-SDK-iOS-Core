@@ -234,10 +234,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
     }
     
     [self commandSubscribe];
-    
-    if (_serviceType == kServiceTypeScreenMirroring) {
-        [self powerStateSubscribe];
-    }
+    [self powerStateSubscribe];
 }
 
 - (void)commandSubscribe {
