@@ -1,19 +1,24 @@
-#Connect SDK Core (iOS)
+# Connect SDK Core (iOS)
 The Connect SDK Core contains all of the core classes required for basic operation of Connect SDK. The core also includes support for some select protocols which do not have any heavy and/or external dependencies. These protocols include:
 - Apple TV
 - DIAL
 - DLNA
 - LG Netcast
 - LG webOS
+- LG Cast
 - Roku
 
-##General Information
+## General Information
 For more information about Connect SDK, visit the [main repository](https://github.com/ConnectSDK/Connect-SDK-iOS).
 
-##Setup
+## Setup
 Unless you are doing very specialized work to extend the SDK, you should not need to make direct use of this repository. Instead, clone the [main repository](https://github.com/ConnectSDK/Connect-SDK-iOS), which includes this repository as a submodule.
 
-##License
+## External libraries
+GStreamerForLGCast.framework is shared object library and links dynamically GStreamer open-source multimedia framework that is licensed under Lesser General Public License.
+You can download and rebuild GStreamer.framework at [GStreamer](https://gstreamer.freedesktop.org/download/), GStreamerForLGCast.framework at [GStreamerForLGCast](https://github.com/ConnectSDK/Connect-SDK-iOS-Core/tree/master/Frameworks/LGCast/GStreamerForLGCast.zip)
+
+## License
 Copyright (c) 2013-2015 LG Electronics.
 
 Licensed under the Apache License, Version 2.0 (the "License");

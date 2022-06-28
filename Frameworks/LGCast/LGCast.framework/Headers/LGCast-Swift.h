@@ -293,7 +293,7 @@ SWIFT_PROTOCOL("_TtP6LGCast23LGCastCameraApiDelegate_")
 - (void)lgcastCameraErrorDidOccurWithError:(enum LGCastCameraError)error;
 @end
 
-typedef SWIFT_ENUM(NSInteger, LGCastCameraError, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCameraError, open) {
   LGCastCameraErrorUnknown = 0,
   LGCastCameraErrorConnectionClosed = 1,
   LGCastCameraErrorDeviceShutdown = 2,
@@ -315,12 +315,12 @@ SWIFT_CLASS("_TtC6LGCast25LGCastCameraParameterInfo")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(NSInteger, LGCastCameraPosition, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCameraPosition, open) {
   LGCastCameraPositionFront = 0,
   LGCastCameraPositionBack = 1,
 };
 
-typedef SWIFT_ENUM(NSInteger, LGCastCameraPreviewVideoGravity, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCameraPreviewVideoGravity, open) {
   LGCastCameraPreviewVideoGravityResize = 0,
   LGCastCameraPreviewVideoGravityResizeAspect = 1,
   LGCastCameraPreviewVideoGravityResizeAspectFill = 2,
@@ -336,7 +336,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) Class _Nonnull layer
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(NSInteger, LGCastCameraProperty, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCameraProperty, open) {
   LGCastCameraPropertyAudio = 0,
   LGCastCameraPropertyAutoWhiteBalance = 1,
   LGCastCameraPropertyBrightness = 2,
@@ -346,7 +346,7 @@ typedef SWIFT_ENUM(NSInteger, LGCastCameraProperty, closed) {
   LGCastCameraPropertyRotation = 6,
 };
 
-typedef SWIFT_ENUM(NSInteger, LGCastCameraResolution, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCameraResolution, open) {
   LGCastCameraResolutionLow = 0,
   LGCastCameraResolutionMedium = 1,
   LGCastCameraResolutionHigh = 2,
@@ -367,7 +367,7 @@ SWIFT_CLASS("_TtC6LGCast26LGCastCameraResolutionInfo")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(NSInteger, LGCastCamperaPropertyStatus, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastCamperaPropertyStatus, open) {
   LGCastCamperaPropertyStatusDisable = 0,
   LGCastCamperaPropertyStatusEnable = 1,
 };
@@ -440,14 +440,14 @@ SWIFT_CLASS("_TtC6LGCast28LGCastMirroringAudioSettings")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(NSInteger, LGCastMirroringError, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastMirroringError, open) {
   LGCastMirroringErrorUnknown = 0,
   LGCastMirroringErrorConnectionClosed = 1,
   LGCastMirroringErrorDeviceShutdown = 2,
   LGCastMirroringErrorRendererTerminated = 3,
 };
 
-typedef SWIFT_ENUM(NSInteger, LGCastMirroringEvent, closed) {
+typedef SWIFT_ENUM(NSInteger, LGCastMirroringEvent, open) {
   LGCastMirroringEventUnknown = 0,
   LGCastMirroringEventUpdateVideoInfo = 1,
   LGCastMirroringEventUpdateVideoVideoSize = 2,
@@ -559,7 +559,7 @@ SWIFT_CLASS("_TtC6LGCast11MTAudioInfo")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(int32_t, MTAudioType, closed) {
+typedef SWIFT_ENUM(int32_t, MTAudioType, open) {
   MTAudioTypePcm = 0,
   MTAudioTypeAac = 1,
 };
@@ -588,7 +588,7 @@ SWIFT_CLASS("_TtC6LGCast11MTVideoInfo")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-typedef SWIFT_ENUM(int32_t, MTVideoType, closed) {
+typedef SWIFT_ENUM(int32_t, MTVideoType, open) {
   MTVideoTypeRaw = 0,
   MTVideoTypeH264 = 1,
   MTVideoTypeMjpeg = 2,
