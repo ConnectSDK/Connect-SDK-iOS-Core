@@ -109,7 +109,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         }
     };
     
-    [_service sendGetParameter:_serviceName sucess:successBlock failure:failureBlock];
+    [_service sendGetParameterWithService:_serviceName success:successBlock failure:failureBlock];
 }
 
 - (void)sendSetParameter:(NSDictionary *)values {
@@ -130,10 +130,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         }
     };
     
-    [_service sendSetParameter:values
-                       service:_serviceName
-                       success:_nilSuccessBlock
-                       failure:failureBlock];
+    [_service sendSetParameterWithService:_serviceName sourceInfo:values deviceInfo:nil success:_nilSuccessBlock failure:failureBlock];
 }
 
 - (void)sendGetParameterResponse:(NSDictionary *)values {
@@ -144,7 +141,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         return;
     }
     
-    [_service sendGetParameterResponse:values service:_serviceName success:_nilSuccessBlock failure:_nilFailBlock];
+    [_service sendGetParameterResponseWithService:_serviceName values:values success:_nilSuccessBlock failure:_nilFailBlock];
 }
 
 - (void)sendSetParameterResponse:(NSDictionary *)values {
@@ -155,7 +152,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         return;
     }
     
-    [_service sendSetParameterResponse:values service:_serviceName success:_nilSuccessBlock failure:_nilFailBlock];
+    [_service sendSetParameterResponseWithService:_serviceName values:values success:_nilSuccessBlock failure:_nilFailBlock];
 }
 
 - (void)closeConnection {
@@ -171,7 +168,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         [_keepAliveTimer invalidate];
     }
     
-    [_service sendTeardown:_serviceName success:_nilSuccessBlock];
+    [_service sendTeardownWithService:_serviceName success:_nilSuccessBlock failure:_nilFailBlock];
     
     if (_powerStateSubscription != nil) {
         [_powerStateSubscription unsubscribe];
@@ -210,7 +207,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         }
     };
     
-    [_service sendSetParameter:sourceInfo service:_serviceName deviceSpec:deviceInfo success:successBlock failure:failureBlock];
+    [_service sendSetParameterWithService:_serviceName sourceInfo:sourceInfo deviceInfo:deviceInfo success:successBlock failure:failureBlock];
 }
 
 - (void)sendKeepAlive {
@@ -218,10 +215,9 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         [_keepAliveTimer invalidate];
     }
     
-    [_service sendKeepAliveWithSuccess:_nilSuccessBlock failure:_nilFailBlock];
+    [_service sendKeepAliveWithService:_serviceName success:_nilSuccessBlock failure:_nilFailBlock];
     _keepAliveTimer = [NSTimer scheduledTimerWithTimeInterval:_keepAlivePeriod repeats:YES block:^(NSTimer * timer) {
-        [self->_service sendKeepAliveWithSuccess:self->_nilSuccessBlock
-                                         failure:self->_nilFailBlock];
+        [self->_service sendKeepAliveWithService:_serviceName success:_nilSuccessBlock failure:_nilFailBlock];
     }];
 }
 
@@ -338,7 +334,7 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
         }
     };
     
-    [_service sendConnect:_serviceName success:successBlock failure:failureBlock];
+    [_service sendConnectWithService:_serviceName success:successBlock failure:failureBlock];
 }
 
 - (void)callOnPairingRequested {
