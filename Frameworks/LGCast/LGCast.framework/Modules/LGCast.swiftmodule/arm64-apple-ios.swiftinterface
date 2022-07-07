@@ -366,11 +366,6 @@ extension Foundation.UserDefaults {
       set
       _modify
     }
-    @LGCast.LGCastUserDefaults public static var enableBuffer: Swift.Bool {
-      get
-      set
-      _modify
-    }
     @LGCast.LGCastUserDefaults public static var iframeLatency: Swift.Int {
       get
       set
