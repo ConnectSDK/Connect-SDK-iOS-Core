@@ -23,16 +23,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WebOSTVService (LGCast)
+
 - (ServiceSubscription *)subscribeCommandWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
 - (ServiceSubscription *)subscribePowerStateWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendConnect:(NSString*)service success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendGetParameter:(NSString*)service sucess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendSetParameter:(NSDictionary *)sourceInfo service:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendSetParameter:(NSDictionary *)sourceInfo service:(NSString *)service deviceSpec:(NSDictionary *)deviceInfo success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendGetParameterResponse:(NSDictionary *)parameter service:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendSetParameterResponse:(NSDictionary *)parameter service:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendKeepAliveWithSuccess:(SuccessBlock)success failure:(FailureBlock)failure;
-- (void)sendTeardown:(NSString*)service success:(SuccessBlock)success;
+
+- (void)sendConnectWithService:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendGetParameterWithService:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendSetParameterWithService:(NSString *)service sourceInfo:(NSDictionary *)sourceInfo deviceInfo:(NSDictionary *)deviceInfo success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendGetParameterResponseWithService:(NSString *)service values:(NSDictionary *)values success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendSetParameterResponseWithService:(NSString *)service values:(NSDictionary *)values success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendKeepAliveWithService:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
+- (void)sendTeardownWithService:(NSString *)service success:(SuccessBlock)success failure:(FailureBlock)failure;
 
 @end
 
