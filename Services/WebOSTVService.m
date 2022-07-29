@@ -35,7 +35,7 @@
 #define kKeyboardEnter @"\x1b ENTER \x1b"
 #define kKeyboardDelete @"\x1b DELETE \x1b"
 
-@interface WebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate, RemoteCameraServiceDelegate, ScreenMirroringControlDelegate>
+@interface WebOSTVService () <UIAlertViewDelegate, WebOSTVServiceSocketClientDelegate, RemoteCameraServiceDelegate, ScreenMirroringServiceDelegate>
 {
     NSArray *_permissions;
 
@@ -2402,7 +2402,7 @@
     _screenMirroringDelegate = delegate;
 }
 
-#pragma mark - ScreenMirroringControlDelegate
+#pragma mark - ScreenMirroringServiceDelegate
 - (void)screenMirroringDidStart:(BOOL)result {
     if(_screenMirroringDelegate != nil && [_screenMirroringDelegate respondsToSelector:@selector(screenMirroringDidStart:)]){
         [_screenMirroringDelegate screenMirroringDidStart:result];
@@ -2464,7 +2464,7 @@
     _remoteCameraDelegate = delegate;
 }
 
-#pragma mark - RemoteCameraControlDelegate
+#pragma mark - RemoteCameraServiceDelegate
 - (void)remoteCameraDidPair {
     if(_remoteCameraDelegate != nil && [_remoteCameraDelegate respondsToSelector:@selector(remoteCameraDidPair)]){
         [_remoteCameraDelegate remoteCameraDidPair];
