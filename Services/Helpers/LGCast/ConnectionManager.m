@@ -352,6 +352,8 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
 
 - (void)callOnConnectionFailed:(NSString *)message {
     [Log infoLGCast:@"callOnConnectionFailed"];
+    
+    [self closeConnection];
     _currentState = kConnectionStateNone;
     
     if (_delegate && [_delegate respondsToSelector:@selector(onConnectionFailed:)]) {
@@ -393,6 +395,8 @@ NSString *const kCMValueRequestPowerOff = @"Request Power Off";
 
 - (void)callOnError:(ConnectionError)error message:(NSString *)message {
     [Log infoLGCast:@"callOnError"];
+    
+    [self closeConnection];
     _currentState = kConnectionStateNone;
     
     if (_delegate && [_delegate respondsToSelector:@selector(onError:message:)]) {

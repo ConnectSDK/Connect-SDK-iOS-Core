@@ -106,7 +106,6 @@ NSString *const kRCKeyRotation = @"rotation";
         
         [self updateCameraParameter];
         [_connectionManager openConnection:kServiceTypeRemoteCamera device:device];
-        [self sendStartEvent:YES];
     } else {
         [self sendStartEvent:NO];
     }
@@ -171,6 +170,8 @@ NSString *const kRCKeyRotation = @"rotation";
 
 - (void)onPairingRequested {
     [Log infoLGCast:@"onPairingRequested"];
+    
+    [self sendPairEvent];
 }
 
 - (void)onPairingRejected {
@@ -202,7 +203,7 @@ NSString *const kRCKeyRotation = @"rotation";
     
     [_connectionManager setSourceDeviceInfo:[_sourceCapability toNSDictionary]
                                  deviceInfo:[mobileCapability toNSDictionary]];
-    [self sendPairEvent];
+    [self sendStartEvent:YES];
 }
 
 - (void)onReceivePlayCommand:(NSDictionary *)values {
