@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.6.1 (swiftlang-5.6.0.323.66 clang-1316.0.20.12)
+// swift-compiler-version: Apple Swift version 5.6 (swiftlang-5.6.0.323.62 clang-1316.0.20.8)
 // swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -module-name LGCast
 import AVFoundation
 import AudioToolbox
@@ -287,91 +287,6 @@ import _Concurrency
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
-  }
-}
-extension Foundation.UserDefaults {
-  public enum LGCast {
-    @LGCast.LGCastUserDefaults public static var usePcPlayer: Swift.Bool {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var videoType: LGCast.MTVideoType {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var audioType: LGCast.MTAudioType {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var enableSrtp: Swift.Bool {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var pcIpAddress: Swift.String {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var pcVideoPort: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var pcAudioPort: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var tvIpAddress: Swift.String {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var isRunningExtension: Swift.Bool {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var videoBitrate: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var resoultionKey: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var resoultionWidth: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var resoultionHeight: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var audioBitrate: Swift.Int {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var enableRivision: Swift.Bool {
-      get
-      set
-      _modify
-    }
-    @LGCast.LGCastUserDefaults public static var iframeLatency: Swift.Int {
-      get
-      set
-      _modify
-    }
-    public static func debug()
   }
 }
 @propertyWrapper public struct LGCastUserDefaults<T> {
