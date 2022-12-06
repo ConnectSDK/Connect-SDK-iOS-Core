@@ -33,6 +33,7 @@
                             _videoCodec, @"codec",
                             [NSNumber numberWithLong:_videoClockRate], @"clockRate",
                             [NSNumber numberWithLong:_videoFramerate], @"framerate",
+                            [NSNumber numberWithLong:_videoBitrate], @"bitrate",
                             [NSNumber numberWithLong:_videoWidth], @"width",
                             [NSNumber numberWithLong:_videoHeight], @"height",
                             [NSNumber numberWithLong:_videoActiveWidth], @"activeWidth",

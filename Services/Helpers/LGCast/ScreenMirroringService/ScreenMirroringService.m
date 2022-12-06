@@ -45,6 +45,9 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
 
 @implementation ScreenMirroringService
 
+#define DEFAULT_MIRRORING_SCREEN_WIDTH 1920
+#define DEFAULT_MIRRORING_SCREEN_HEIGHT 1080
+
 + (instancetype)sharedInstance {
     static ScreenMirroringService *shared = nil;
     static dispatch_once_t onceToken;
@@ -139,17 +142,29 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
     LGCastMirroringMediaSettings *mediaSettings = [[LGCastMirroringMediaSettings alloc] init];
     mediaSettings.audio = [[LGCastMirroringAudioSettings alloc] init];
     mediaSettings.video = [[LGCastMirroringVideoSettings alloc] init];
+    
+    BOOL isPortraitMode = [_sinkCapability.displayOrientation caseInsensitiveCompare:kSMValueOrientationPortrait] == NSOrderedSame ? YES : NO;
+    mediaSettings.video.isPortraitMode = isPortraitMode;
+    
+    if (isPortraitMode) {
+        mediaSettings.video.width = DEFAULT_MIRRORING_SCREEN_HEIGHT;
+        mediaSettings.video.height = DEFAULT_MIRRORING_SCREEN_WIDTH;
+    } else {
+        mediaSettings.video.width = DEFAULT_MIRRORING_SCREEN_WIDTH;
+        mediaSettings.video.height = DEFAULT_MIRRORING_SCREEN_HEIGHT;
+    }
 
     LGCastMirroringInfo *mirroringInfo = [[LGCastMirroringApi shared] setMediaSettings:mediaSettings];
     _sourceCapability = [[MirroringSourceCapability alloc] init];
 
     if (mirroringInfo.videoInfo != nil) {
         _sourceCapability.videoCodec = mirroringInfo.videoInfo.codec;
-        _sourceCapability.videoWidth = mirroringInfo.videoInfo.width;
-        _sourceCapability.videoHeight = mirroringInfo.videoInfo.height;
+        _sourceCapability.videoWidth = mirroringInfo.playerInfo.width;
+        _sourceCapability.videoHeight = mirroringInfo.playerInfo.height;
         _sourceCapability.videoActiveWidth = mirroringInfo.videoInfo.activeWidth;
         _sourceCapability.videoActiveHeight = mirroringInfo.videoInfo.activeHeight;
         _sourceCapability.videoFramerate = mirroringInfo.videoInfo.framerate;
+        _sourceCapability.videoBitrate = mirroringInfo.videoInfo.bitrate;
         _sourceCapability.videoClockRate = mirroringInfo.videoInfo.samplingRate;
         _sourceCapability.videoOrientation  = mirroringInfo.videoInfo.isPortraitMode ? kSMValueOrientationPortrait :kSMValueOrientationLandscape;
         _sourceCapability.screenOrientation = mirroringInfo.videoInfo.screenOrientation;
@@ -178,8 +193,6 @@ NSString *const kSMValueOrientationLandscape = @"landscape";
     deviceSettings.host = _sinkCapability.ipAddress;
     deviceSettings.audioPort = _sinkCapability.audioUdpPort;
     deviceSettings.videoPort = _sinkCapability.videoUdpPort;
-    BOOL isPortraitMode = [_sinkCapability.displayOrientation caseInsensitiveCompare:kSMValueOrientationPortrait] == NSOrderedSame ? YES : NO;
-    deviceSettings.isPortraitMode = isPortraitMode;
 
     [[LGCastMirroringApi shared] startMirroring:deviceSettings];
 }
