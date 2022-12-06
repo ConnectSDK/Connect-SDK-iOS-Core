@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *videoCodec;
 @property NSInteger videoClockRate;
 @property NSInteger videoFramerate;
+@property NSInteger videoBitrate;
 @property NSInteger videoWidth;
 @property NSInteger videoHeight;
 @property NSInteger videoActiveWidth;
