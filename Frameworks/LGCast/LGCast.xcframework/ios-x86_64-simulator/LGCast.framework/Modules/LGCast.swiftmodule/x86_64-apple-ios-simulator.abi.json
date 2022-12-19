@@ -15258,2464 +15258,2464 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 190,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 216,
       "length": 14,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 240,
       "length": 18,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 190,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 216,
       "length": 14,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraError.swift",
       "kind": "IntegerLiteral",
       "offset": 240,
       "length": 18,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 207,
       "length": 15,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 232,
       "length": 20,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 262,
       "length": 15,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 287,
       "length": 16,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 207,
       "length": 15,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 232,
       "length": 20,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 262,
       "length": 15,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "IntegerLiteral",
       "offset": 287,
       "length": 16,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringApi.swift",
       "kind": "BooleanLiteral",
       "offset": 825,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 191,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 217,
       "length": 14,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 241,
       "length": 18,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 191,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 217,
       "length": 14,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastMirroring\/LGCastMirroringError.swift",
       "kind": "IntegerLiteral",
       "offset": 241,
       "length": 18,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 364,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 403,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 506,
       "length": 5,
       "value": "44100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 547,
       "length": 2,
       "value": "64"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 552,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 596,
       "length": 1,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 694,
       "length": 4,
       "value": "1920"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 733,
       "length": 4,
       "value": "1080"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "BooleanLiteral",
       "offset": 781,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 824,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 862,
       "length": 1,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 866,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 873,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1309,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1349,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1386,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "StringLiteral",
       "offset": 1434,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1574,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1824,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1889,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 1958,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2038,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2119,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2162,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2199,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "StringLiteral",
       "offset": 2250,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "BooleanLiteral",
       "offset": 2296,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "StringLiteral",
       "offset": 2348,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2533,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2628,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2664,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "BooleanLiteral",
       "offset": 2709,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "StringLiteral",
       "offset": 2760,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2800,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 2839,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 3366,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 3402,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 3439,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 3561,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 3600,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "IntegerLiteral",
       "offset": 431,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "IntegerLiteral",
       "offset": 463,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "StringLiteral",
       "offset": 559,
       "length": 21,
       "value": "\"KEY_CAMERA_POSITION\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "StringLiteral",
       "offset": 637,
       "length": 27,
       "value": "\"KEY_PREVIEW_VIDEO_GRAVITY\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "StringLiteral",
       "offset": 725,
       "length": 31,
       "value": "\"KEY_IS_SUPPORT_LANDSCAPE_MODE\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraApi.swift",
       "kind": "BooleanLiteral",
       "offset": 925,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 196,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 222,
       "length": 10,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 242,
       "length": 6,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 258,
       "length": 10,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 278,
       "length": 12,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 300,
       "length": 8,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 196,
       "length": 16,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 222,
       "length": 10,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 242,
       "length": 6,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 258,
       "length": 10,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 278,
       "length": 12,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 300,
       "length": 8,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 375,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 393,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 375,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 393,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 480,
       "length": 12,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 502,
       "length": 16,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 480,
       "length": 12,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 502,
       "length": 16,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 594,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 614,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 594,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 614,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 700,
       "length": 6,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 728,
       "length": 4,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 755,
       "length": 10,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 775,
       "length": 10,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 795,
       "length": 10,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 815,
       "length": 11,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 836,
       "length": 13,
       "value": "7"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 859,
       "length": 13,
       "value": "8"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 882,
       "length": 14,
       "value": "9"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 700,
       "length": 6,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 728,
       "length": 4,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 755,
       "length": 10,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 775,
       "length": 10,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 795,
       "length": 10,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 815,
       "length": 11,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 836,
       "length": 13,
       "value": "7"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 859,
       "length": 13,
       "value": "8"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Interface\/LGCastCamera\/LGCastCameraProperties.swift",
       "kind": "IntegerLiteral",
       "offset": 882,
       "length": 14,
       "value": "9"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 179,
       "length": 19,
       "value": "\"KEY_USE_PC_PLAYER\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "BooleanLiteral",
       "offset": 214,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 299,
       "length": 16,
       "value": "\"KEY_VIDEO_TYPE\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 432,
       "length": 16,
       "value": "\"KEY_AUDIO_TYPE\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 564,
       "length": 17,
       "value": "\"KEY_ENABLE_SRTP\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "BooleanLiteral",
       "offset": 597,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 680,
       "length": 19,
       "value": "\"KEY_PC_IP_ADDRESS\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 715,
       "length": 13,
       "value": "\"192.168.1.1\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 810,
       "length": 19,
       "value": "\"KEY_PC_VIDEO_PORT\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 845,
       "length": 4,
       "value": "5000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 928,
       "length": 19,
       "value": "\"KEY_PC_AUDIO_PORT\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 963,
       "length": 4,
       "value": "5002"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1046,
       "length": 18,
       "value": "\"KEY_TV_DEVICE_ID\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1080,
       "length": 9,
       "value": "\"Unknown\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1171,
       "length": 26,
       "value": "\"KEY_IS_RUNNING_EXTENSION\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "BooleanLiteral",
       "offset": 1213,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1305,
       "length": 19,
       "value": "\"KEY_VIDEO_BITRATE\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 1340,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1421,
       "length": 22,
       "value": "\"KEY_VIDEO_RESOLUTION\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 1459,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1549,
       "length": 28,
       "value": "\"KEY_VIDEO_RESOLUTION_WITDH\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 1593,
       "length": 4,
       "value": "1920"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1688,
       "length": 29,
       "value": "\"KEY_VIDEO_RESOLUTION_HEIGHT\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 1733,
       "length": 4,
       "value": "1080"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1821,
       "length": 19,
       "value": "\"KEY_AUDIO_BITRATE\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 1856,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 1945,
       "length": 21,
       "value": "\"KEY_ENABLE_RIVISION\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "BooleanLiteral",
       "offset": 1982,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "StringLiteral",
       "offset": 2078,
       "length": 26,
       "value": "\"KEY_VIDEO_IFRAME_LATENCY\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Preference\/UserDefaults+LGCast.swift",
       "kind": "IntegerLiteral",
       "offset": 2120,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
       "kind": "IntegerLiteral",
       "offset": 527,
       "length": 1,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
       "kind": "IntegerLiteral",
       "offset": 568,
       "length": 2,
       "value": "30"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/MasterKeyFactory.swift",
       "kind": "IntegerLiteral",
       "offset": 611,
       "length": 2,
       "value": "10"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 893,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 926,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 957,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 1212,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "StringLiteral",
       "offset": 1238,
       "length": 51,
       "value": "\"change TV orientation mode \""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "StringLiteral",
       "offset": 1288,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 1442,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 1529,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "Array",
       "offset": 2467,
       "length": 24,
       "value": "[0x00, 0x00, 0x00, 0x01]"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 2523,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 2556,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 2932,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 2965,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 3018,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "StringLiteral",
       "offset": 3044,
       "length": 34,
       "value": "\"change Screen mode \""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "StringLiteral",
       "offset": 3077,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/VideoEncoder.swift",
       "kind": "StringLiteral",
       "offset": 501,
       "length": 12,
       "value": "\"LGCast.VideoEncoder\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 539,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 718,
       "length": 5,
       "value": "44100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 775,
       "length": 1,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 825,
       "length": 2,
       "value": "64"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 830,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 883,
       "length": 2,
       "value": "32"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "IntegerLiteral",
       "offset": 888,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Encoder\/AudioEncoder.swift",
       "kind": "BooleanLiteral",
       "offset": 1102,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 253,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 272,
       "length": 7,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 293,
       "length": 5,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 312,
       "length": 4,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 330,
       "length": 5,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 253,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 272,
       "length": 7,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 293,
       "length": 5,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 312,
       "length": 4,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 330,
       "length": 5,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 253,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 272,
       "length": 7,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 293,
       "length": 5,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 312,
       "length": 4,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamer.swift",
       "kind": "IntegerLiteral",
       "offset": 330,
       "length": 5,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 246,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 283,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 545,
       "length": 4,
       "value": "1920"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 573,
       "length": 4,
       "value": "1080"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 604,
       "length": 2,
       "value": "30"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 631,
       "length": 6,
       "value": "200000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 670,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 776,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 878,
       "length": 5,
       "value": "44100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 911,
       "length": 1,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 937,
       "length": 2,
       "value": "64"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 942,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1047,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1100,
       "length": 10,
       "value": "1356955624"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 1206,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 1241,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 169,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 180,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 195,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 169,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 180,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 195,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 169,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 180,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 195,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 536,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 547,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 561,
       "length": 6,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 577,
       "length": 6,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 536,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 547,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 561,
       "length": 6,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 577,
       "length": 6,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 536,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 547,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 561,
       "length": 6,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 577,
       "length": 6,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 714,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 725,
       "length": 12,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 747,
       "length": 12,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 714,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 725,
       "length": 12,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 747,
       "length": 12,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 714,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 725,
       "length": 12,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 747,
       "length": 12,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 892,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 903,
       "length": 11,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 924,
       "length": 11,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 945,
       "length": 11,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 966,
       "length": 11,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 892,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 903,
       "length": 11,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 924,
       "length": 11,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 945,
       "length": 11,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 966,
       "length": 11,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 892,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 903,
       "length": 11,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 924,
       "length": 11,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 945,
       "length": 11,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreamerType.swift",
       "kind": "IntegerLiteral",
       "offset": 966,
       "length": 11,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTP\/MTRTPSecurity.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTP\/MTRTPSecurity.swift",
       "kind": "IntegerLiteral",
       "offset": 298,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 152,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 167,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 152,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 167,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 152,
       "length": 5,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTMediaInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 167,
       "length": 2,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 156,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 170,
       "length": 5,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 156,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 170,
       "length": 5,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 750,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 775,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 801,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 830,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 857,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "StringLiteral",
       "offset": 923,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTVideoInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 959,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 156,
       "length": 3,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 156,
       "length": 3,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 640,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 669,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 701,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "StringLiteral",
       "offset": 767,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/Media\/MTAudioInfo.swift",
       "kind": "IntegerLiteral",
       "offset": 803,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
       "kind": "StringLiteral",
       "offset": 1167,
       "length": 22,
       "value": "\"videoDataOutputQueue\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
       "kind": "StringLiteral",
       "offset": 1251,
       "length": 22,
       "value": "\"audioDataOutputQueue\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
       "kind": "BooleanLiteral",
       "offset": 1303,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraDevice.swift",
       "kind": "BooleanLiteral",
       "offset": 1335,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 666,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 684,
       "length": 6,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 704,
       "length": 5,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 723,
       "length": 5,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 666,
       "length": 4,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 684,
       "length": 6,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 704,
       "length": 5,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Utils\/Log.swift",
       "kind": "IntegerLiteral",
       "offset": 723,
       "length": 5,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 201,
       "length": 4,
       "value": "1920"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 243,
       "length": 4,
       "value": "1080"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 282,
       "length": 5,
       "value": "90000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 321,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 355,
       "length": 1,
       "value": "6"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 359,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 366,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 454,
       "length": 2,
       "value": "16"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 497,
       "length": 1,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 536,
       "length": 5,
       "value": "44100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 582,
       "length": 2,
       "value": "64"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 587,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "StringLiteral",
       "offset": 633,
       "length": 10,
       "value": "\"40002420\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "StringLiteral",
       "offset": 691,
       "length": 20,
       "value": "\"landscape|portrait\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringConfig.swift",
       "kind": "Array",
       "offset": 748,
       "length": 285,
       "value": "[0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89]"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 800,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 842,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 986,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 1028,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 1110,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
       "offset": 1319,
       "length": 13,
       "value": "1000000000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
       "offset": 1374,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
       "offset": 1413,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
       "offset": 1537,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
       "offset": 1564,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "StringLiteral",
       "offset": 1905,
       "length": 73,
       "value": "\"change device orientation mode \""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "StringLiteral",
       "offset": 1952,
       "length": 10,
       "value": "\"portrait\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "StringLiteral",
       "offset": 1965,
       "length": 11,
       "value": "\"landscape\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "StringLiteral",
       "offset": 1977,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 2148,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "BooleanLiteral",
       "offset": 1449,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
-      "offset": 9095,
+      "offset": 9103,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringService.swift",
       "kind": "IntegerLiteral",
-      "offset": 9577,
+      "offset": 9585,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Mirroring\/MirroringVolume.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Mirroring\/MirroringVolume.swift",
       "kind": "IntegerLiteral",
       "offset": 202,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "StringLiteral",
       "offset": 242,
       "length": 19,
       "value": "\"videoSendingQueue\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "StringLiteral",
       "offset": 341,
       "length": 19,
       "value": "\"audioSendingQueue\""
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "IntegerLiteral",
       "offset": 442,
       "length": 10,
       "value": "30000000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "BooleanLiteral",
       "offset": 516,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "BooleanLiteral",
       "offset": 561,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "IntegerLiteral",
       "offset": 606,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Common\/Transfer\/RTPStreaming.swift",
       "kind": "IntegerLiteral",
       "offset": 647,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 150,
       "length": 4,
       "value": "1280"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 187,
       "length": 3,
       "value": "720"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 228,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 274,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 311,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 352,
       "length": 2,
       "value": "50"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 389,
       "length": 2,
       "value": "90"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 424,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 458,
       "length": 3,
       "value": "100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 501,
       "length": 4,
       "value": "7500"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 541,
       "length": 4,
       "value": "2300"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 581,
       "length": 5,
       "value": "10000"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 721,
       "length": 2,
       "value": "30"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 755,
       "length": 1,
       "value": "4"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 759,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 766,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1033,
       "length": 2,
       "value": "16"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1076,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1115,
       "length": 5,
       "value": "44100"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1161,
       "length": 2,
       "value": "64"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 1166,
       "length": 4,
       "value": "1024"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraConfig.swift",
       "kind": "Array",
       "offset": 1210,
       "length": 285,
       "value": "[0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89]"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1210,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1252,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1392,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1434,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1513,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "BooleanLiteral",
       "offset": 1556,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "IntegerLiteral",
       "offset": 8188,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "IntegerLiteral",
       "offset": 8670,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/hyojin\/Downloads\/lgcast_ios-master\/LGCast\/LGCast\/Camera\/CameraService.swift",
+      "filePath": "\/Users\/hyojin\/Source\/appcast_ios\/appcast_ios\/3.ConnectSDKIntegration\/LGCast\/LGCast\/Camera\/CameraService.swift",
       "kind": "StringLiteral",
       "offset": 800,
       "length": 13,
