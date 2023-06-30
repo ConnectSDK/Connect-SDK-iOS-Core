@@ -1548,7 +1548,44 @@
 
 - (void)sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
 {
-    [self sendNotSupportedFailure:failure];
+    
+- (void)sendKeyCode:(NSUInteger)keyCode success:(SuccessBlock)success failure:(FailureBlock)failure
+{
+    switch (keyCode) {
+        case 0: [self sendMouseButton:WebOSTVMouseButtonPower success:success failure:failure];
+        case 1: [self sendMouseButton:WebOSTVMouseButtonUp success:success failure:failure]; break;
+        case 2: [self sendMouseButton:WebOSTVMouseButtonDown success:success failure:failure]; break;
+        case 3: [self sendMouseButton:WebOSTVMouseButtonRight success:success failure:failure]; break;
+        case 4: [self sendMouseButton:WebOSTVMouseButtonLeft success:success failure:failure]; break;
+        case 5: [self sendMouseButton:WebOSTVMouseButtonMenu success:success failure:failure]; break;
+        case 6: [self sendMouseButton:WebOSTVMouseButtonHome success:success failure:failure]; break;
+        case 7: [self sendMouseButton:WebOSTVMouseButtonBack success:success failure:failure]; break;
+        case 8: [self sendMouseButton:WebOSTVMouseButtonExit success:success failure:failure]; break;
+        case 9: [self sendMouseButton:WebOSTVMouseButtonOk success:success failure:failure]; break;
+        case 10: [self sendMouseButton:WebOSTVMouseButtonVolumeUp success:success failure:failure]; break;
+        case 11: [self sendMouseButton:WebOSTVMouseButtonVolumeDown success:success failure:failure]; break;
+        case 12: [self sendMouseButton:WebOSTVMouseButtonChannelUp success:success failure:failure]; break;
+        case 13: [self sendMouseButton:WebOSTVMouseButtonChannelDown success:success failure:failure]; break;
+        case 14: [self sendMouseButton:WebOSTVMouseButtonSource success:success failure:failure]; break;
+        case 15: [self sendMouseButton:WebOSTVMouseButtonZero success:success failure:failure]; break;
+        case 16: [self sendMouseButton:WebOSTVMouseButtonOne success:success failure:failure]; break;
+        case 17: [self sendMouseButton:WebOSTVMouseButtonTwo success:success failure:failure]; break;
+        case 18: [self sendMouseButton:WebOSTVMouseButtonThree success:success failure:failure]; break;
+        case 19: [self sendMouseButton:WebOSTVMouseButtonFour success:success failure:failure]; break;
+        case 20: [self sendMouseButton:WebOSTVMouseButtonFive success:success failure:failure]; break;
+        case 21: [self sendMouseButton:WebOSTVMouseButtonSix success:success failure:failure]; break;
+        case 22: [self sendMouseButton:WebOSTVMouseButtonSeven success:success failure:failure]; break;
+        case 23: [self sendMouseButton:WebOSTVMouseButtonEight success:success failure:failure]; break;
+        case 24: [self sendMouseButton:WebOSTVMouseButtonNine success:success failure:failure]; break;
+        case 25: [self sendMouseButton:WebOSTVMouseButtonMute success:success failure:failure]; break;
+        case 26: [self sendMouseButton:WebOSTVMouseButtonPlay success:success failure:failure]; break;
+        case 27: [self sendMouseButton:WebOSTVMouseButtonPause success:success failure:failure]; break;
+        case 28: [self sendMouseButton:WebOSTVMouseButtonNext success:success failure:failure]; break;
+        case 29: [self sendMouseButton:WebOSTVMouseButtonPrev success:success failure:failure]; break;
+        default: break;
+    }
+}
+
 }
 
 #pragma mark - Mouse
