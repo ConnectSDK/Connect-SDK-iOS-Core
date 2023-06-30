@@ -118,12 +118,36 @@
 
     switch (keyName)
     {
-        case WebOSTVMouseButtonHome: keyString = @"HOME"; break;
-        case WebOSTVMouseButtonBack: keyString = @"BACK"; break;
+        case WebOSTVMouseButtonPower: keyString = @"POWER"; break;
         case WebOSTVMouseButtonUp: keyString = @"UP"; break;
         case WebOSTVMouseButtonDown: keyString = @"DOWN"; break;
-        case WebOSTVMouseButtonLeft: keyString = @"LEFT"; break;
         case WebOSTVMouseButtonRight: keyString = @"RIGHT"; break;
+        case WebOSTVMouseButtonLeft: keyString = @"LEFT"; break;
+        case WebOSTVMouseButtonMenu: keyString = @"MENU"; break;
+        case WebOSTVMouseButtonHome: keyString = @"HOME"; break;
+        case WebOSTVMouseButtonBack: keyString = @"BACK"; break;
+        case WebOSTVMouseButtonExit: keyString = @"EXIT"; break;
+        case WebOSTVMouseButtonOk: keyString = @"ENTER"; break;
+        case WebOSTVMouseButtonVolumeUp: keyString = @"VOLUMEUP"; break;
+        case WebOSTVMouseButtonVolumeDown: keyString = @"VOLUMEDOWN"; break;
+        case WebOSTVMouseButtonChannelUp: keyString = @"CHANNELUP"; break;
+        case WebOSTVMouseButtonChannelDown: keyString = @"CHANNELDOWN"; break;
+        case WebOSTVMouseButtonSource: keyString = @"EXTERNALINPUT"; break;
+        case WebOSTVMouseButtonZero: keyString = @"0"; break;
+        case WebOSTVMouseButtonOne: keyString = @"1"; break;
+        case WebOSTVMouseButtonTwo: keyString = @"2"; break;
+        case WebOSTVMouseButtonThree: keyString = @"3"; break;
+        case WebOSTVMouseButtonFour: keyString = @"4"; break;
+        case WebOSTVMouseButtonFive: keyString = @"5"; break;
+        case WebOSTVMouseButtonSix: keyString = @"6"; break;
+        case WebOSTVMouseButtonSeven: keyString = @"7"; break;
+        case WebOSTVMouseButtonEight: keyString = @"8"; break;
+        case WebOSTVMouseButtonNine: keyString = @"9"; break;
+        case WebOSTVMouseButtonMute: keyString = @"MUTE"; break;
+        case WebOSTVMouseButtonPlay: keyString = @"PLAY"; break;
+        case WebOSTVMouseButtonPause: keyString = @"PAUSE"; break;
+        case WebOSTVMouseButtonNext: keyString = @"REWIND"; break;
+        case WebOSTVMouseButtonPrev: keyString = @"FASTFORWARD"; break;
         default:break;
     }
 
