@@ -55,6 +55,7 @@
 - (void) socketDidConnect:(WebOSTVServiceSocketClient *)socket;
 - (void) socket:(WebOSTVServiceSocketClient *)socket didCloseWithError:(NSError *)error;
 - (void) socket:(WebOSTVServiceSocketClient *)socket didFailWithError:(NSError *)error;
+- (void) closeByResponse:(NSError *)error;
 
 @optional
 // TODO : Deprecate this method and rename this to more meaningful one probably socketWillRequirePairingWithPairingType:

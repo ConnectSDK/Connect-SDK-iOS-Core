@@ -1,7 +1,7 @@
 framework module LGCast {
   umbrella header "LGCast.h"
-
   export *
+
   module * { export * }
 }
 

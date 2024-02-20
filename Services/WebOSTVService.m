@@ -420,6 +420,14 @@
         dispatch_on_main(^{ [self.delegate deviceService:self disconnectedWithError:error]; });
 }
 
+// closeByResponse 추가: remoteCameraErrorDidOccur 참고함
+- (void) closeByResponse:(NSError *)error
+{
+    if(_remoteCameraDelegate != nil && [_remoteCameraDelegate respondsToSelector:@selector(remoteCameraAccessDenied)]){
+        [_remoteCameraDelegate remoteCameraAccessDenied];
+    }
+}
+
 #pragma mark - Helper methods
 
 - (NSArray *)permissions
