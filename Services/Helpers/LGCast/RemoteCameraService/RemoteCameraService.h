@@ -34,6 +34,7 @@
 - (void)remoteCameraDidPlay;
 - (void)remoteCameraDidChange:(RemoteCameraProperty)property;
 - (void)remoteCameraErrorDidOccur:(RemoteCameraError)error;
+- (void)remoteCameraAccessDenied;
 
 @end
 

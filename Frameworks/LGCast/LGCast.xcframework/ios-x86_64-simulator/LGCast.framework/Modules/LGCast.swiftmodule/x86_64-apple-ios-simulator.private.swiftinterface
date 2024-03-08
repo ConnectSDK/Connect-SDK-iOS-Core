@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)
+// swift-compiler-version: Apple Swift version 5.9 (swiftlang-5.9.0.128.108 clang-1500.0.40.1)
 // swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name LGCast
 // swift-module-flags-ignorable: -enable-bare-slash-regex
 import AVFoundation
@@ -17,6 +17,7 @@ import UIKit
 import VideoToolbox
 import _Concurrency
 import _StringProcessing
+import _SwiftConcurrencyShims
 @objc public enum LGCastCameraError : Swift.Int {
   case unknown
   case connectionClosed
@@ -55,7 +56,7 @@ import _StringProcessing
     get
   }
   @objc public func isSupportedOsVersion() -> Swift.Bool
-  @objc public func setDelegate(_ delegate: LGCast.LGCastMirroringApiDelegate)
+  @objc public func setDelegate(_ delegate: any LGCast.LGCastMirroringApiDelegate)
   @objc public func setMediaSettings(_ mediaInfo: LGCast.LGCastMirroringMediaSettings?) -> LGCast.LGCastMirroringInfo?
   @objc public func generateMirroringMasterKey(_ publicKey: Swift.String) -> Swift.Array<LGCast.LGCastSecurityKey>?
   @objc public func startMirroring(_ settings: LGCast.LGCastDeviceSettings?)
@@ -195,7 +196,7 @@ import _StringProcessing
   @objc public static let KEY_PREVIEW_VIDEO_GRAVITY: Swift.String
   @objc public static let KEY_IS_SUPPORT_LANDSCAPE_MODE: Swift.String
   @objc public static let shared: LGCast.LGCastCameraApi
-  @objc weak public var delegate: LGCast.LGCastCameraApiDelegate?
+  @objc weak public var delegate: (any LGCast.LGCastCameraApiDelegate)?
   @objc public var isRunning: Swift.Bool {
     get
   }
