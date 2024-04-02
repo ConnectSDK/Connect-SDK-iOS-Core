@@ -227,7 +227,7 @@ NSString *const kRCKeyRotation = @"rotation";
 - (void)onReceiveStopCommand:(NSDictionary *)values {
     [Log infoLGCast:@"onReceiveStopCommand"];
     
-    [[LGCastCameraApi shared] stopRemoteCamera];
+    [[LGCastCameraApi shared] pauseRemoteCamera];
     self.isPlaying = NO;
 }
 

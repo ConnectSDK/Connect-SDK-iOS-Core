@@ -211,6 +211,7 @@ import _SwiftConcurrencyShims
   @objc public func setCameraProperties(property: LGCast.LGCastCameraProperty, value: Swift.Int) -> Swift.Bool
   @objc public func startRemoteCamera(_ settings: LGCast.LGCastDeviceSettings)
   @objc public func stopRemoteCamera()
+  @objc public func pauseRemoteCamera()
   @objc public func getSupportedResolutions() -> [LGCast.LGCastCameraResolutionInfo]
   @objc public func getCurrentResolution() -> LGCast.LGCastCameraResolutionInfo
   @objc public func setResolution(_ resolution: LGCast.LGCastCameraResolutionInfo) -> Swift.Bool

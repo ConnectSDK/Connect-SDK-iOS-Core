@@ -361,6 +361,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LGCastCamera
 - (BOOL)setCameraPropertiesWithProperty:(enum LGCastCameraProperty)property value:(NSInteger)value SWIFT_WARN_UNUSED_RESULT;
 - (void)startRemoteCamera:(LGCastDeviceSettings * _Nonnull)settings;
 - (void)stopRemoteCamera;
+- (void)pauseRemoteCamera;
 - (NSArray<LGCastCameraResolutionInfo *> * _Nonnull)getSupportedResolutions SWIFT_WARN_UNUSED_RESULT;
 - (LGCastCameraResolutionInfo * _Nonnull)getCurrentResolution SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)setResolution:(LGCastCameraResolutionInfo * _Nonnull)resolution SWIFT_WARN_UNUSED_RESULT;
