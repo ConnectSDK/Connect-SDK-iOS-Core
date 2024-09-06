@@ -136,8 +136,9 @@
 		[self raiseError];
 		return;
 	}
-
-	_dispatchSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, theSocketDescriptor, 0, self.workQueue);
+    __strong __typeof__(self) strongSelf = self;
+    if (strongSelf == nil) return;
+    _dispatchSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, theSocketDescriptor, 0, strongSelf.workQueue);
 	_socket = theSocketDescriptor;
 	__weak __typeof__(self) weakSelf = self;
 	dispatch_source_set_event_handler(self->_dispatchSource,
