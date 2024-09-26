@@ -76,7 +76,7 @@ static double searchAttemptsBeforeKill = 6.0;
         _locationLoadQueue = [[NSOperationQueue alloc] init];
         _locationLoadQueue.maxConcurrentOperationCount = 10;
         
-        _socketQueue = dispatch_queue_create("ssdp.open", DISPATCH_QUEUE_CONCURRENT);
+        _socketQueue = dispatch_queue_create("ssdp.open", DISPATCH_QUEUE_SERIAL);
         self.isRunning = NO;
     }
     
