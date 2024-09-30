@@ -227,7 +227,7 @@ static double searchAttemptsBeforeKill = 6.0;
     NSData *message = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(theSearchRequest));
     
     __weak typeof(self) weakSelf = self;
-    dispatch_async(self.socketQueue, ^{
+    dispatch_sync(self.socketQueue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!_searchSocket) {
             _searchSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:0];
@@ -236,7 +236,7 @@ static double searchAttemptsBeforeKill = 6.0;
         }
     });
 
-    dispatch_async(self.socketQueue, ^{
+    dispatch_sync(self.socketQueue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!_multicastSocket) {
             _multicastSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:kSSDP_port];
