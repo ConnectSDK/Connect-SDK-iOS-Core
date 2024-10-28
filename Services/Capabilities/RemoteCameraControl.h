@@ -61,6 +61,7 @@ typedef NS_ENUM(int, RemoteCameraError) {
 - (void)remoteCameraDidPlay;
 - (void)remoteCameraDidChange:(RemoteCameraProperty)property;
 - (void)remoteCameraErrorDidOccur:(RemoteCameraError)error;
+- (void)remoteCameraAccessDenied;
 
 @end
 

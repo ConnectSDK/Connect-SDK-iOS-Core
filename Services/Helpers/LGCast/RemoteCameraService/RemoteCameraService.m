@@ -91,18 +91,6 @@ NSString *const kRCKeyRotation = @"rotation";
         self.isRunning = YES;
         self.isPlaying = NO;
         previewView = [[LGCastCameraApi shared] createCameraPreviewView:nil];
-
-        if (settings != nil) {
-            if (settings[kRemoteCameraSettingsMicMute] != nil) {
-                bool isMicMute = [settings[kRemoteCameraSettingsMicMute] boolValue];
-                [[LGCastCameraApi shared] muteMicrophone:isMicMute];
-            }
-            
-            if (settings[kRemoteCameraSettingsLensFacing] != nil ) {
-                int lensFacing = [settings[kRemoteCameraSettingsLensFacing] intValue];
-                [[LGCastCameraApi shared] changeCameraPosition:lensFacing];
-            }
-        }
         
         [self updateCameraParameter];
         [_connectionManager openConnection:kServiceTypeRemoteCamera device:device];
@@ -239,7 +227,7 @@ NSString *const kRCKeyRotation = @"rotation";
 - (void)onReceiveStopCommand:(NSDictionary *)values {
     [Log infoLGCast:@"onReceiveStopCommand"];
     
-    [[LGCastCameraApi shared] stopRemoteCamera];
+    [[LGCastCameraApi shared] pauseRemoteCamera];
     self.isPlaying = NO;
 }
 

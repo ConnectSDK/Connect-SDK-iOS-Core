@@ -51,6 +51,7 @@ NSString* machineName()
     NSMutableDictionary *_helloDevices;
     NSOperationQueue *_locationLoadQueue;
 }
+@property (strong, nonatomic) dispatch_queue_t socketQueue;
 
 @end
 
@@ -75,6 +76,7 @@ static double searchAttemptsBeforeKill = 6.0;
         _locationLoadQueue = [[NSOperationQueue alloc] init];
         _locationLoadQueue.maxConcurrentOperationCount = 10;
         
+        _socketQueue = dispatch_queue_create("ssdp.open", DISPATCH_QUEUE_SERIAL);
         self.isRunning = NO;
     }
     
@@ -224,19 +226,24 @@ static double searchAttemptsBeforeKill = 6.0;
 
     NSData *message = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(theSearchRequest));
     
-    if (!_searchSocket)
-    {
-		_searchSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:0];
-		_searchSocket.delegate = self;
-        [_searchSocket open];
-    }
+    __weak typeof(self) weakSelf = self;
+    dispatch_sync(self.socketQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!_searchSocket) {
+            _searchSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:0];
+            _searchSocket.delegate = strongSelf;
+            [_searchSocket open];
+        }
+    });
 
-    if (!_multicastSocket)
-    {
-		_multicastSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:kSSDP_port];
-		_multicastSocket.delegate = self;
-        [_multicastSocket open];
-    }
+    dispatch_sync(self.socketQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!_multicastSocket) {
+            _multicastSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:kSSDP_port];
+            _multicastSocket.delegate = strongSelf;
+            [_multicastSocket open];
+        }
+    });
 
     [_searchSocket sendData:message toAddress:kSSDP_multicast_address andPort:kSSDP_port];
     [self performBlock:^{ [_searchSocket sendData:message toAddress:kSSDP_multicast_address andPort:kSSDP_port]; } afterDelay:1];
