@@ -38,8 +38,10 @@
 #import "AppStateChangeNotifier.h"
 
 #import <SystemConfiguration/CaptiveNetwork.h>
+#import <CoreLocation/CoreLocation.h>
 
 @interface DiscoveryManager() <DiscoveryProviderDelegate, ServiceConfigDelegate>
+@property(strong, nonatomic) CLLocationManager* locationManager;
 
 @end
 
@@ -130,6 +132,9 @@
             typeof(self) sself = wself;
             [sself resumeDiscovery];
         };
+
+        _locationManager = [[CLLocationManager alloc] init];
+        [_locationManager requestWhenInUseAuthorization];
 
         [self startSSIDTimer];
     }
@@ -244,6 +249,8 @@
 
 - (void) startSSIDTimer
 {
+    [_ssidTimer invalidate];
+
     _ssidTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(detectSSIDChange) userInfo:nil repeats:YES];
     [_ssidTimer fire];
 }
@@ -256,6 +263,10 @@
 
 - (void) detectSSIDChange
 {
+    if ([_locationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined ||
+        [_locationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return;
+    }
     NSArray *interfaces = (__bridge_transfer id) CNCopySupportedInterfaces();
 
     __block NSString *ssidName;
