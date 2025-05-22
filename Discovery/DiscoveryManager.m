@@ -493,6 +493,7 @@
     if (!_shouldResumeSearch)
     {
         [self.appStateChangeNotifier stopListening];
+        [self stopSSIDTimer];
     }
 }
 
