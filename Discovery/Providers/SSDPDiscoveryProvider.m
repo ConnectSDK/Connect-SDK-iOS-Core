@@ -101,11 +101,19 @@ static double searchAttemptsBeforeKill = 6.0;
     if (_refreshTimer)
         [_refreshTimer invalidate];
     
-    if (_searchSocket)
-        [_searchSocket close];
-
-    if (_multicastSocket)
-        [_multicastSocket close];
+    dispatch_sync(self.socketQueue, ^{
+        if (_searchSocket) {
+            [_searchSocket close];
+            _searchSocket = nil;
+        }
+    });
+    
+    dispatch_sync(self.socketQueue, ^{
+        if (_multicastSocket) {
+            [_multicastSocket close];
+            _multicastSocket = nil;
+        }
+    });
 
     _foundServices = [NSMutableDictionary new];
     _helloDevices = [NSMutableDictionary new];
@@ -113,8 +121,6 @@ static double searchAttemptsBeforeKill = 6.0;
     
     self.isRunning = NO;
     
-    _searchSocket = nil;
-    _multicastSocket = nil;
     _refreshTimer = nil;
 }
 
@@ -226,21 +232,18 @@ static double searchAttemptsBeforeKill = 6.0;
 
     NSData *message = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(theSearchRequest));
     
-    __weak typeof(self) weakSelf = self;
     dispatch_sync(self.socketQueue, ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!_searchSocket) {
             _searchSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:0];
-            _searchSocket.delegate = strongSelf;
+            _searchSocket.delegate = self;
             [_searchSocket open];
         }
     });
 
     dispatch_sync(self.socketQueue, ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!_multicastSocket) {
             _multicastSocket = [[SSDPSocketListener alloc] initWithAddress:kSSDP_multicast_address andPort:kSSDP_port];
-            _multicastSocket.delegate = strongSelf;
+            _multicastSocket.delegate = self;
             [_multicastSocket open];
         }
     });

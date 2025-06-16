@@ -40,7 +40,7 @@
 #import <SystemConfiguration/CaptiveNetwork.h>
 
 @interface DiscoveryManager() <DiscoveryProviderDelegate, ServiceConfigDelegate>
-
+@property (nonatomic, strong) dispatch_queue_t discoveryProviderQueue;
 @end
 
 @implementation DiscoveryManager
@@ -99,6 +99,7 @@
 }
 
 - (instancetype)init {
+    _discoveryProviderQueue = dispatch_queue_create("com.connectsdk.discoveryProviderQueue", DISPATCH_QUEUE_SERIAL);
     return [self initWithAppStateChangeNotifier:nil];
 }
 
@@ -172,20 +173,24 @@
     // FIXME don't create new provider unless necessary
     DiscoveryProvider *newDiscoveryProvider = providerFactory();
     
-    [_discoveryProviders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[obj class] isSubclassOfClass:[newDiscoveryProvider class]])
-        {
-            discoveryProvider = obj;
-            *stop = YES;
-        }
-    }];
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        [self->_discoveryProviders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[obj class] isSubclassOfClass:[newDiscoveryProvider class]])
+            {
+                discoveryProvider = obj;
+                *stop = YES;
+            }
+        }];
+    });
     
-    if (discoveryProvider == nil)
-    {
-        discoveryProvider = newDiscoveryProvider;
-        discoveryProvider.delegate = self;
-        _discoveryProviders = [_discoveryProviders arrayByAddingObject:discoveryProvider];
-    }
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        if (discoveryProvider == nil)
+        {
+            discoveryProvider = newDiscoveryProvider;
+            discoveryProvider.delegate = self;
+            _discoveryProviders = [_discoveryProviders arrayByAddingObject:discoveryProvider];
+        }
+    });
     
     NSDictionary *discoveryParameters = [deviceClass discoveryParameters];
     
@@ -208,13 +213,15 @@
     
     __block DiscoveryProvider *discoveryProvider;
     
-    [_discoveryProviders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[obj class] isSubclassOfClass:discoveryClass])
-        {
-            discoveryProvider = obj;
-            *stop = YES;
-        }
-    }];
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        [self->_discoveryProviders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[obj class] isSubclassOfClass:discoveryClass])
+            {
+                discoveryProvider = obj;
+                *stop = YES;
+            }
+        }];
+    });
     
     if (discoveryProvider == nil)
         return;
@@ -229,15 +236,17 @@
     
     [discoveryProvider removeDeviceFilter:discoveryParameters];
     
-    if ([discoveryProvider isEmpty])
-    {
-        [discoveryProvider stopDiscovery];
-        discoveryProvider.delegate = nil;
-
-        NSMutableArray *mutableProviders = [NSMutableArray arrayWithArray:_discoveryProviders];
-        [mutableProviders removeObject:discoveryProvider];
-        _discoveryProviders = [NSArray arrayWithArray:mutableProviders];
-    }
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        if ([discoveryProvider isEmpty])
+        {
+            [discoveryProvider stopDiscovery];
+            discoveryProvider.delegate = nil;
+            
+            NSMutableArray *mutableProviders = [NSMutableArray arrayWithArray:_discoveryProviders];
+            [mutableProviders removeObject:discoveryProvider];
+            _discoveryProviders = [NSArray arrayWithArray:mutableProviders];
+        }
+    });
 }
 
 #pragma mark - Wireless SSID Change Detection
@@ -303,11 +312,12 @@
         if (self.devicePicker)
             [self.devicePicker discoveryManager:self didLoseDevice:device];
     }];
-    
-    [_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *provider, NSUInteger idx, BOOL *stop) {
-        [provider stopDiscovery];
-        [provider startDiscovery];
-    }];
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        [self->_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *provider, NSUInteger idx, BOOL *stop) {
+            [provider stopDiscovery];
+            [provider startDiscovery];
+        }];
+    });
 
     _allDevices = [NSMutableDictionary new];
     _compatibleDevices = [NSMutableDictionary new];
@@ -460,10 +470,11 @@
         [self registerDefaultServices];
 
     _searching = YES;
-    
-    [_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *service, NSUInteger idx, BOOL *stop) {
-        [service startDiscovery];
-    }];
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        [self->_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *service, NSUInteger idx, BOOL *stop) {
+            [service startDiscovery];
+        }];
+    });
 
     [self.appStateChangeNotifier startListening];
 }
@@ -475,9 +486,11 @@
 
     _searching = NO;
     
-    [_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *service, NSUInteger idx, BOOL *stop) {
-        [service stopDiscovery];
-    }];
+    dispatch_sync(self.discoveryProviderQueue, ^{
+        [self->_discoveryProviders enumerateObjectsUsingBlock:^(DiscoveryProvider *service, NSUInteger idx, BOOL *stop) {
+            [service stopDiscovery];
+        }];
+    });
     
     if (!_shouldResumeSearch)
     {
