@@ -139,11 +139,10 @@
     __strong __typeof__(self) strongSelf = self;
     if (strongSelf == nil) return;
     _dispatchSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, theSocketDescriptor, 0, strongSelf.workQueue);
+    dispatch_source_t localSource = _dispatchSource;
 	_socket = theSocketDescriptor;
-	__weak __typeof__(self) weakSelf = self;
-	dispatch_source_set_event_handler(self->_dispatchSource,
+	dispatch_source_set_event_handler(localSource,
 		^{
-			__typeof__(self) strongSelf = weakSelf;
 			if (strongSelf == nil) return;
 			if (!strongSelf->_socket || !strongSelf->_dispatchSource)
 			{
@@ -153,7 +152,7 @@
 
 			struct sockaddr_in theIncomingAddr;
 			memset(&theIncomingAddr, 0, sizeof(theIncomingAddr));
-			size_t theDataSize = dispatch_source_get_data(strongSelf->_dispatchSource);
+			size_t theDataSize = dispatch_source_get_data(localSource);
 			size_t maxDataSize = 65535;
 			char theBuffer[maxDataSize];
 			int theLastReceiveBytes = 0;
@@ -179,12 +178,12 @@
 			}
 		});
 
-	dispatch_source_set_cancel_handler(self->_dispatchSource,
+	dispatch_source_set_cancel_handler(localSource,
 		^{
-			close(self->_socket);
+			close(strongSelf->_socket);
 		});
 	
-	dispatch_resume(self->_dispatchSource);
+	dispatch_resume(localSource);
 }
 
 
