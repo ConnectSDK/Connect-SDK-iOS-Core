@@ -46,11 +46,11 @@ NSString* machineName()
     NSArray *_serviceFilters;
     NSMutableDictionary *_foundServices;
 
-    NSTimer *_refreshTimer;
-
     NSMutableDictionary *_helloDevices;
     NSOperationQueue *_locationLoadQueue;
 }
+@property (nonatomic, strong) dispatch_source_t refreshTimer;
+
 @property (strong, nonatomic) dispatch_queue_t socketQueue;
 
 @end
@@ -98,8 +98,8 @@ static double searchAttemptsBeforeKill = 6.0;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
-    if (_refreshTimer)
-        [_refreshTimer invalidate];
+    if (self.refreshTimer)
+        dispatch_source_cancel(self.refreshTimer);
     
     dispatch_sync(self.socketQueue, ^{
         if (_searchSocket) {
@@ -121,16 +121,25 @@ static double searchAttemptsBeforeKill = 6.0;
     
     self.isRunning = NO;
     
-    _refreshTimer = nil;
+    self.refreshTimer = nil;
 }
 
-- (void) start
-{
-    if (_refreshTimer == nil)
-    {
-        _refreshTimer = [NSTimer scheduledTimerWithTimeInterval:refreshTime target:self selector:@selector(sendSearchRequests:) userInfo:nil repeats:YES];
-        
+- (void)start {
+    if (self.refreshTimer == nil) {
         [self sendSearchRequests:NO];
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        self.refreshTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+        dispatch_source_set_timer(self.refreshTimer,
+                                  dispatch_time(DISPATCH_TIME_NOW, refreshTime * NSEC_PER_SEC),
+                                  refreshTime * NSEC_PER_SEC,
+                                  0.1 * NSEC_PER_SEC);
+ 
+        __weak typeof(self) weakSelf = self;
+        dispatch_source_set_event_handler(self.refreshTimer, ^{
+            [weakSelf sendSearchRequests:NO];
+        });
+ 
+        dispatch_resume(self.refreshTimer);
     }
 }
 
@@ -263,20 +272,20 @@ static double searchAttemptsBeforeKill = 6.0;
 {
     // Try to create a HTTPMessage from received data.
     
-	CFHTTPMessageRef theHTTPMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, TRUE);
-	CFHTTPMessageAppendBytes(theHTTPMessage, aData.bytes, aData.length);
+    CFHTTPMessageRef theHTTPMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, TRUE);
+    CFHTTPMessageAppendBytes(theHTTPMessage, aData.bytes, aData.length);
 
     // We awaiting for receiving a complete header. If it not - just skip it.
-	if (CFHTTPMessageIsHeaderComplete(theHTTPMessage))
-	{
+    if (CFHTTPMessageIsHeaderComplete(theHTTPMessage))
+    {
         
         // Receive some important data from the header
-		NSString *theRequestMethod = CFBridgingRelease (CFHTTPMessageCopyRequestMethod(theHTTPMessage));
-		NSInteger theCode = CFHTTPMessageGetResponseStatusCode(theHTTPMessage);
-		NSDictionary *theHeaderDictionary = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(theHTTPMessage));
+        NSString *theRequestMethod = CFBridgingRelease (CFHTTPMessageCopyRequestMethod(theHTTPMessage));
+        NSInteger theCode = CFHTTPMessageGetResponseStatusCode(theHTTPMessage);
+        NSDictionary *theHeaderDictionary = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(theHTTPMessage));
         
-		BOOL isNotify = [theRequestMethod isEqualToString:@"NOTIFY"];
-		NSString *theType = (isNotify) ? theHeaderDictionary[@"NT"] : theHeaderDictionary[@"ST"];
+        BOOL isNotify = [theRequestMethod isEqualToString:@"NOTIFY"];
+        NSString *theType = (isNotify) ? theHeaderDictionary[@"NT"] : theHeaderDictionary[@"ST"];
         
         // There is 3 possible methods in SSDP:
         // 1) M-SEARCH - for search requests - skip it
@@ -375,10 +384,10 @@ static double searchAttemptsBeforeKill = 6.0;
                     }
                 }
             }
-		}
-	}
+        }
+    }
     
-	CFRelease(theHTTPMessage);
+    CFRelease(theHTTPMessage);
 }
 
 - (void) getLocationData:(NSString*)url forKey:(NSString*)UUID andType:(NSString *)theType
