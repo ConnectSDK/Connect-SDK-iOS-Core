@@ -257,9 +257,28 @@ static double searchAttemptsBeforeKill = 6.0;
         }
     });
 
-    [_searchSocket sendData:message toAddress:kSSDP_multicast_address andPort:kSSDP_port];
-    [self performBlock:^{ [_searchSocket sendData:message toAddress:kSSDP_multicast_address andPort:kSSDP_port]; } afterDelay:1];
-    [self performBlock:^{ [_searchSocket sendData:message toAddress:kSSDP_multicast_address andPort:kSSDP_port]; } afterDelay:2];
+    dispatch_async(self.socketQueue, ^{
+        // immediate send
+        [_searchSocket sendData:message
+                      toAddress:kSSDP_multicast_address
+                        andPort:kSSDP_port];
+        
+        // send after 1 s
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
+                       self.socketQueue, ^{
+            [_searchSocket sendData:message
+                          toAddress:kSSDP_multicast_address
+                            andPort:kSSDP_port];
+        });
+        
+        // send after 2 s
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
+                       self.socketQueue, ^{
+            [_searchSocket sendData:message
+                          toAddress:kSSDP_multicast_address
+                            andPort:kSSDP_port];
+        });
+    });
     
     CFRelease(theSearchRequest);
 }
@@ -623,3 +642,4 @@ containingRequiredServices:requiredServices];
 }
 
 @end
+
