@@ -1,6 +1,0 @@
-framework module GStreamerForLGCast {
-  umbrella header "GStreamerForLGCast.h"
-  export *
-
-  module * { export * }
-}
