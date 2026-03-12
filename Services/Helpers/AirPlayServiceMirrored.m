@@ -515,7 +515,7 @@
 
 - (void)webViewDidFinishLoad:(WKWebView *)webView
 {
-    DLog(@"%@", webView.request.URL.absoluteString);
+    DLog(@"%@", webView.URL.absoluteString);
 
     if (self.launchSuccessBlock)
         self.launchSuccessBlock(nil);
@@ -526,7 +526,7 @@
 
 - (void)webViewDidStartLoad:(WKWebView *)webView
 {
-    DLog(@"%@", webView.request.URL.absoluteString);
+    DLog(@"%@", webView.URL.absoluteString);
 }
 
 @end

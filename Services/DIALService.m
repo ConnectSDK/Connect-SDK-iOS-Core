@@ -408,6 +408,9 @@ static NSMutableArray *registeredApps = nil;
 
 - (void) launchYouTube:(NSString *)contentId startTime:(float)startTime success:(AppLaunchSuccessBlock)success failure:(FailureBlock)failure
 {
+    AppInfo *appInfo = [AppInfo appInfoForId:@"YouTube"];
+    appInfo.name = appInfo.id;
+    
     NSString *params;
 
     if (contentId && contentId.length > 0) {
@@ -419,23 +422,30 @@ static NSMutableArray *registeredApps = nil;
             return;
         }
 
-        // YouTube on some platforms requires a pairing code, which may be a random string
-        NSString *pairingCode = [[CTGuid randomGuid] stringValue];
-
-        params = [NSString stringWithFormat:@"pairingCode=%@&v=%@&t=%.1f", pairingCode, contentId, startTime];
+        params = [NSString stringWithFormat:@"v=%@&t=%.1f", contentId, startTime];
     }
 
-    AppInfo *appInfo = [AppInfo appInfoForId:@"YouTube"];
-    appInfo.name = appInfo.id;
-    
-    [self.launcher launchAppWithInfo:appInfo params:(id)params success:^(LaunchSession *launchSession)
-    {
+    [self.launcher launchAppWithInfo:appInfo params:(id)params success:^(LaunchSession *launchSession) {
         if (success)
             success(launchSession);
-    } failure:^(NSError *error)
-    {
-        if (failure)
+    } failure:^(NSError *error) {
+        
+        if (params) {
+            // YouTube on some platforms requires a pairing code, which may be a random string.
+            // Let's retry once more
+            NSString *pairingCode = [[CTGuid randomGuid] stringValue];
+            NSString *paramsWithCode = [NSString stringWithFormat:@"pairingCode=%@&%@", pairingCode, params];
+            [self.launcher launchAppWithInfo:appInfo params:(id)paramsWithCode success:^(LaunchSession *launchSession) {
+                if (success)
+                    success(launchSession);
+            } failure:^(NSError *error) {
+               if (failure)
+                   failure(error);
+            }];
+            
+        } else if (failure) {
             failure(error);
+        }
     }];
 }
 
